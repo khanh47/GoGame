@@ -1,0 +1,16 @@
+# Saved files
+savegame.json
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+
+makefile
+Makefile
+CMakeLists.txt
+/.vscode
+
