@@ -8,7 +8,7 @@ A modern implementation of the traditional **Go** board game featuring a simple,
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-  - [1. Install MinGW](#1-install-mingw)
+  - [1. Install MSYS2](#1-install-MSYS2)
   - [2. Install Raylib](#2-install-raylib)
   - [3. Clone the repository](#3-clone-the-repository)
 - [Building](#building)
@@ -52,8 +52,8 @@ It focuses on clarity and modularity, demonstrating a clean object-oriented arch
 Download from https://www.msys2.org
 ```
 
-### 2. Install Raylib & make
-## Open MSYS2 UCRT64
+### 2. Install Raylib
+# Open MSYS2 UCRT64
 ```bash
 # Make sure to update MSYS2
 pacman -Syu
