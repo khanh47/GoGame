@@ -40,36 +40,32 @@ It focuses on clarity and modularity, demonstrating a clean object-oriented arch
 
 **Windows** — required tools:
 
-- **MinGW-w64** (C++17 compatible) — or MSYS2 toolchain  
-- **Raylib** (MinGW build or compatible)  
-- **make** (provided by MinGW/MSYS2)  
-- **git** (optional, for cloning/pushing)
+- **C++20 Compatible Compiler:** GCC or Clang
+- **Raylib:** Graphics and audio library
 
 ---
 
 ## Installation
 
-### 1. Install MinGW
-Install MinGW-w64 or use MSYS2. Ensure `g++` are available in your PATH:
-
-```bash
-g++ --version
-```
-
-### 2. Install MSYS2 (if not already installed)
+### 1. Install MSYS2
 ```bash
 Download from https://www.msys2.org
 ```
 
-### 3. Install Dependencies
+### 2. Install Raylib & make
+## Open MSYS2 UCRT64
 ```bash
-# Update the Package Database 
+# Make sure to update MSYS2
 pacman -Syu
+
 # Install Raylib graphics library
 pacman -S mingw-w64-x86_64-raylib
+
+# Install make
+pacman -S make
 ```
 
-### 4. Clone the Repository
+### 3. Clone the Repository
 ```bash
 git clone https://github.com/khanh47/GoGame.git
 cd GoGame
@@ -99,9 +95,6 @@ make compile
 make clean
 ```
 
-### Manual Compilation
-If you prefer manual compilation or need to debug build issues:
-
 ## Running
 
 After successful compilation:
@@ -126,18 +119,20 @@ make compile
 
 ```
 GoGame/
-├── assets/               # Optional: images, sounds, screenshot
+├── src/                  # Main source code files
+│   ├── main.cpp          # Entry point of the application
+│   ├── Game.cpp          # Game logic implementation
+│   ├── Board.cpp         # Board representation and logic
+│   ├── UI.cpp            # User Interface implementation
+│   └── AI.cpp            # AI opponent logic
 ├── include/              # Header files
-│   ├── Game.h
-│   ├── Board.h
-│   ├── UI.h
-│   └── AI.h
-├── src/                  # Source files
-│   ├── main.cpp          # Entry point
-│   ├── Game.cpp          # Core game logic
-│   ├── Board.cpp
-│   ├── UI.cpp
-│   └── AI.cpp
+│   ├── Game.h            # Header for game logic
+│   ├── Board.h           # Header for chessboard representation
+│   ├── UI.h              # Header for UI components
+│   └── AI.h              # Header for AI logic
+├── assets/               # Optional: images, sounds, screenshot
+│   ├── stones/           # Chess stone images
+│   └── sounds/           # Sound effects and music files
 ├── Makefile              # Build configuration
 └── README.md             # This file
 
@@ -154,20 +149,31 @@ GoGame/
 Verify include and lib paths point to your Raylib installation:
 
 ```makefile
-INCLUDE = -I"C:/msys64/mingw64/include"
-LIBS = -L"C:/msys64/mingw64/lib" -lraylib -lopengl32 -lgdi32 -lwinmm
+INCLUDE = -I"C:/msys64/ucrt64/include"
+LIBS = -L"C:/msys64/ucrt64/lib" -lraylib -lopengl32 -lgdi32 -lwinmm
 
 ### Common Build Issues
 
 #### 1. Raylib Not Found
 ```bash
 # Verify Raylib installation
-brew list raylib
+pacman -Qs raylib
 # If not installed:
-brew install raylib
+pacman -S mingw-w64-x86_64-raylib
 ```
 
-#### 2. Compiler Not Found
+#### 2. make Not Found
+```bash
+# Verify make installation
+make --version
+# If not installed:
+pacman -S make
+
+# Put make installation path in Environment Variables
+where make
+```
+
+#### 3. Compiler Not Found
 ```bash
 # Verify GCC/Clang
 g++ --version
