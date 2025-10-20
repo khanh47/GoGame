@@ -53,7 +53,7 @@ Download from https://www.msys2.org
 ```
 
 ### 2. Install Raylib
-# Open MSYS2 UCRT64
+#### Open MSYS2 UCRT64
 ```bash
 # Make sure to update MSYS2
 pacman -Syu
