@@ -1,5 +1,6 @@
 #include "Board.h"
 #include "raylib.h"
+#include "colors.h"
 #include <cmath>
 
 Board::Board(int rows, int cols)
@@ -7,6 +8,7 @@ Board::Board(int rows, int cols)
     numRows = rows;
     numCols = cols;
     grid.resize(rows, std::vector<int>(cols, 0));
+    cellSize = 36;   
 }
 
 Board::~Board()
@@ -15,63 +17,29 @@ Board::~Board()
 
 void Board::Draw()
 {
-    int screenWidth = GetScreenWidth();
-    int screenHeight = GetScreenHeight();
-
-    float targetZoneWidth = screenWidth * 0.7f;
-    float targetZoneHeight = screenHeight * 0.8f;
-
-    float cellSizeBasedOnWidth = targetZoneWidth / (numCols - 1);
-    float cellSizeBasedOnHeight = targetZoneHeight / (numRows - 1);
-
-    int cellSize = (int)fmin(cellSizeBasedOnWidth, cellSizeBasedOnHeight);
-
-    float boardWidth = (numCols - 1) * cellSize;
-    float boardHeight = (numRows - 1) * cellSize;
-
-    float startX = (targetZoneWidth - boardWidth) / 2.0f; 
-    float startY = (screenHeight - boardHeight) / 2.0f;
-
-    DrawRectangle(startX - cellSize, startY - cellSize, boardWidth + cellSize * 2, boardHeight + cellSize * 2, Color{ 210, 180, 140, 255 });
-    DrawRectangleLinesEx(Rectangle{startX - cellSize, startY - cellSize, boardWidth + cellSize * 2, boardHeight + cellSize * 2}, 1.0f, BLACK);
-
-    for (int i = 0; i < numRows; i++) {
-        DrawLine(
-            startX,
-            startY + i * cellSize,
-            startX + boardWidth,
-            startY + i * cellSize,
-            BLACK
-        );
+    const int padding = 36;
+    Rectangle recBorderLines = {(float) padding, (float) padding, (float) (numCols + 1) * cellSize, (float) (numRows + 1) * cellSize};
+    DrawRectangle(padding, padding, (numCols + 1) * cellSize, (numRows + 1) * cellSize, lightBrown);
+    DrawRectangleLinesEx(recBorderLines, 1, BLACK);
+    for (int i = 1; i <= numRows; i++)
+    {
+        DrawLine(padding + cellSize, padding + i * cellSize, padding + numRows * cellSize, padding + i * cellSize, BLACK);
     }
-
-    for (int j = 0; j < numCols; j++) {
-        DrawLine(
-            startX + j * cellSize,
-            startY,
-            startX + j * cellSize,
-            startY + boardHeight,
-            BLACK
-        );
+    for (int i = 1; i <= numCols; i++)
+    {
+        DrawLine(padding + i * cellSize, padding + cellSize, padding + i * cellSize, padding + numRows * cellSize, BLACK);
     }
-
-    for (int i = 0; i < numRows; i++) {
-        for (int j = 0; j < numCols; j++) {
-            if (grid[i][j] == 1) {
-                DrawCircle(
-                    startX + j * cellSize,
-                    startY + i * cellSize,
-                    cellSize * 0.4f,
-                    BLACK
-                );
-            }
-            else if (grid[i][j] == 2) {
-                DrawCircle(
-                    startX + j * cellSize,
-                    startY + i * cellSize,
-                    cellSize * 0.4f,
-                    WHITE
-                );
+    float radius = cellSize * 0.4f;
+    for (int i = 0; i < numRows; i++)
+    {
+        for (int j = 0; j < numCols; j++)
+        {
+            float x = padding + (i + 1) * cellSize;
+            float y = padding + (j + 1) * cellSize;
+            if (grid[i][j])
+            {   
+                DrawCircleV(Vector2{x + 2, y + 2}, radius, {0, 0, 0, 100});
+                DrawCircle(x, y, radius, grid[i][j] == 1 ? WHITE : BLACK);
             }
         }
     }
@@ -90,4 +58,9 @@ int Board::GetValue(int row, int col)
         return grid[row][col];
     }
     return -1;
+}
+
+bool Board::IsCellInside(int row, int col)
+{
+    return row >= 0 && row < numRows && col >= 0 && col < numCols;
 }

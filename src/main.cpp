@@ -4,10 +4,9 @@
 int main() {
     // int display = GetCurrentMonitor();
     
-    int screenWidth = 800;
-    int screenHeight = 600;
+    int screenWidth = 1200;
+    int screenHeight = 800;
 
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "Go Game");
 
     SetTargetFPS(60);
@@ -19,7 +18,8 @@ int main() {
         ClearBackground(GRAY);
 
         game.Draw();
-
+        game.HandleInput();
+        
         EndDrawing();
     }
     
