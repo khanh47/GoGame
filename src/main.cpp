@@ -1,16 +1,25 @@
 #include "raylib.h"
+#include "Game.h"
 
 int main() {
-    const int screenWidth = 800;
-    const int screenHeight = 600;
+    // int display = GetCurrentMonitor();
+    
+    int screenWidth = 800;
+    int screenHeight = 600;
 
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(screenWidth, screenHeight, "Go Game");
+
     SetTargetFPS(60);
+
+    Game game(19, 19);
 
     while (!WindowShouldClose()) {
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("This is GoGame", 300, 250, 20, LIGHTGRAY);
+        ClearBackground(GRAY);
+
+        game.Draw();
+
         EndDrawing();
     }
     

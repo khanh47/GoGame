@@ -52,7 +52,7 @@ It focuses on clarity and modularity, demonstrating a clean object-oriented arch
 Download from https://www.msys2.org
 ```
 
-### 2. Install Raylib
+### 2. Install Dependencies
 #### Open MSYS2 UCRT64
 ```bash
 # Make sure to update MSYS2
@@ -63,6 +63,9 @@ pacman -S mingw-w64-x86_64-raylib
 
 # Install make
 pacman -S make
+
+# Install gcc
+pacman -S mingw-w64-x86_64-gcc
 ```
 
 ### 3. Clone the Repository
