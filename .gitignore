@@ -9,6 +9,9 @@ savegame.json
 # Executables
 *.exe
 
+# Build files
+build
+
 makefile
 Makefile
 CMakeLists.txt

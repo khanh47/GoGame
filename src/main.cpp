@@ -17,7 +17,7 @@ int main() {
         BeginDrawing();
         ClearBackground(GRAY);
 
-        game.Draw();
+        game.render();
         game.HandleInput();
         
         EndDrawing();

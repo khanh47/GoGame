@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "raylib.h"
-#include "colors.h"
+#include "Board.h"
+#include "components/colors.h"
 #include <iostream>
 #include <cmath>
 #include <iostream>
@@ -18,9 +19,9 @@ Game::~Game()
 {
 }
 
-void Game::Draw()
+void Game::render()
 {
-    grid.Draw();
+    grid.render();
 }
 
 void Game::HandleInput()
@@ -28,21 +29,18 @@ void Game::HandleInput()
     if (IsGameOver)
         return;
     Vector2 mousePos = GetMousePosition();
-    int cellSize = 36;
-    int padding = 36;
-    float radius = cellSize * 0.4f;
-    int row = (int)round((mousePos.x - cellSize - padding) / cellSize);
-    int col = (int)round((mousePos.y - cellSize - padding) / cellSize);
-    if (grid.IsCellInside(row, col) && grid.GetValue(row, col) == 0)
+    int row = (int)round((mousePos.x - CELL_SIZE - PADDING) / CELL_SIZE);
+    int col = (int)round((mousePos.y - CELL_SIZE - PADDING) / CELL_SIZE);
+    if (grid.isCellInside(row, col) && grid.getValue(row, col) == 0)
     {
-        DrawCircle(padding + (row + 1) * cellSize, padding + (col + 1) * cellSize, radius, CurrentPlayer ? blackHue : whiteHue);
+        grid.renderGhostStones(row, col, CurrentPlayer);
     }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        if (grid.IsCellInside(row, col) && grid.GetValue(row, col) == 0)
+        if (grid.isCellInside(row, col) && grid.getValue(row, col) == 0)
         {
-            grid.SetValue(row, col, CurrentPlayer + 1);
-            CurrentPlayer ^= 1;
+            grid.setValue(row, col, CurrentPlayer);
+            CurrentPlayer = CurrentPlayer == 1 ? 2 : 1;
         }
     }
 }
