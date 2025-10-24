@@ -1,24 +1,26 @@
 #include "raylib.h"
-#include "Game.h"
+#include "SceneManager.h"
+#include "ResourceManager.h"
+#include "GameState.h"
 
 int main() {
-    // int display = GetCurrentMonitor();
-    
     int screenWidth = 1200;
     int screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "Go Game");
-
     SetTargetFPS(60);
 
-    Game game(19, 19);
+    ResourceManager &resourceManager = ResourceManager::getInstance();
+    GameStateModel gamestate;
+    SceneManager sceneManager(&gamestate);
+
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(GRAY);
 
-        game.render();
-        game.HandleInput();
+        sceneManager.update(GetFrameTime());
+        sceneManager.render();
         
         EndDrawing();
     }
