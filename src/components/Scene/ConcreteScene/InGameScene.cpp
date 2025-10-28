@@ -33,9 +33,12 @@ void InGameScene::update(float deltaTime) {
 }
 
 void InGameScene::render() {
-    
+    ClearBackground(GRAY);
     _game->render();
     _game->HandleInput();
+    HUD hud;
+    hud.setResourceManager(&ResourceManager::getInstance());
+    hud.render(_game->scorePlayer1, _game->scorePlayer2, _game->CurrentPlayer);
 }
 
 void InGameScene::cleanup(void) {}

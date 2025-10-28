@@ -17,7 +17,6 @@ int main() {
 
     while (!WindowShouldClose()) {
         BeginDrawing();
-        ClearBackground(GRAY);
 
         sceneManager.update(GetFrameTime());
         sceneManager.render();
