@@ -20,14 +20,8 @@ void HUD::render(int _scorePlayer1, int _scorePlayer2, int _currentPlayer)
     }
     Texture2D& _infoPanel = resourceManager->getTexture2D("info_panel");
     DrawTextureEx(_infoPanel, {750, 20}, 0.0f, 2.5f, WHITE);
-    renderPlayersInfo(_scorePlayer1, _scorePlayer2, _currentPlayer);
-}
-
-void HUD::renderPlayersInfo(int _scorePlayer1, int _scorePlayer2, int _currentPlayer)
-{
-    if (resourceManager == nullptr) {
-        return;
-    }
+    
+    // Draw players info
     Font& font = resourceManager->getFont("default_font");
     Texture2D& _ready = resourceManager->getTexture2D("ready_image");
 
@@ -43,15 +37,13 @@ void HUD::renderPlayersInfo(int _scorePlayer1, int _scorePlayer2, int _currentPl
 
     DrawCircleV({860, 150}, radius, BLACK);
     DrawTextEx(font, "Black player", {900, 100}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Score: ", {900, 150}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Score", {900, 150}, fontSize, spacing, BLACK);
+    DrawText(":", 985, 152, fontSize, BLACK);
     DrawTextEx(font, std::to_string(_scorePlayer1).c_str(), {1000, 150}, fontSize, spacing, BLACK);
 
     DrawCircleV({860, 350}, radius, WHITE);
     DrawTextEx(font, "White player", {900, 300}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Score: ", {900, 350}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Score", {900, 350}, fontSize, spacing, BLACK);
+    DrawText(":", 985, 352, fontSize, BLACK);
     DrawTextEx(font, std::to_string(_scorePlayer2).c_str(), {1000, 350}, fontSize, spacing, BLACK);
-}
-
-void HUD::renderTimer()
-{
 }
