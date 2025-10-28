@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include "raylib.h"
 #include <iostream>
 
 ResourceManager& ResourceManager::getInstance() {
@@ -22,15 +23,14 @@ void ResourceManager::_preLoadTexture2D(const std::string &filename, const std::
 }
 
 void ResourceManager::_preLoadFont(const std::string &filename, const std::string &alias) {
-    if (_fonts.find(filename) != _fonts.end()) {
-        std::cerr << "Font already loaded: " << filename << std::endl;
-        return;
-    }
+    if (_fonts.find(filename) != _fonts.end()) return;
 
-    Font font = LoadFont(filename.c_str());
-    if (font.texture.id == 0) {
-        throw std::runtime_error("Failed to load font: " + filename);
-    }
+    const int fontPixelSize = 40; // increase if your window is large
+    Font font = LoadFontEx(filename.c_str(), fontPixelSize, nullptr, 0);
+    if (font.texture.id == 0) throw std::runtime_error("Failed to load font: " + filename);
+
+    // turn off smoothing so text remains crisp at integer sizes
+    SetTextureFilter(font.texture, 0);
 
     _fonts[filename] = font;
     _MappingAliasToFilename[alias] = filename;
@@ -110,5 +110,7 @@ ResourceManager::~ResourceManager() {
 
 ResourceManager::ResourceManager() {    
     _preLoadTexture2D("assets/background_image/info_panel.png", "info_panel");
+    _preLoadFont("assets/fonts/GozaruDemo.ttf", "default_font");
+    _preLoadTexture2D("assets/images/Theme_0/ready.png", "ready_image");
     // ... all your preloads ...
 }

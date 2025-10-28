@@ -8,7 +8,7 @@ public:
     void render();
     void HandleInput();
     bool IsGameOver;
-    int CurrentPlayer;
+    int CurrentPlayer; // 1 for black, 2 for white
     int scorePlayer1;
     int scorePlayer2;
     
