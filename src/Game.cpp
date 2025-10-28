@@ -44,5 +44,3 @@ void Game::HandleInput()
         }
     }
 }
-
-//Má ơi con làm được rồi
