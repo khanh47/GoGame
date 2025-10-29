@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "InGameScene.h"
+#include "MainMenuScene.h"
 #include "GameState.h"
 
 #include "raylib.h"
@@ -14,7 +15,7 @@ SceneManager::SceneManager(GameStateModel* gameStateModel)
         std::cerr << "Error: GameStateModel is required for SceneManager" << std::endl;
         return;
     }
-    pushScene(std::make_unique<InGameScene>());
+    pushScene(std::make_unique<MainMenuScene>()); // default scene
 }
 
 SceneManager::~SceneManager() {
