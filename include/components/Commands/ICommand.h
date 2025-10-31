@@ -18,21 +18,21 @@ public:
     virtual void execute() = 0;
     virtual void undo() = 0;
     virtual void redo() = 0;
-    virtual std::string getName() const = 0;
     virtual bool canUndo() const = 0;
     virtual bool canRedo() const = 0;
 
-    virtual CommandType getCommandType() const = 0;
+    virtual std::string getName() const = 0;
     virtual std::unique_ptr<ICommand> clone() const = 0;
+    virtual CommandType getType() const = 0;
 
 protected:
     std::function<void()> _callback;
 
 public:
-    void setCallBack(const std::function<void()>& callback) {
+    void setCallback(std::function<void()> callback) {
         _callback = callback;
     }
-
+    
 protected: 
     void executeCallback() {
         if (_callback) {

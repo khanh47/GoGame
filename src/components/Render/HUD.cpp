@@ -22,7 +22,7 @@ void HUD::render(int _scorePlayer1, int _scorePlayer2, int _currentPlayer)
     DrawTextureEx(_infoPanel, {750, 20}, 0.0f, 2.5f, WHITE);
     
     // Draw players info
-    Font& font = resourceManager->getFont("default_font");
+    Font& font = resourceManager->getFont("GozaruDemo");
     Texture2D& _ready = resourceManager->getTexture2D("ready_image");
 
     float fontSize = 40.0f;
