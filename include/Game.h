@@ -1,5 +1,7 @@
 #pragma once
-#include "components/Render/Board.h"
+
+// Forward declaration
+class Board;
 
 class Game {
 public:
@@ -13,5 +15,5 @@ public:
     int scorePlayer2;
     
 private:
-    Board grid;
+    Board* grid;
 };

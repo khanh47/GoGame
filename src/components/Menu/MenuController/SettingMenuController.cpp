@@ -110,7 +110,7 @@ void SettingMenuController::computeWorkerMenuView()
         Vector2 position = {startX, startY + i * (itemHeight + verticalSpacing)};
         Vector2 size = {itemWidth, itemHeight};
         auto itemView = std::make_shared<MenuItemView>(position, size);
-        itemView->setFont(ResourceManager::getInstance().getFont("public_sans_bold"));
+        itemView->setFont(ResourceManager::getInstance().getFont("GozaruDemo"));
         itemViews.push_back(itemView);
     }
     _workerMenuView->setItemViews(itemViews);

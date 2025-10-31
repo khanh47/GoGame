@@ -6,15 +6,17 @@
 const float CELL_SIZE = 36;
 const float PADDING = 36;
 
-Board::Board(int rows, int cols)
-{
-    numRows = rows;
-    numCols = cols;
-    grid.resize(rows, std::vector<int>(cols, 0));
+Board::Board(int rows, int cols) : numRows(rows), numCols(cols) {
+    init();
 }
 
 Board::~Board()
 {
+}
+
+void Board::init()
+{
+    grid.resize(numRows, std::vector<int>(numCols, 0));
 }
 
 void Board::renderBorderLines()

@@ -1,5 +1,5 @@
 #include "ConcreteGameStates/MainMenuState.h"
-#include "ConcreteGameStates/InGameState.h"
+#include "ConcreteGameStates/GameModeState.h"
 #include "NavigationMenuController.h"
 #include "ButtonMenuView.h"
 #include "GameState.h"
@@ -11,7 +11,7 @@
 #include <vector>
 
 NavigationMenuController::NavigationMenuController(GameStateModel* gameStateModel, std::shared_ptr<MenuComponent> menuSystem, SceneManager* sceneManager)
-    : _gameStateModel(gameStateModel), _lastState(std::make_unique<InGameState>()), _sceneManager(sceneManager) {
+    : _gameStateModel(gameStateModel), _lastState(std::make_unique<GameModeState>()), _sceneManager(sceneManager) {
     _menuSystem = menuSystem;
     _currentMenuModel = menuSystem;
     _menuView = std::make_unique<ButtonMenuView>();
@@ -31,10 +31,10 @@ void NavigationMenuController::updateNavigationMenuForCurrentState() {
     if (_gameStateModel->getCurrentState()->getName() != _lastState->getName()) {
         shouldUpdate = true;
     }
-    // special case for InGameState to always update
-    else if (auto* inGameState = dynamic_cast<InGameState*>(_gameStateModel->getCurrentState())) {
-        if (auto* lastInGameState = dynamic_cast<InGameState*>(_lastState.get())) {
-            if (inGameState->getMenuVersion() != lastInGameState->getMenuVersion()) {
+    // special case for GameModeState to always update
+    else if (auto* gameModeState = dynamic_cast<GameModeState*>(_gameStateModel->getCurrentState())) {
+        if (auto* lastGameModeState = dynamic_cast<GameModeState*>(_lastState.get())) {
+            if (gameModeState->getMenuVersion() != lastGameModeState->getMenuVersion()) {
                 shouldUpdate = true;
             }
         } else {
@@ -48,7 +48,7 @@ void NavigationMenuController::updateNavigationMenuForCurrentState() {
             _currentMenuModel = newMenuModel;
             _menuView->createNavigationItemViews(_currentMenuModel, _gameStateModel->getCurrentState());
         }
-        _lastState = _gameStateModel->getCurrentState()->clone();
+        _lastState = std::move(_gameStateModel->getCurrentState()->clone());
     }
 }
 

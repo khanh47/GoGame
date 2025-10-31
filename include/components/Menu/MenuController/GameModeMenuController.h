@@ -3,16 +3,16 @@
 #include <string>
 
 // Forward declaration
-class InGameScene;
+class GameModeScene;
 class IMenuView;
 
-class InGameMenuController : public MenuController {
+class GameModeMenuController : public MenuController {
 private:
-    InGameScene* _inGameScene;
+    GameModeScene* _gameModeScene;
     int _selectedGameModeIndex = -1;
 
 public:
-    InGameMenuController(InGameScene* inGameScene);
+    GameModeMenuController(GameModeScene* gameModeScene);
 
     void setViewStrategy(std::unique_ptr<IMenuView> view) override;
     void handleInput() override;

@@ -1,5 +1,5 @@
 #include "GameState.h"
-#include "ConcreteGameStates/InGameState.h"
+#include "ConcreteGameStates/GameModeState.h"
 #include "ConcreteGameStates/MainMenuState.h"
 #include "SceneManager.h"
 #include "MenuComponent.h"
@@ -10,7 +10,7 @@
 GameStateModel::GameStateModel()
 {
     // Initialize with a default state, e.g., MainMenuState
-    _currentState = std::make_unique<InGameState>();
+    _currentState = std::make_unique<GameModeState>();
     _currentState->onEnter(this);
 }
 
@@ -61,7 +61,7 @@ std::unique_ptr<GameState> GameStateModel::createState(const std::string &stateN
     }
     else if (stateName == "IN_GAME")
     {
-        return std::make_unique<InGameState>();
+        return std::make_unique<GameModeState>();
     }
     // Add other states as needed
     return nullptr;
