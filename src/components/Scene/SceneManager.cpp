@@ -1,6 +1,6 @@
 #include "SceneManager.h"
 #include "Scene.h"
-#include "InGameScene.h"
+#include "GameModeScene.h"
 #include "MainMenuScene.h"
 #include "GameState.h"
 #include "NavigationMenuController.h"
@@ -33,9 +33,9 @@ SceneManager::~SceneManager() {
 void SceneManager::pushScene(std::unique_ptr<Scene> scene){
     // check if the scene was created succesfully
     if (scene){
-        // Inject dependencies if needed
-        if (auto* inGameScene = dynamic_cast<InGameScene*>(scene.get())) {
-            inGameScene->setDependencies(_gameStateModel, this);
+        // Inject dependencies for GameModeScene
+        if (auto* gameModeScene = dynamic_cast<GameModeScene*>(scene.get())) {
+            gameModeScene->setDependencies(_gameStateModel, this);
         }
         _sceneStack.emplace(std::move(scene));
         auto &entry = _sceneStack.top();
@@ -78,7 +78,6 @@ void SceneManager::update(float deltaTime){
             currentScene->update(deltaTime);
         }
     }
-    forceMenuRefresh();
 
     // update menu system if active
     if (_menuActive && _navigationMenuController) {
@@ -101,7 +100,6 @@ void SceneManager::render(){
         std::cerr << "Warning: No scene to render." << std::endl;
     }
 
-    forceMenuRefresh();
     // Render menu system if active
     if (_menuActive && _navigationMenuController) {
         renderMenuSystem();

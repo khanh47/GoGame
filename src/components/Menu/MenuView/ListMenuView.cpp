@@ -38,7 +38,7 @@ void ListMenuView::createNavigationItemViews(std::shared_ptr<MenuComponent> menu
                 };
                 Vector2 size = { listArea.width - scrollbarWidth - 20.0f, itemHeight };
                 auto itemView = std::make_shared<MenuItemView>(position, size);
-                itemView->setFont(ResourceManager::getInstance().getFont("public_sans_bold"));
+                itemView->setFont(ResourceManager::getInstance().getFont("GozaruDemo"));
                 _itemViews.push_back(itemView);
             }
         }
@@ -75,7 +75,7 @@ void ListMenuView::createInGameItemsViews(int numberOfItems) {
         };
         Vector2 size = { listArea.width - scrollbarWidth - 20.0f, itemHeight };
         auto itemView = std::make_shared<MenuItemView>(position, size);
-        itemView->setFont(ResourceManager::getInstance().getFont("public_sans_bold"));
+        itemView->setFont(ResourceManager::getInstance().getFont("GozaruDemo"));
         _itemViews.push_back(itemView);
     }
     

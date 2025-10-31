@@ -1,46 +1,37 @@
-#include "GameState.h"
-#include "ConcreteGameStates/InGameState.h"
-#include "ResourceManager.h"
-#include "InGameScene.h"
-#include "MenuItemView.h"
+#include "InGameState.h"
 #include "MenuComponent.h"
 #include "SceneManager.h"
+#include "MenuItemView.h"
+#include "Scene.h"
+#include "InGameScene.h"
 #include "MenuItem.h"
+#include "ResourceManager.h"
 #include "Menu.h"
-#include "ConcreteGameStates/InGameState.h"
 
-void InGameState::onEnter(GameStateModel *context)
-{
+void InGameState::onEnter(GameStateModel* context) {
 }
 
-void InGameState::onExit(GameStateModel *context)
-{
+void InGameState::onExit(GameStateModel* context) {
 }
 
-void InGameState::update(GameStateModel *context, float deltaTime)
-{
+void InGameState::update(GameStateModel* context, float deltaTime) {
+    // Update game logic here
 }
 
-std::unique_ptr<GameState> InGameState::clone() const
-{
-    return std::make_unique<InGameState>();
+std::unique_ptr<GameState> InGameState::clone() const {
+    return std::make_unique<InGameState>(_gameModeSelected);
 }
 
-std::unique_ptr<Scene> InGameState::createScene() const
-{
-    return std::make_unique<InGameScene>();
+std::unique_ptr<Scene> InGameState::createScene() const {
+    return std::make_unique<InGameScene>(_gameModeSelected);
 }
 
-std::shared_ptr<MenuComponent> InGameState::createNavigationMenu(GameStateModel *gameStateModel, SceneManager *sceneManager)
-{
-    auto inGameMenu = std::make_shared<Menu>("In-Game Menu", true);
-    std::shared_ptr<MenuComponent> Pass = std::make_shared<MenuItem>("Pass", true);
-    inGameMenu->addItem(Pass);
-    return inGameMenu;
+std::shared_ptr<MenuComponent> InGameState::createNavigationMenu(GameStateModel* gameStateModel, SceneManager* sceneManager) {
+    auto menu = std::make_shared<Menu>("In-Game Menu", sceneManager);
+    return menu;
 }
 
-std::vector<std::shared_ptr<MenuItemView>> InGameState::createNavigationMenuButtonItemViews(std::shared_ptr<MenuComponent> menu) const
-{
+std::vector<std::shared_ptr<MenuItemView>> InGameState::createNavigationMenuButtonItemViews(std::shared_ptr<MenuComponent> menu) const {
     std::vector<std::shared_ptr<MenuItemView>> itemViews;
 
     int activeItems = 0;
@@ -49,31 +40,22 @@ std::vector<std::shared_ptr<MenuItemView>> InGameState::createNavigationMenuButt
             ++activeItems;
         }
     }
-   
-    const float horizontalSpacing = 20.0f; // spacing between items
+
+    const float verticalSpacing = 20.0f; // spacing between items
     const float itemHeight = 40.0f;
-    const float itemWidth = 200.0f;
-    const float startX = (GetScreenWidth() - activeItems * itemWidth + (activeItems - 1) * horizontalSpacing) / 2.0f;
-    const float startY = 650.0f;
+    const float itemWidth = 200;
+    const Rectangle menuArea = {0, 0, 250, 50}; // Example menu area
+
+    const float startX = menuArea.x + (menuArea.width - itemWidth) / 2;
+    const float startY = menuArea.y + (menuArea.height - (activeItems * itemHeight + (activeItems - 1) * verticalSpacing)) / 2;
 
     itemViews.reserve(activeItems); // Reserve space for active items
     for (int i = 0; i < activeItems; ++i) {
-        Vector2 position = {startX + i * (itemWidth + horizontalSpacing), startY};
+        Vector2 position = {startX, startY + i * (itemHeight + verticalSpacing)};
         Vector2 size = {itemWidth, itemHeight};
         auto itemView = std::make_shared<MenuItemView>(position, size);
         itemView->setFont(ResourceManager::getInstance().getFont("GozaruDemo"));
         itemViews.push_back(itemView);
     }
     return itemViews;
-}
-
-void InGameState::setGameModeSelected(bool selected, const std::string &mode)
-{
-    gameModeSelected = selected;
-    if (selected && !mode.empty()) {
-        selectedGameMode = mode;
-    } else {
-        selectedGameMode = "NONE";
-    }
-    ++menuVersion; // Increment menu version to force menu refresh
 }

@@ -1,34 +1,22 @@
 #pragma once
 #include "Scene.h"
-#include <string>
 #include <memory>
 
-class GameState;
-class GameStateModel;
-class SceneManager;
+// Forward declaration
 class Game;
 
-class InGameScene: public Scene {
-private:
-    std::string _selectedGameMode;
-    SceneManager* _sceneManager = nullptr;
-    GameStateModel* _gameStateModel = nullptr;
-    Game* _game = nullptr;
-
+class InGameScene : public Scene {
 public:
-    InGameScene() = default;
+    InGameScene(const std::string &gameMode);
     ~InGameScene() override = default;
 
-    // Set dependencies for state communication
-    void setDependencies(GameStateModel* gameStateModel, SceneManager* sceneManager);
-    
     void init(void) override;
-    void handleInput(void) override;
     void update(float deltaTime) override;
-    void render() override;
-    void cleanup() override;
+    void render(void) override;
+    void handleInput(void) override;
+    void cleanup(void) override;
 
-    bool isActive() const override;
+    bool isActive(void) const override;
     std::string getName(void) const override;
     std::string getGameStateName(void) const override;
 
@@ -37,5 +25,7 @@ public:
 
     bool shouldTransition(void) const override;
 
-    void selectGameMode(const std::string& mode);
+private:
+    std::shared_ptr<Game> _game;
+    std::string _gameModeSelected;
 };

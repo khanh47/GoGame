@@ -8,6 +8,7 @@ class Board {
 public:
     Board(int rows, int cols);
     ~Board();
+    void init();
     void render();
     void renderBorderLines();
     void renderBoard();
