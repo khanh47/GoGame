@@ -29,7 +29,31 @@ bool MenuItemView::getSelected() const {
 }
 
 void MenuItemView::render(std::shared_ptr<MenuComponent> menuComponent) const {
-    // Render the menu item using the provided MenuComponent
+    Color bgColor, textColor;
+    
+    if (!menuComponent->isEnabled()) {
+        bgColor = disabledBackgroundColor;
+        textColor = disabledTextColor;
+    } else if (_isSelected) {
+        bgColor = selectedBackgroundColor;
+        textColor = selectedTextColor;
+    } else if (_isHovered) {
+        bgColor = hoverBackgroundColor;
+        textColor = hoverTextColor;
+    } else {
+        bgColor = normalBackgroundColor;
+        textColor = normalTextColor;
+    }
+
+    DrawRectangleV(_position, _size, bgColor);
+    DrawRectangleLinesEx({_position.x, _position.y, _size.x, _size.y}, 2, BLACK);
+
+    Vector2 textSize = MeasureTextEx(_font, menuComponent->getTitle().c_str(), _fontSize, _fontSpacing);
+    Vector2 textPos = {
+        _position.x + (_size.x - textSize.x) / 2,
+        _position.y + (_size.y - textSize.y) / 2
+    };
+    DrawTextEx(_font, menuComponent->getTitle().c_str(), textPos, _fontSize, _fontSpacing, textColor);
 }
 
 const Vector2& MenuItemView::getPosition() const {

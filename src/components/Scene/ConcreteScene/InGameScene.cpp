@@ -9,11 +9,6 @@
 #include <iostream>
 #include "raylib.h"
 
-InGameScene::InGameScene()
-{
-    _game = new Game(19, 19);
-}
-
 void InGameScene::setDependencies(GameStateModel *gameStateModel, SceneManager *sceneManager)
 {
     _gameStateModel = gameStateModel;
@@ -21,6 +16,7 @@ void InGameScene::setDependencies(GameStateModel *gameStateModel, SceneManager *
 }
 
 void InGameScene::init(void) {
+    _game = new Game(19, 19);
     std::cout << "InGameScene initialized." << std::endl;
 }
 

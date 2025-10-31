@@ -10,12 +10,13 @@ class Game;
 
 class InGameScene: public Scene {
 private:
+    std::string _selectedGameMode;
     SceneManager* _sceneManager = nullptr;
     GameStateModel* _gameStateModel = nullptr;
     Game* _game = nullptr;
 
 public:
-    InGameScene();
+    InGameScene() = default;
     ~InGameScene() override = default;
 
     // Set dependencies for state communication
@@ -35,4 +36,6 @@ public:
     void onExit(void) override;
 
     bool shouldTransition(void) const override;
+
+    void selectGameMode(const std::string& mode);
 };

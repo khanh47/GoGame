@@ -2,9 +2,7 @@
 #include <string>
 #include <memory>
 #include <vector>
-
-// Forward declaration
-class ICommand;
+#include "ICommand.h"
 
 // Interface for menu components
 class MenuComponent {
