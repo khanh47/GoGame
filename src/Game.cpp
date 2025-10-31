@@ -17,7 +17,7 @@ Game::~Game()
 }
 
 void Game::render()
-{
+{   
     grid->render();
 }
 
