@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 // Forward declaration
 class Board;
@@ -8,12 +9,17 @@ public:
     Game(int rows, int cols);
     ~Game();
     void render();
-    void HandleInput();
-    bool IsGameOver;
-    int CurrentPlayer; // 1 for black, 2 for white
-    int scorePlayer1;
-    int scorePlayer2;
-    
+    void handleInput();
+    int getCurrentPlayer() const { return _currentPlayer; }
+    int getScorePlayer1() const { return _scorePlayer1; }
+    int getScorePlayer2() const { return _scorePlayer2; }
+    bool isGameOver() const { return _isGameOver; }
+
 private:
-    Board* grid;
+    std::unique_ptr<Board> grid;
+    bool _isGameOver = false;
+    int _currentPlayer = 1; // 1 for black, 2 for white
+    int _scorePlayer1 = 0;
+    int _scorePlayer2 = 0;
+
 };

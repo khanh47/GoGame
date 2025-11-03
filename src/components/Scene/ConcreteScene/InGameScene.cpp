@@ -1,5 +1,5 @@
 #include "InGameScene.h"
-#include "Game.h"
+#include "GameModel.h"
 #include "raylib.h"
 
 InGameScene::InGameScene(const std::string &gameMode)
@@ -9,7 +9,7 @@ InGameScene::InGameScene(const std::string &gameMode)
 
 void InGameScene::init(void) {
     // Initialize the game instance with the selected game mode
-    _game = std::make_shared<Game>(19, 19);
+    _gameModel = std::make_shared<GameModel>();
 }
 
 void InGameScene::update(float deltaTime) {
@@ -18,14 +18,14 @@ void InGameScene::update(float deltaTime) {
 
 void InGameScene::render(void) {
     ClearBackground(RAYWHITE);
-    if (_game) {
-        _game->render();
+    if (_gameModel) {
+        _gameModel->render();
     }
 }
 
 void InGameScene::handleInput(void) {
-    if (_game) {
-        _game->HandleInput();
+    if (_gameModel) {
+        _gameModel->handleInput();
     }
 }
 

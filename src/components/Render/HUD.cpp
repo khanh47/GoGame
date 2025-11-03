@@ -5,25 +5,16 @@
 
 HUD::HUD()
 {
-    resourceManager = nullptr;
 }
 
-void HUD::setResourceManager(ResourceManager* resourceManager)
+void HUD::render()
 {
-    this->resourceManager = resourceManager;
-}
-
-void HUD::render(int _scorePlayer1, int _scorePlayer2, int _currentPlayer)
-{
-    if (resourceManager == nullptr) {
-        return;
-    }
-    Texture2D& _infoPanel = resourceManager->getTexture2D("info_panel");
+    Texture2D& _infoPanel = ResourceManager::getInstance().getTexture2D("info_panel");
     DrawTextureEx(_infoPanel, {750, 20}, 0.0f, 2.5f, WHITE);
     
     // Draw players info
-    Font& font = resourceManager->getFont("GozaruDemo");
-    Texture2D& _ready = resourceManager->getTexture2D("ready_image");
+    Font& font = ResourceManager::getInstance().getFont("GozaruDemo");
+    Texture2D& _ready = ResourceManager::getInstance().getTexture2D("ready_image");
 
     float fontSize = 40.0f;
     float spacing = 1.0f;
@@ -46,4 +37,11 @@ void HUD::render(int _scorePlayer1, int _scorePlayer2, int _currentPlayer)
     DrawTextEx(font, "Score", {900, 350}, fontSize, spacing, BLACK);
     DrawText(":", 985, 352, fontSize, BLACK);
     DrawTextEx(font, std::to_string(_scorePlayer2).c_str(), {1000, 350}, fontSize, spacing, BLACK);
+}
+
+void HUD::getScores(int scorePlayer1, int scorePlayer2, int currentPlayer)
+{
+    _scorePlayer1 = scorePlayer1;
+    _scorePlayer2 = scorePlayer2;
+    _currentPlayer = currentPlayer;
 }
