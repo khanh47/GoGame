@@ -10,10 +10,10 @@ public:
     ~Game();
     void render();
     void handleInput();
-    int getCurrentPlayer() { return _currentPlayer; }
-    int getScorePlayer1() { return _scorePlayer1; }
-    int getScorePlayer2() { return _scorePlayer2; }
-    bool isGameOver() { return _isGameOver; }
+    int getCurrentPlayer() const { return _currentPlayer; }
+    int getScorePlayer1() const { return _scorePlayer1; }
+    int getScorePlayer2() const { return _scorePlayer2; }
+    bool isGameOver() const { return _isGameOver; }
 
 private:
     std::unique_ptr<Board> grid;
@@ -21,4 +21,5 @@ private:
     int _currentPlayer = 1; // 1 for black, 2 for white
     int _scorePlayer1 = 0;
     int _scorePlayer2 = 0;
+
 };
