@@ -64,10 +64,10 @@ std::vector<std::shared_ptr<MenuItemView>> MainMenuState::createNavigationMenuBu
     }
 
     const float verticalSpacing = 20.0f; // spacing between items
-    const float itemHeight = 40.0f;
-    const float itemWidth = 200;
+    const float itemHeight = 60.0f;
+    const float itemWidth = 240.0f;
     const Rectangle menuArea = {0, 0, 300, (float)GetScreenHeight()}; // Example menu area
-
+    std::cout << menuArea.x << std::endl;
     const float startX = menuArea.x + (menuArea.width - itemWidth) / 2;
     const float startY = menuArea.y + (menuArea.height - (activeItems * itemHeight + (activeItems - 1) * verticalSpacing)) / 2;
 

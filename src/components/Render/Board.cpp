@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "colors.h"
 #include <cmath>
+#include <iostream>
 
 const float CELL_SIZE = 36;
 const float PADDING = 36;
@@ -58,7 +59,7 @@ void Board::renderStones()
 
 void Board::renderGhostStones(int row, int col, int value)
 {
-    float radius = CELL_SIZE * 0.4;
+    float radius = CELL_SIZE * 0.4f;
     DrawCircle(PADDING + (row + 1) * CELL_SIZE, PADDING + (col + 1) * CELL_SIZE, radius, value == 1 ? ghostWhite : shadow);
 }
 
@@ -87,4 +88,8 @@ int Board::getValue(int row, int col)
 bool Board::isCellInside(int row, int col)
 {
     return row >= 0 && row < numRows && col >= 0 && col < numCols;
+}
+
+bool Board::isCellValid(int row, int col) {
+    return isCellInside(row, col) && getValue(row, col) == 0;
 }

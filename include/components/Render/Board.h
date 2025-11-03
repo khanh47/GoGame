@@ -17,6 +17,7 @@ public:
     void setValue(int row, int col, int value);
     int getValue(int row, int col);
     bool isCellInside(int row, int col);
+    bool isCellValid(int row, int col);
 
 private:
     int numRows;

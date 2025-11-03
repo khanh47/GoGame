@@ -1,5 +1,6 @@
 #include "InGameScene.h"
 #include "GameModel.h"
+#include "ResourceManager.h"
 #include "raylib.h"
 
 InGameScene::InGameScene(const std::string &gameMode)
@@ -17,7 +18,8 @@ void InGameScene::update(float deltaTime) {
 }
 
 void InGameScene::render(void) {
-    ClearBackground(RAYWHITE);
+    Texture2D background = ResourceManager::getInstance().getTexture2D("in_game_background");
+    DrawTextureEx(background, { 0, 0 }, 0.0f, 1.3f, WHITE);
     if (_gameModel) {
         _gameModel->render();
     }
