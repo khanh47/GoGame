@@ -1,14 +1,14 @@
 #pragma once
 #include <string>
-#include "ResourceManager.h"
 
 class HUD {
+private:
+    int _scorePlayer1;
+    int _scorePlayer2;
+    int _currentPlayer;
+
 public:
     HUD();
-    void setResourceManager(ResourceManager* resourceManager);
-    void render(int _scorePlayer1, int _scorePlayer2, int _currentPlayer);
-    void renderTimer();
-
-private:
-    ResourceManager* resourceManager;
+    void render();
+    void getScores(int scorePlayer1, int scorePlayer2, int currentPlayer);
 };

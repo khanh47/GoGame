@@ -49,7 +49,7 @@ bool GameModeScene::isActive() const { return _isActive; }
 
 std::string GameModeScene::getName(void) const { return "GameModeScene"; }
 
-std::string GameModeScene::getGameStateName(void) const { return "IN_GAME";}
+std::string GameModeScene::getGameStateName(void) const { return "GAME_MODE";}
 
 void GameModeScene::onEnter(void) {
     // Actions to perform when entering the in-game scene
@@ -72,10 +72,9 @@ void GameModeScene::selectGameMode(const std::string& mode) {
     // Call GameModeState to update menu
     if (_gameStateModel) {
         auto* currentState = _gameStateModel->getCurrentState();
-        std::cout << "GameModeScene: current state name " << currentState->getName() << std::endl;
+
         if (auto* gameModeState = dynamic_cast<GameModeState*>(currentState)) {
             gameModeState->setGameModeSelected(true, mode);
-            std::cout << "GameModeScene: bruh " << std::endl;
 
             if (_sceneManager) {
                 _sceneManager->forceMenuRefresh();

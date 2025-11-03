@@ -1,10 +1,11 @@
 #pragma once
 #include "GameState.h"
 #include "ICommand.h"
+#include "SceneManager.h"
 #include "GameModeScene.h"
 #include <functional>
 
-// Forawrd declarations
+// Forward declarations
 class GameState;
 class GameStateModel;
 class SceneManager;
@@ -44,8 +45,6 @@ public:
 // Factory functions for specific state switchers
 std::unique_ptr<MenuCommand> createNewGameCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
 std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel* gameStateModel, SceneManager* sceneManager, const std::string& gameMode);
-// std::unique_ptr<MenuCommand> createLoadGameCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
-// std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
 
 class GameModeSelectCommand : public ICommand {
 private:

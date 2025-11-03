@@ -3,7 +3,7 @@
 #include <memory>
 
 // Forward declaration
-class Game;
+class GameModel;
 
 class InGameScene : public Scene {
 public:
@@ -26,6 +26,6 @@ public:
     bool shouldTransition(void) const override;
 
 private:
-    std::shared_ptr<Game> _game;
+    std::shared_ptr<GameModel> _gameModel;
     std::string _gameModeSelected;
 };
