@@ -45,8 +45,12 @@ std::shared_ptr<MenuComponent> MainMenuState::createNavigationMenu(GameStateMode
     std::shared_ptr<MenuComponent> Exit = std::make_shared<MenuItem>("EXIT", true);
     Exit->setCommand(createExitCommand());
 
+    std::shared_ptr<MenuComponent> Settings = std::make_shared<MenuItem>("SETTINGS", true);
+    Settings->setCommand(createExitCommand());
+
     mainMenu->addItem(NewGame);
     mainMenu->addItem(Exit);
+    mainMenu->addItem(Settings);
     return mainMenu;
 }
 
@@ -66,8 +70,8 @@ std::vector<std::shared_ptr<MenuItemView>> MainMenuState::createNavigationMenuBu
     const float verticalSpacing = 20.0f; // spacing between items
     const float itemHeight = 60.0f;
     const float itemWidth = 240.0f;
-    const Rectangle menuArea = {0, 0, 300, (float)GetScreenHeight()}; // Example menu area
-    std::cout << menuArea.x << std::endl;
+    const Rectangle menuArea = {0, 0, 400, (float)GetScreenHeight()}; // Example menu area
+    // std::cout << menuArea.x << std::endl;
     const float startX = menuArea.x + (menuArea.width - itemWidth) / 2;
     const float startY = menuArea.y + (menuArea.height - (activeItems * itemHeight + (activeItems - 1) * verticalSpacing)) / 2;
 

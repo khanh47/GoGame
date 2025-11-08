@@ -110,7 +110,10 @@ ResourceManager::~ResourceManager() {
 
 ResourceManager::ResourceManager() {    
     _preLoadTexture2D("assets/background_image/info_panel.png", "info_panel");
-    _preLoadFont("assets/fonts/GozaruDemo.ttf", "GozaruDemo");
     _preLoadTexture2D("assets/images/Theme_0/ready.png", "ready_image");
     _preLoadTexture2D("assets/background_image/in-game_background.jpg", "in_game_background");
+    _preLoadTexture2D("assets/background_image/main_menu_background.jpg", "main_menu_background");
+    _preLoadFont("assets/fonts/GozaruDemo.ttf", "GozaruDemo");
+    _preLoadFont("assets/fonts/NinjaKageDemo-Regular.otf", "NinjaKageDemo");
+
 }
