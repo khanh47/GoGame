@@ -1,5 +1,6 @@
 #include "MainMenuScene.h"
 #include "raylib.h"
+#include "ResourceManager.h"
 #include <iostream>
 
 void MainMenuScene::init(void) {
@@ -7,17 +8,17 @@ void MainMenuScene::init(void) {
 }
 
 void MainMenuScene::handleInput(void) {
-    if (IsKeyPressed(KEY_ENTER)) {
-        std::cout << "Enter key pressed in MainMenuScene." << std::endl;
-    }
 }
 
 void MainMenuScene::update(float deltaTime) {
 }
 
 void MainMenuScene::render(void) {
-    ClearBackground(RAYWHITE);
-    DrawText("Main Menu Scene - Press ENTER to Start", 200, 200, 20, DARKGRAY);
+    Texture2D background = ResourceManager::getInstance().getTexture2D("main_menu_background");
+    DrawTextureEx(background, { 0, 0 }, 0.0f, 1.6f, WHITE);
+    Font _font = ResourceManager::getInstance().getFont("NinjaKageDemo");
+    const int ScreenWidth = GetScreenWidth();
+    DrawTextEx(_font, "GO GAME", {450, 50}, 50, 20, BLACK);
 }
 
 void MainMenuScene::cleanup(void) {
