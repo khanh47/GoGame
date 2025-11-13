@@ -25,7 +25,7 @@ private:
     Color disabledTextColor = {169, 169, 169, 255}; // DARKGRAY
 
     Font _font = GetFontDefault();
-    int _fontSize = 20;
+    int _fontSize = 30;
     float _fontSpacing = 1.0f;
 
 public:

@@ -10,7 +10,7 @@ HUD::HUD()
 void HUD::render()
 {
     Texture2D& _infoPanel = ResourceManager::getInstance().getTexture2D("info_panel");
-    DrawTextureEx(_infoPanel, {750, 20}, 0.0f, 2.5f, WHITE);
+    DrawTextureEx(_infoPanel, {750, 35}, 0.0f, 2.5f, WHITE);
     
     // Draw players info
     Font& font = ResourceManager::getInstance().getFont("GozaruDemo");

@@ -40,12 +40,16 @@ std::unique_ptr<Scene> GameModeState::createScene() const
 std::shared_ptr<MenuComponent> GameModeState::createNavigationMenu(GameStateModel *gameStateModel, SceneManager *sceneManager)
 {
     auto gameModeMenu = std::make_shared<Menu>("Game Mode Menu", true);
+    auto Back = std::make_shared<MenuItem>("BACK", true);
+    Back->setCommand(createGameModeBackCommand(gameStateModel, sceneManager));
+    gameModeMenu->addItem(Back);
+
     if (gameModeSelected) {
-        auto Play = std::make_shared<MenuItem>("Play", true);
+        auto Play = std::make_shared<MenuItem>("PLAY", true);
         Play->setCommand(createPlayCommand(gameStateModel, sceneManager, selectedGameMode));
         gameModeMenu->addItem(Play);
     }
-    
+
     return gameModeMenu;
 }
 
@@ -64,7 +68,7 @@ std::vector<std::shared_ptr<MenuItemView>> GameModeState::createNavigationMenuBu
     const float itemHeight = 40.0f;
     const float itemWidth = 200.0f;
     const float startX = (GetScreenWidth() - activeItems * itemWidth + (activeItems - 1) * horizontalSpacing) / 2.0f;
-    const float startY = 650.0f;
+    const float startY = 400.0f;
 
     itemViews.reserve(activeItems); // Reserve space for active items
     for (int i = 0; i < activeItems; ++i) {

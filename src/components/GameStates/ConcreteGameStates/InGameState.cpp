@@ -6,6 +6,7 @@
 #include "InGameScene.h"
 #include "MenuItem.h"
 #include "ResourceManager.h"
+#include "MenuCommand.h"
 #include "Menu.h"
 
 void InGameState::onEnter(GameStateModel* context) {
@@ -27,8 +28,11 @@ std::unique_ptr<Scene> InGameState::createScene() const {
 }
 
 std::shared_ptr<MenuComponent> InGameState::createNavigationMenu(GameStateModel* gameStateModel, SceneManager* sceneManager) {
-    auto menu = std::make_shared<Menu>("In-Game Menu", sceneManager);
-    return menu;
+    auto inGameMenu = std::make_shared<Menu>("In-Game Menu", sceneManager);
+    auto Back = std::make_shared<MenuItem>("BACK", true);
+    Back->setCommand(createInGameBackCommand(gameStateModel, sceneManager));
+    inGameMenu->addItem(Back);
+    return inGameMenu;
 }
 
 std::vector<std::shared_ptr<MenuItemView>> InGameState::createNavigationMenuButtonItemViews(std::shared_ptr<MenuComponent> menu) const {

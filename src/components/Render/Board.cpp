@@ -5,7 +5,7 @@
 #include <iostream>
 
 const float CELL_SIZE = 36;
-const float PADDING = 36;
+const float PADDING = 50;
 
 Board::Board(int rows, int cols) : numRows(rows), numCols(cols) {
     init();

@@ -2,8 +2,9 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "GameState.h"
-#include "ConcreteGameStates/GameModeState.h"
-#include "ConcreteGameStates/InGameState.h"
+#include "GameModeState.h"
+#include "InGameState.h"
+#include "MainMenuState.h"
 
 // MenuCommand Implementation
 void MenuCommand::execute()
@@ -32,6 +33,17 @@ std::unique_ptr<MenuCommand> createNewGameCommand(GameStateModel *gameStateModel
     );
 }
 
+std::unique_ptr<MenuCommand> createGameModeBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
+    return std::make_unique<MenuCommand>(
+        gameStateModel,
+        sceneManager,
+        std::function<std::unique_ptr<GameState>()>([]() { 
+            return std::make_unique<MainMenuState>(); 
+        }),
+        "Back Command"
+    );
+}
+
 std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel *gameStateModel, SceneManager *sceneManager, const std::string& gameMode)
 {
     return std::make_unique<MenuCommand>(
@@ -41,6 +53,17 @@ std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel *gameStateModel, S
             return std::make_unique<InGameState>(gameMode);
         }),
         "Game Mode Play Command"
+    );
+}
+
+std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
+    return std::make_unique<MenuCommand>(
+        gameStateModel,
+        sceneManager,
+        std::function<std::unique_ptr<GameState>()>([]() { 
+            return std::make_unique<GameModeState>(); 
+        }),
+        "Back Command"
     );
 }
 

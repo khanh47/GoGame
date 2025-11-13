@@ -14,7 +14,6 @@ int main() {
     GameStateModel gamestate;
     SceneManager sceneManager(&gamestate);
 
-
     while (!WindowShouldClose()) {
         BeginDrawing();
 
