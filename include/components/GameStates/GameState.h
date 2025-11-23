@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 #include <string>
 #include <memory>
 #include <vector>
@@ -45,7 +45,7 @@ public:
 
     // Helper method for state pattern
     static std::unique_ptr<GameState> createState(const std::string& stateName);
-    
+
     /// @brief create menu to transit between states
     /// @param sceneManager SceneManager to manage scenes
     /// @return Shared pointer to the created menu component

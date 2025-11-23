@@ -1,24 +1,24 @@
 #pragma once
 #include "Scene.h"
 #include <memory>
-#include "GameModeMenuController.h"
+#include "GameDataMenuController.h"
 
+class GameModel;
 class GameState;
 class GameStateModel;
 class SceneManager;
 class Game;
 
-class GameModeScene: public Scene {
+class GameDataScene: public Scene {
 private:
-    std::unique_ptr<GameModeMenuController> menuController;
-    std::string _selectedGameMode;
+    std::unique_ptr<GameDataMenuController> menuController;
+    std::string _selectedGameData;
     SceneManager* _sceneManager = nullptr;
     GameStateModel* _gameStateModel = nullptr;
-    Game* _game = nullptr;
 
 public:
-    GameModeScene() = default;
-    ~GameModeScene() override = default;
+    GameDataScene() = default;
+    ~GameDataScene() override = default;
 
     // Set dependencies for state communication
     void setDependencies(GameStateModel* gameStateModel, SceneManager* sceneManager);
@@ -38,8 +38,9 @@ public:
 
     bool shouldTransition(void) const override;
 
-    void selectGameMode(const std::string& mode);
+    void selectGameData(const std::string& mode);
 
 private:
     void initializeMenuController();
 };
+

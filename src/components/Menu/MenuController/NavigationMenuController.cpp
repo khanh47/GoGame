@@ -1,5 +1,6 @@
-#include "ConcreteGameStates/MainMenuState.h"
-#include "ConcreteGameStates/GameModeState.h"
+#include "MainMenuState.h"
+#include "GameModeState.h"
+#include "GameDataState.h"
 #include "NavigationMenuController.h"
 #include "ButtonMenuView.h"
 #include "GameState.h"
@@ -35,6 +36,16 @@ void NavigationMenuController::updateNavigationMenuForCurrentState() {
     else if (auto* gameModeState = dynamic_cast<GameModeState*>(_gameStateModel->getCurrentState())) {
         if (auto* lastGameModeState = dynamic_cast<GameModeState*>(_lastState.get())) {
             if (gameModeState->getMenuVersion() != lastGameModeState->getMenuVersion()) {
+                shouldUpdate = true;
+            }
+        } else {
+            shouldUpdate = true;
+        }
+    }
+    // special case for GameDataState to always update
+    else if (auto* gameDataState = dynamic_cast<GameDataState*>(_gameStateModel->getCurrentState())) {
+        if (auto* lastGameDataState = dynamic_cast<GameDataState*>(_lastState.get())) {
+            if (gameDataState->getMenuVersion() != lastGameDataState->getMenuVersion()) {
                 shouldUpdate = true;
             }
         } else {

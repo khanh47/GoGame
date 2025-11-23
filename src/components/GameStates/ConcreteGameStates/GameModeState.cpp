@@ -63,7 +63,7 @@ std::vector<std::shared_ptr<MenuItemView>> GameModeState::createNavigationMenuBu
             ++activeItems;
         }
     }
-   
+
     const float horizontalSpacing = 20.0f; // spacing between items
     const float itemHeight = 40.0f;
     const float itemWidth = 200.0f;

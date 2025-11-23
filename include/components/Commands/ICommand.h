@@ -32,8 +32,8 @@ public:
     void setCallback(std::function<void()> callback) {
         _callback = callback;
     }
-    
-protected: 
+
+protected:
     void executeCallback() {
         if (_callback) {
             _callback();

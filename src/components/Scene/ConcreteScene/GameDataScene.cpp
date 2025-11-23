@@ -1,40 +1,41 @@
-#include "GameModeScene.h"
+#include "GameDataScene.h"
 #include "SceneManager.h"
 #include "GameState.h"
-#include "ConcreteGameStates/GameModeState.h"
-#include "GameModeMenuController.h"
+#include "ConcreteGameStates/GameDataState.h"
+#include "GameDataMenuController.h"
 #include "ListMenuView.h"
 #include "Board.h"
 #include "Game.h"
 #include "HUD.h"
+#include "GameModel.h"
 
 #include <iostream>
 #include "raylib.h"
 
-void GameModeScene::setDependencies(GameStateModel *gameStateModel, SceneManager *sceneManager)
+void GameDataScene::setDependencies(GameStateModel* gameStateModel, SceneManager* sceneManager)
 {
     _gameStateModel = gameStateModel;
     _sceneManager = sceneManager;
 }
 
-void GameModeScene::init(void) {
+void GameDataScene::init(void) {
     initializeMenuController();
-    std::cout << "GameModeScene initialized." << std::endl;
+    std::cout << "GameDataScene initialized." << std::endl;
 }
 
-void GameModeScene::handleInput(void) {
+void GameDataScene::handleInput(void) {
     if (menuController) {
         menuController->handleInput();
     }
 }
 
-void GameModeScene::update(float deltaTime) {
+void GameDataScene::update(float deltaTime) {
     if (menuController) {
         menuController->update();
     }
 }
 
-void GameModeScene::render() {
+void GameDataScene::render() {
     if (!menuController) return;
 
     ClearBackground(GRAY);
@@ -42,49 +43,49 @@ void GameModeScene::render() {
     menuController->render();
 }
 
-void GameModeScene::cleanup(void) {}
+void GameDataScene::cleanup(void) {}
 
-bool GameModeScene::isActive() const { return _isActive; }
+bool GameDataScene::isActive() const { return _isActive; }
 
-std::string GameModeScene::getName(void) const { return "GameModeScene"; }
+std::string GameDataScene::getName(void) const { return "GameDataScene"; }
 
-std::string GameModeScene::getGameStateName(void) const { return "GAME_MODE";}
+std::string GameDataScene::getGameStateName(void) const { return "GAME_DATA"; }
 
-void GameModeScene::onEnter(void) {
+void GameDataScene::onEnter(void) {
     // Actions to perform when entering the in-game scene
     _isActive = true;
     init();
 }
 
-void GameModeScene::onExit(void) {
+void GameDataScene::onExit(void) {
     // Actions to perform when exiting the in-game scene
     _isActive = false;
 }
 
-bool GameModeScene::shouldTransition(void) const { return false; }
+bool GameDataScene::shouldTransition(void) const { return false; }
 
-void GameModeScene::selectGameMode(const std::string& mode) {
-    _selectedGameMode = mode;
+void GameDataScene::selectGameData(const std::string& data) {
+    _selectedGameData = data;
     if (menuController) {
-        menuController->selectGameMode(mode);
+        menuController->selectGameData(data);
     }
-    // Call GameModeState to update menu
+    // Call GameDataState to update menu
     if (_gameStateModel) {
         auto* currentState = _gameStateModel->getCurrentState();
-        std::cout << "GameModeScene: current state name " << currentState->getName() << std::endl;
-        if (auto* gameModeState = dynamic_cast<GameModeState*>(currentState)) {
-            gameModeState->setGameModeSelected(true, mode);
+        std::cout << "GameDataScene: current state name " << currentState->getName() << std::endl;
+        if (auto* gameDataState = dynamic_cast<GameDataState*>(currentState)) {
+            gameDataState->setGameDataSelected(true, data);
 
             if (_sceneManager) {
                 _sceneManager->forceMenuRefresh();
-                std::cout << "GameModeScene: force refresh menu" << std::endl;
+                std::cout << "GameDataScene: force refresh menu" << std::endl;
             }
         }
     }
 }
 
-void GameModeScene::initializeMenuController() {
-    menuController = std::make_unique<GameModeMenuController>(this);
+void GameDataScene::initializeMenuController() {
+    menuController = std::make_unique<GameDataMenuController>(this);
 
     // Create the ListMenuView with custom positioning
     Rectangle menuArea = {
@@ -100,5 +101,6 @@ void GameModeScene::initializeMenuController() {
     listMenuView->setScrollbarWidth(20.0f);
 
     menuController->setViewStrategy(std::move(listMenuView));
-    menuController->createGameModeMenu();
+    menuController->createGameDataMenu();
 }
+

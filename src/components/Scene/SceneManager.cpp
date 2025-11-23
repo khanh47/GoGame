@@ -1,11 +1,14 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "GameModeScene.h"
+#include "GameDataScene.h"
 #include "MainMenuScene.h"
+#include "InGameScene.h"
 #include "GameState.h"
 #include "NavigationMenuController.h"
 #include "MenuComponent.h"
 #include "ButtonMenuView.h"
+#include "GameModel.h"
 
 #include "raylib.h"
 #include <iostream>
@@ -37,6 +40,9 @@ void SceneManager::pushScene(std::unique_ptr<Scene> scene){
         if (auto* gameModeScene = dynamic_cast<GameModeScene*>(scene.get())) {
             gameModeScene->setDependencies(_gameStateModel, this);
         }
+        if (auto* gameDataScene = dynamic_cast<GameDataScene*>(scene.get())) {
+            gameDataScene->setDependencies(_gameStateModel, this);
+        }
         _sceneStack.emplace(std::move(scene));
         auto &entry = _sceneStack.top();
         entry->init();
@@ -51,6 +57,10 @@ void SceneManager::popScene(){
         topScene->onExit();
         topScene->cleanup();
         _sceneStack.pop();
+				if (!isEmpty()) {
+						auto &topScene = _sceneStack.top();
+						changeScene(std::move(topScene));
+				}
     }
 }
 
@@ -154,7 +164,7 @@ GameStateModel *SceneManager::getGameStateModel() const
 // private methods
 void SceneManager::processTransitions() {
     assert(_pendingTransition && _nextScene != nullptr);
-    
+
     std::string sceneName = _nextScene->getName();
 
     if (_isChangeScene) {

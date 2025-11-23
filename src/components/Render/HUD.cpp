@@ -11,7 +11,7 @@ void HUD::render()
 {
     Texture2D& _infoPanel = ResourceManager::getInstance().getTexture2D("info_panel");
     DrawTextureEx(_infoPanel, {750, 35}, 0.0f, 2.5f, WHITE);
-    
+
     // Draw players info
     Font& font = ResourceManager::getInstance().getFont("GozaruDemo");
     Texture2D& _ready = ResourceManager::getInstance().getTexture2D("ready_image");
@@ -28,15 +28,15 @@ void HUD::render()
 
     DrawCircleV({860, 150}, radius, BLACK);
     DrawTextEx(font, "Black player", {900, 100}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Score", {900, 150}, fontSize, spacing, BLACK);
-    DrawText(":", 985, 152, fontSize, BLACK);
-    DrawTextEx(font, std::to_string(_scorePlayer1).c_str(), {1000, 150}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Prisioners", {900, 150}, fontSize, spacing, BLACK);
+    DrawText(":", 1052, 152, fontSize, BLACK);
+    DrawTextEx(font, std::to_string(_scorePlayer1).c_str(), {1060, 150}, fontSize, spacing, BLACK);
 
     DrawCircleV({860, 350}, radius, WHITE);
     DrawTextEx(font, "White player", {900, 300}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Score", {900, 350}, fontSize, spacing, BLACK);
-    DrawText(":", 985, 352, fontSize, BLACK);
-    DrawTextEx(font, std::to_string(_scorePlayer2).c_str(), {1000, 350}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Prisioners", {900, 350}, fontSize, spacing, BLACK);
+    DrawText(":", 1052, 352, fontSize, BLACK);
+    DrawTextEx(font, std::to_string(_scorePlayer2).c_str(), {1060, 350}, fontSize, spacing, BLACK);
 }
 
 void HUD::getScores(int scorePlayer1, int scorePlayer2, int currentPlayer)

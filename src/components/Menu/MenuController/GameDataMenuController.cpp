@@ -1,27 +1,28 @@
-#include "GameModeMenuController.h"
-#include "ConcreteScene/GameModeScene.h"
+#include "GameDataMenuController.h"
+#include "GameDataScene.h"
 #include "MenuView.h"
 #include "MenuComponent.h"
 #include "Menu.h"
 #include "MenuItem.h"
 #include "ListMenuView.h"
 #include "MenuCommand.h"
+#include "GameModel.h"
 #include <cmath>
 #include <algorithm>
 
-GameModeMenuController::GameModeMenuController(GameModeScene* gameModeScene)
-    : _gameModeScene(gameModeScene) {
+GameDataMenuController::GameDataMenuController(GameDataScene* gameDataScene)
+    : _gameDataScene(gameDataScene) {
     _menuView = nullptr;
 }
 
-void GameModeMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
+void GameDataMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
     _menuView = std::move(view);
     if (_menuView && _menuSystem) {
         _menuView->createInGameItemsViews(_menuSystem->getChildrens().size());
     }
 }
 
-void GameModeMenuController::handleInput() {
+void GameDataMenuController::handleInput() {
     if (!_menuView || !_menuSystem) return;
 
     Vector2 mousePos = GetMousePosition();
@@ -51,7 +52,7 @@ void GameModeMenuController::handleInput() {
                 if (itemPos.y + itemSize.y < listArea.y || itemPos.y > listArea.y + listArea.height) {
                     // Item is not visible, skip interaction
                     itemViews[i]->setHovered(false);
-                    itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameModeIndex);
+                    itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameDataIndex);
                     continue;
                 }
 
@@ -74,11 +75,11 @@ void GameModeMenuController::handleInput() {
             itemViews[i]->setHovered(isHovered);
 
             // Set selected state based on the currently selected game mode index
-            itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameModeIndex);
+            itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameDataIndex);
 
             if (isHovered && mouseClicked) {
                 // Update selected game mode index
-                _selectedGameModeIndex = static_cast<int>(i);
+                _selectedGameDataIndex = static_cast<int>(i);
 
                 // Execute the command for this menu item
                 auto command = menuItems[i]->cloneCommand();
@@ -90,7 +91,7 @@ void GameModeMenuController::handleInput() {
     }
 }
 
-void GameModeMenuController::update() {
+void GameDataMenuController::update() {
     // Update scrollbar if using ListMenuView
     if (_menuView) {
         if (auto* listView = dynamic_cast<ListMenuView*>(_menuView.get())) {
@@ -101,45 +102,45 @@ void GameModeMenuController::update() {
         const auto& itemViews = _menuView->getItemViews();
         for (size_t i = 0; i < itemViews.size(); ++i) {
             if (itemViews[i]) {
-                itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameModeIndex);
+                itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameDataIndex);
             }
         }
     }
 }
 
-void GameModeMenuController::render() const {
+void GameDataMenuController::render() const {
     if (_menuView && _menuSystem) {
         _menuView->render(_menuSystem);
     }
 }
 
-void GameModeMenuController::createGameModeMenu() {
-    _menuSystem = std::make_shared<Menu>("Game Mode selection", true);
+void GameDataMenuController::createGameDataMenu() {
+    _menuSystem = std::make_shared<Menu>("Game Data selection", true);
 
-    auto playerVsPlayer = std::make_shared<MenuItem>("PVP", true);
-    playerVsPlayer->setCommand(std::make_unique<GameModeSelectCommand>("PVP", _gameModeScene));
-    _menuSystem->addItem(playerVsPlayer);
-
-    auto playerVsBot = std::make_shared<MenuItem>("PVE", true);
-    playerVsBot->setCommand(std::make_unique<GameModeSelectCommand>("PVE", _gameModeScene));
-    _menuSystem->addItem(playerVsBot);
-
+		auto gameData = std::make_unique<GameModel>()->getSavedGamesList();
+		for (const auto& data : gameData) {
+				auto menuItem = std::make_shared<MenuItem>(data, true);
+				auto command = std::make_unique<GameDataSelectCommand>(data, _gameDataScene);
+				menuItem->setCommand(std::move(command));
+				_menuSystem->addItem(menuItem);
+		}
     if (_menuView) {
         _menuView->createInGameItemsViews(_menuSystem->getChildrens().size());
     }
 }
 
-void GameModeMenuController::selectGameMode(const std::string &mode) {
-    _selectedGameMode = mode;
+void GameDataMenuController::selectGameData(const std::string &data) {
+    _selectedGameData = data;
 
-    // Find selected game mode index
+    // Find selected game data index
     if (_menuSystem) {
         const auto& menuItem = _menuSystem->getChildrens();
         for (size_t i = 0; i < menuItem.size(); ++i) {
-            if (menuItem[i]->getTitle() == mode) {
-                _selectedGameModeIndex = static_cast<int>(i);
+            if (menuItem[i]->getTitle() == data) {
+                _selectedGameDataIndex = static_cast<int>(i);
                 break;
             }
         }
     }
 }
+

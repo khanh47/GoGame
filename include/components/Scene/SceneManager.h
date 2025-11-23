@@ -7,6 +7,7 @@ class Scene;
 class GameStateModel;
 class MenuComponent;
 class NavigationMenuController;
+class GameModel;
 
 class SceneManager {
 public:
@@ -18,7 +19,7 @@ public:
     void popScene();
     void changeScene(std::unique_ptr<Scene> scene);
     void pushSceneDeferred(std::unique_ptr<Scene> scene); // push scene in next update cycle
-    
+
     // Core loop methods
     void update(float deltaTime);
     void render();

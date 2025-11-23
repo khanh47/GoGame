@@ -1,6 +1,6 @@
 #include "GameState.h"
-#include "ConcreteGameStates/MainMenuState.h"
-#include "ConcreteScene/MainMenuScene.h"
+#include "MainMenuState.h"
+#include "MainMenuScene.h"
 #include "Scene.h"
 #include "MenuComponent.h"
 #include "Menu.h"
@@ -42,15 +42,19 @@ std::shared_ptr<MenuComponent> MainMenuState::createNavigationMenu(GameStateMode
     std::shared_ptr<MenuComponent> NewGame = std::make_shared<MenuItem>("NEW GAME", true);
     NewGame->setCommand(createNewGameCommand(gameStateModel, sceneManager));
 
+    std::shared_ptr<MenuComponent> LoadGame = std::make_shared<MenuItem>("LOAD GAME", true);
+		LoadGame->setCommand(createLoadGameCommand(gameStateModel, sceneManager));
+
+    std::shared_ptr<MenuComponent> Settings = std::make_shared<MenuItem>("SETTINGS", true);
+    Settings->setCommand(createSettingsCommand(gameStateModel, sceneManager));
+
     std::shared_ptr<MenuComponent> Exit = std::make_shared<MenuItem>("EXIT", true);
     Exit->setCommand(createExitCommand());
 
-    std::shared_ptr<MenuComponent> Settings = std::make_shared<MenuItem>("SETTINGS", true);
-    Settings->setCommand(createExitCommand());
-
     mainMenu->addItem(NewGame);
-    mainMenu->addItem(Exit);
+		mainMenu->addItem(LoadGame);
     mainMenu->addItem(Settings);
+    mainMenu->addItem(Exit);
     return mainMenu;
 }
 

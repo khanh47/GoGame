@@ -1,5 +1,7 @@
 #pragma once
 #include <memory>
+#include <vector>
+#include <string>
 
 // Forward declaration
 class Board;
@@ -9,17 +11,26 @@ public:
     Game(int rows, int cols);
     ~Game();
     void render();
-    void handleInput();
+    bool handleInput();
+    void DetermineTerritories();
+    void CheckValid(int CurrentPlayer, int OpponentPlayer);
+    void BeingCaptured(int CurrentPlayer, int OpponentPlayer, std::pair<int, int> lastMove);
+    void SelfCapture(int CurrentPlayer, std::vector<std::pair<int, int>> Stones, std::vector<std::pair<int, int>> EmptySpots);
     int getCurrentPlayer() const { return _currentPlayer; }
     int getScorePlayer1() const { return _scorePlayer1; }
     int getScorePlayer2() const { return _scorePlayer2; }
     bool isGameOver() const { return _isGameOver; }
+		std::vector<std::vector<int>> getGrid();
+		std::string getGameMode() const { return _gameMode; }
+		void loadFromSnapShot(const std::vector<std::vector<int>>& grid, const int& currentPlayer, const int& scorePlayer1, const int& scorePlayer2);
 
 private:
-    std::unique_ptr<Board> grid;
+    std::unique_ptr<Board> _grid;
     bool _isGameOver = false;
     int _currentPlayer = 1; // 1 for black, 2 for white
     int _scorePlayer1 = 0;
     int _scorePlayer2 = 0;
-
+    int _FinalScorePlayer1 = 0;
+    int _FinalScorePlayer2 = 0;
+		std::string _gameMode = "NONE";
 };

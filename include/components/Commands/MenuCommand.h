@@ -2,6 +2,7 @@
 #include "GameState.h"
 #include "ICommand.h"
 #include "GameModeScene.h"
+#include "GameDataScene.h"
 #include <functional>
 
 // Forawrd declarations
@@ -46,8 +47,8 @@ std::unique_ptr<MenuCommand> createNewGameCommand(GameStateModel* gameStateModel
 std::unique_ptr<MenuCommand> createGameModeBackCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
 std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel* gameStateModel, SceneManager* sceneManager, const std::string& gameMode);
 std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
-// std::unique_ptr<MenuCommand> createLoadGameCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
-// std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createLoadGameCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
 
 class GameModeSelectCommand : public ICommand {
 private:
@@ -67,6 +68,53 @@ public:
     std::unique_ptr<ICommand> clone() const override;
     CommandType getType() const override { return CommandType::IMMEDIATE; }
 };
+
+class GameDataSelectCommand : public ICommand {
+private:
+    std::string _gameData;
+    GameDataScene* _gameDataScene;
+
+public:
+    GameDataSelectCommand(const std::string& gameData, GameDataScene* gameDataScene)
+        : _gameData(gameData), _gameDataScene(gameDataScene) {}
+
+    void execute() override;
+    virtual bool canUndo() const override { return false; }
+    virtual bool canRedo() const override { return false; }
+    void undo() override {}
+    void redo() override {}
+    std::string getName() const override { return "Game Data Select Command"; }
+    std::unique_ptr<ICommand> clone() const override;
+    CommandType getType() const override { return CommandType::IMMEDIATE; }
+};
+
+class PopSceneCommand : public ICommand {
+public:
+    PopSceneCommand(SceneManager* sceneManager)
+        : _sceneManager(sceneManager) {}
+
+    void execute() override;
+
+    bool canUndo() const override { return false; }
+    bool canRedo() const override { return false; }
+    void undo() override {}
+    void redo() override {}
+
+    std::string getName() const override {
+        return "Pop Scene Command";
+    }
+
+    std::unique_ptr<ICommand> clone() const override;
+
+    CommandType getType() const override {
+        return CommandType::IMMEDIATE;
+    }
+
+private:
+    SceneManager* _sceneManager;
+};
+
+std::unique_ptr<PopSceneCommand> createPopSceneCommand(SceneManager* sceneManager);
 
 class ExitCommand : public ICommand {
 public:

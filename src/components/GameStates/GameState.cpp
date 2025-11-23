@@ -1,6 +1,7 @@
 #include "GameState.h"
-#include "ConcreteGameStates/GameModeState.h"
-#include "ConcreteGameStates/MainMenuState.h"
+#include "GameModeState.h"
+#include "MainMenuState.h"
+#include "SettingsState.h"
 #include "SceneManager.h"
 #include "MenuComponent.h"
 #include "MenuItemView.h"
@@ -62,6 +63,10 @@ std::unique_ptr<GameState> GameStateModel::createState(const std::string &stateN
     else if (stateName == "IN_GAME")
     {
         return std::make_unique<GameModeState>();
+    }
+    else if (stateName == "SETTINGS")
+    {
+        return std::make_unique<SettingsState>();
     }
     // Add other states as needed
     return nullptr;

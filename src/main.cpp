@@ -19,10 +19,10 @@ int main() {
 
         sceneManager.update(GetFrameTime());
         sceneManager.render();
-        
+
         EndDrawing();
     }
-    
+
     CloseWindow();
     return 0;
 }
