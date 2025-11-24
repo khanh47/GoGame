@@ -24,7 +24,7 @@ A modern implementation of the traditional **Go** board game featuring a simple,
 
 ## Overview
 
-GoGame is a minimal and educational implementation of the classic **Go (Weiqi, Baduk)** board game for **Windows**.  
+GoGame is a minimal and educational implementation of the classic **Go (Weiqi, Baduk)** board game for **Windows**.
 It focuses on clarity and modularity, demonstrating a clean object-oriented architecture and using Raylib for rendering.
 
 **Key highlights**
@@ -202,13 +202,13 @@ g++ --version
 
 ## License
 
-This project is part of an academic assignment for Object-Oriented Programming course.
+This project is part of an academic assignment for Introduction to Computer Science course.
 
 ## Acknowledgments
 
 - **Raylib**: Graphics and audio library
 - **HCMUS**: University of Science, VNU-HCM
-- **Course**: Object-Oriented Programming (OOP)
+- **Course**: Introduction to Computer Science (CS160)
 
 ---
 
