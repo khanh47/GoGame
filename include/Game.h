@@ -12,20 +12,26 @@ public:
     ~Game();
     void render();
     bool handleInput();
+
+		void passTurn();
     void DetermineTerritories();
     void CheckValid(int CurrentPlayer, int OpponentPlayer);
     void BeingCaptured(int CurrentPlayer, int OpponentPlayer, std::pair<int, int> lastMove);
     void SelfCapture(int CurrentPlayer, std::vector<std::pair<int, int>> Stones, std::vector<std::pair<int, int>> EmptySpots);
+
     int getCurrentPlayer() const { return _currentPlayer; }
     int getScorePlayer1() const { return _scorePlayer1; }
     int getScorePlayer2() const { return _scorePlayer2; }
 		int getFinalScorePlayer1() const { return _FinalScorePlayer1; }
 		int getFinalScorePlayer2() const { return _FinalScorePlayer2; }
     bool isGameOver() const { return _isGameOver; }
-		void passTurn();
-		std::vector<std::vector<int>> getGrid();
 		std::string getGameMode() const { return _gameMode; }
-		void loadFromSnapShot(const std::vector<std::vector<int>>& grid, const int& currentPlayer, const int& scorePlayer1, const int& scorePlayer2);
+
+		std::vector<std::vector<int>> getGrid();
+		std::vector<std::vector<int>> getValidPlayer1Map();
+		std::vector<std::vector<int>> getValidPlayer2Map();
+
+		void loadFromSnapShot(const std::vector<std::vector<int>>& grid, const std::vector<std::vector<int>>& validPlayer1, const std::vector<std::vector<int>>& validPlayer2, const int& currentPlayer, const int& scorePlayer1, const int& scorePlayer2);
 
 private:
     std::unique_ptr<Board> _grid;

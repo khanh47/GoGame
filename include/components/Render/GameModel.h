@@ -14,6 +14,8 @@ class GameSnapShot {
 public:
     // --- Core Game State ---
     std::vector<std::vector<int>> grid;
+    std::vector<std::vector<int>> validPlayer1;
+    std::vector<std::vector<int>> validPlayer2;
     int currentPlayer = 1;
     int scorePlayer1 = 0;
     int scorePlayer2 = 0;
@@ -51,8 +53,8 @@ public:
     void update(float deltaTime);
 
 		bool isGameOver();
-		const int finalScorePlayer1();
-		const int finalScorePlayer2();
+		int finalScorePlayer1();
+		int finalScorePlayer2();
 
 // Game Data Manager
 		// snapshot history

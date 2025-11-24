@@ -22,18 +22,27 @@ static bool readString(std::istream& in, std::string& s) {
 }
 
 void GameSnapShot::serialize(std::ostream& out) const {
-    uint32_t version = 2;   // versioning for future changes
+    uint32_t version = 3;   // bump version because we added new data
     out.write(reinterpret_cast<const char*>(&version), sizeof(version));
 
     // Write grid size
     uint64_t rows = grid.size();
     uint64_t cols = (rows > 0 ? grid[0].size() : 0);
-
     out.write(reinterpret_cast<const char*>(&rows), sizeof(rows));
     out.write(reinterpret_cast<const char*>(&cols), sizeof(cols));
 
     // Write grid data
     for (const auto& row : grid) {
+        out.write(reinterpret_cast<const char*>(row.data()), sizeof(int) * cols);
+    }
+
+    // NEW: write validPlayer1
+    for (const auto& row : validPlayer1) {
+        out.write(reinterpret_cast<const char*>(row.data()), sizeof(int) * cols);
+    }
+
+    // NEW: write validPlayer2
+    for (const auto& row : validPlayer2) {
         out.write(reinterpret_cast<const char*>(row.data()), sizeof(int) * cols);
     }
 
@@ -55,7 +64,6 @@ bool GameSnapShot::deserialize(std::istream& in) {
     if (!in.read(reinterpret_cast<char*>(&version), sizeof(version)))
         return false;
 
-    // Read grid dimensions
     uint64_t rows = 0, cols = 0;
     if (!in.read(reinterpret_cast<char*>(&rows), sizeof(rows))) return false;
     if (!in.read(reinterpret_cast<char*>(&cols), sizeof(cols))) return false;
@@ -66,6 +74,25 @@ bool GameSnapShot::deserialize(std::istream& in) {
     for (auto& row : grid) {
         if (!in.read(reinterpret_cast<char*>(row.data()), sizeof(int) * cols))
             return false;
+    }
+
+    // NEW: read validPlayer1 + validPlayer2 (only if version >= 3)
+    if (version >= 3) {
+        validPlayer1.assign(rows, std::vector<int>(cols));
+        validPlayer2.assign(rows, std::vector<int>(cols));
+
+        for (auto& row : validPlayer1) {
+            if (!in.read(reinterpret_cast<char*>(row.data()), sizeof(int) * cols))
+                return false;
+        }
+        for (auto& row : validPlayer2) {
+            if (!in.read(reinterpret_cast<char*>(row.data()), sizeof(int) * cols))
+                return false;
+        }
+    } else {
+        // Older saves: initialize them as empty (forces recalculation)
+        validPlayer1.assign(rows, std::vector<int>(cols, 0));
+        validPlayer2.assign(rows, std::vector<int>(cols, 0));
     }
 
     // Read numeric data
@@ -124,11 +151,11 @@ bool GameModel::isGameOver() {
 		return _game->isGameOver();
 }
 
-const int GameModel::finalScorePlayer1() {
+int GameModel::finalScorePlayer1() {
 		return _game->getScorePlayer1();
 }
 
-const int GameModel::finalScorePlayer2() {
+int GameModel::finalScorePlayer2() {
 		return _game->getScorePlayer2();
 }
 
@@ -141,6 +168,8 @@ void GameModel::trimHistoryAfterIndex() {
 const GameSnapShot GameModel::createSnapShot() const {
 		GameSnapShot snap;
 		snap.grid = _game->getGrid();
+		snap.validPlayer1 = _game->getValidPlayer1Map();
+		snap.validPlayer2 = _game->getValidPlayer2Map();
 		snap.currentPlayer = _game->getCurrentPlayer();
 		snap.scorePlayer1 = _game->getScorePlayer1();
 		snap.scorePlayer2 = _game->getScorePlayer2();
@@ -157,7 +186,7 @@ void GameModel::applySnapShot(const GameSnapShot& snap) {
 		int currentPlayer = snap.currentPlayer;
 		int scorePlayer1 = snap.scorePlayer1;
 		int scorePlayer2 = snap.scorePlayer2;
-		_game->loadFromSnapShot(snap.grid, currentPlayer, scorePlayer1, scorePlayer2);
+		_game->loadFromSnapShot(snap.grid, snap.validPlayer1, snap.validPlayer2, currentPlayer, scorePlayer1, scorePlayer2);
 		_hud->getScores(scorePlayer1, scorePlayer2, currentPlayer);
 }
 

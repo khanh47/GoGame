@@ -22,14 +22,19 @@ void Board::init()
     validPlayer2.resize(numRows, std::vector<int>(numCols, 0));
 }
 
-void Board::renderBorderLines()
+void Board::renderGhostStones(int row, int col, int value)
 {
-    Rectangle recBorderLines = {PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE};
-    DrawRectangleLinesEx(recBorderLines, 1, BLACK);
+    float radius = CELL_SIZE * 0.4f;
+    DrawCircle(PADDING + (row + 1) * CELL_SIZE, PADDING + (col + 1) * CELL_SIZE, radius, value == 2 ? ghostWhite : shadow);
 }
 
-void Board::renderBoard()
+void Board::render()
 {
+		// Render Border Lines
+    Rectangle recBorderLines = {PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE};
+    DrawRectangleLinesEx(recBorderLines, 1, BLACK);
+
+		// Render Board
     DrawRectangle(PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE, lightBrown);
     for (int i = 1; i <= numRows; i++)
     {
@@ -39,10 +44,8 @@ void Board::renderBoard()
     {
         DrawLine(PADDING + i * CELL_SIZE, PADDING + CELL_SIZE, PADDING + i * CELL_SIZE, PADDING + numRows * CELL_SIZE, BLACK);
     }
-}
 
-void Board::renderStones()
-{
+		// Render Stones
     float radius = CELL_SIZE * 0.4f;
     for (int i = 0; i < numRows; i++)
     {
@@ -57,19 +60,6 @@ void Board::renderStones()
             }
         }
     }
-}
-
-void Board::renderGhostStones(int row, int col, int value)
-{
-    float radius = CELL_SIZE * 0.4f;
-    DrawCircle(PADDING + (row + 1) * CELL_SIZE, PADDING + (col + 1) * CELL_SIZE, radius, value == 2 ? ghostWhite : shadow);
-}
-
-void Board::render()
-{
-    renderBorderLines();
-    renderBoard();
-    renderStones();
 }
 
 void Board::setValue(int row, int col, int value)

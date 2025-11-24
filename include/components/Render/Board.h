@@ -10,9 +10,6 @@ public:
     ~Board();
     void init();
     void render();
-    void renderBorderLines();
-    void renderBoard();
-    void renderStones();
     void renderGhostStones(int row, int col, int value);
     void setValue(int row, int col, int value);
     int getValue(int row, int col);
@@ -20,6 +17,10 @@ public:
     void setValidPlayer2(int row, int col, int value);
     int getValidPlayer1(int row, int col);
     int getValidPlayer2(int row, int col);
+    const std::vector<std::vector<int>> getValidPlayer1Map() { return validPlayer1; }
+    const std::vector<std::vector<int>> getValidPlayer2Map() { return validPlayer2; }
+    void setValidPlayer1Map(const std::vector<std::vector<int>>& map) { validPlayer1 = map; }
+    void setValidPlayer2Map(const std::vector<std::vector<int>>& map) { validPlayer2 = map; }
     int GetNumRows();
     int GetNumCols();
     bool Alive(int row, int col);

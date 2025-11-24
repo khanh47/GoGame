@@ -23,10 +23,7 @@ Game::~Game()
 
 void Game::passTurn() {
 		_currentPlayer = _currentPlayer == 1 ? 2 : 1;
-		if (_isLastTurnPass) {
-				_isGameOver = true;
-				std::cout << "2 pass in a row, the game end!\n";
-		}
+		if (_isLastTurnPass) _isGameOver = true;
 		_isLastTurnPass = true;
 }
 
@@ -45,11 +42,23 @@ std::vector<std::vector<int>> Game::getGrid() {
 		return _grid->getGrid();
 }
 
+std::vector<std::vector<int>> Game::getValidPlayer1Map() {
+		return _grid->getValidPlayer1Map();
+}
+
+std::vector<std::vector<int>> Game::getValidPlayer2Map() {
+		return _grid->getValidPlayer2Map();
+}
+
 void Game::loadFromSnapShot(const std::vector<std::vector<int>>& grid,
+														const std::vector<std::vector<int>>& validPlayer1,
+														const std::vector<std::vector<int>>& validPlayer2,
 														const int& currentPlayer,
 														const int& scorePlayer1,
 														const int& scorePlayer2) {
 		_grid->loadGrid(grid);
+		_grid->setValidPlayer1Map(validPlayer1);
+		_grid->setValidPlayer2Map(validPlayer2);
 		_currentPlayer = currentPlayer;
 		_scorePlayer1 = scorePlayer1;
 		_scorePlayer2 = scorePlayer2;
@@ -393,7 +402,7 @@ bool Game::handleInput()
                         _grid->setValidPlayer2(i, j, 0);
                     else _grid->setValidPlayer2(i, j, 1);
                 }
-                else if (_currentPlayer == 3 && _grid->getValidPlayer1(i, j) == 2) {
+                else if (_currentPlayer == 2 && _grid->getValidPlayer1(i, j) == 2) {
                     if (_grid->getValue(i, j) == 0)
                         _grid->setValidPlayer1(i, j, 0);
                     else _grid->setValidPlayer1(i, j, 1);
