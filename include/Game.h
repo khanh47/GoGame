@@ -19,13 +19,17 @@ public:
     int getCurrentPlayer() const { return _currentPlayer; }
     int getScorePlayer1() const { return _scorePlayer1; }
     int getScorePlayer2() const { return _scorePlayer2; }
+		int getFinalScorePlayer1() const { return _FinalScorePlayer1; }
+		int getFinalScorePlayer2() const { return _FinalScorePlayer2; }
     bool isGameOver() const { return _isGameOver; }
+		void passTurn();
 		std::vector<std::vector<int>> getGrid();
 		std::string getGameMode() const { return _gameMode; }
 		void loadFromSnapShot(const std::vector<std::vector<int>>& grid, const int& currentPlayer, const int& scorePlayer1, const int& scorePlayer2);
 
 private:
     std::unique_ptr<Board> _grid;
+		bool _isLastTurnPass = false;
     bool _isGameOver = false;
     int _currentPlayer = 1; // 1 for black, 2 for white
     int _scorePlayer1 = 0;

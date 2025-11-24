@@ -31,13 +31,19 @@ void InGameScene::init(void) {
 		        }
 		    }
 		}
+		initializePassButton();
 		initializeMenuController();
 		_savedGameList = std::make_unique<SavedGameList>(this, _gameModel);
 		_textBox = std::make_unique<TextBox>(this);
+		_endGameBox = std::make_unique<EndGameBox>(_gameModel->finalScorePlayer1(), _gameModel->finalScorePlayer2());
 		std::cout << "InGameScene initialize" << std::endl;
 }
 
 void InGameScene::update(float deltaTime) {
+		if (_endGameBox->isOpen()) {
+				_endGameBox->update();
+				return;
+		}
 		if (_textBox->isOpen()) {
 				_textBox->update(deltaTime);
 				return;
@@ -51,7 +57,13 @@ void InGameScene::update(float deltaTime) {
         menuController->update();
 
     if (_gameModel)
-        _gameModel->update();
+        _gameModel->update(deltaTime);
+
+		if (_passButton)
+				_passButton->update();
+		if (_gameModel->isGameOver()) {
+				_endGameBox->open();
+		}
 }
 
 void InGameScene::render(void) {
@@ -63,15 +75,25 @@ void InGameScene::render(void) {
 		if (menuController) {
 				menuController->render();
 		}
+		if (_passButton) {
+				_passButton->render();
+		}
 		if (_savedGameList->isOpen()) {
 				_savedGameList->render();
 		}
 		if (_textBox->isOpen()) {
 				_textBox->render();
 		}
+		if (_endGameBox->isOpen()) {
+				_endGameBox->render();
+		}
 }
 
 void InGameScene::handleInput() {
+		if (_endGameBox->isOpen()) {
+				_endGameBox->handleInput();
+				return;
+		}
 		if (_textBox->isOpen()) {
 				_textBox->handleInput();
 				return;
@@ -81,6 +103,8 @@ void InGameScene::handleInput() {
 				return;
 		}
 
+		if (_passButton)
+				_passButton->handleInput();
     if (menuController)
         menuController->handleInput();
     if (_gameModel)
@@ -121,6 +145,13 @@ void InGameScene::initializeMenuController() {
     menuController->createInGameMenu();
 }
 
+void InGameScene::initializePassButton() {
+    _passButton = std::make_unique<PassButton>(_gameModel);
+
+    _passButton ->setViewStrategy(std::make_unique<ButtonMenuView>());
+    _passButton->createPassButton();
+}
+
 void InGameScene::openSavedGameListPopup() {
 		_savedGameList->open();
 }
@@ -135,6 +166,14 @@ void InGameScene::openGameDataInputPopup() {
 
 void InGameScene::closeGameDataInputPopup() {
 		_textBox->close();
+}
+
+void InGameScene::openEndGameBoxPopup() {
+		_endGameBox->open();
+}
+
+void InGameScene::closeEndGameBoxPopup() {
+		_endGameBox->close();
 }
 
 bool InGameScene::isPopup() {

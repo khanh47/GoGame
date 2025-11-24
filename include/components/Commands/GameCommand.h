@@ -101,3 +101,19 @@ public:
 private:
     std::string _filename;
 };
+
+class PassCommand : public GameCommand {
+public:
+    PassCommand(GameModel* model)
+        : GameCommand(model) {}
+
+    void execute() override;
+
+    std::string getName() const override { return "Pass Command"; }
+
+    std::unique_ptr<ICommand> clone() const override {
+        auto cloned = std::make_unique<PassCommand>(_gameModel);
+        cloned->_callback = _callback;
+        return cloned;
+    }
+};

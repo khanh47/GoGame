@@ -48,7 +48,11 @@ public:
     GameModel();
     void render();
     void handleInput();
-    void update();
+    void update(float deltaTime);
+
+		bool isGameOver();
+		const int finalScorePlayer1();
+		const int finalScorePlayer2();
 
 // Game Data Manager
 		// snapshot history
@@ -59,10 +63,12 @@ public:
 		void pushState(const GameSnapShot& snap);
 		void pushResetState(const GameSnapShot& snap);
 		void resetGame();
+		void passGame();
 		bool canUndo() const;
 		bool canRedo() const;
 		bool undo();
 		bool redo();
+
 		// save/load snapshot
     void setSelectedGameData(const std::optional<std::string>& name) { _gameDataSelected = name; }
     std::optional<std::string> getSelectedGameData() const { return _gameDataSelected; }

@@ -5,6 +5,29 @@
 
 HUD::HUD()
 {
+    _elapsedTime = 0.0f;   // reset timer
+    _timerActive = true;
+}
+
+void HUD::update(float deltaTime) {
+		_elapsedTime += deltaTime;
+}
+
+void HUD::getScores(int scorePlayer1, int scorePlayer2, int currentPlayer)
+{
+    _scorePlayer1 = scorePlayer1;
+    _scorePlayer2 = scorePlayer2;
+    _currentPlayer = currentPlayer;
+}
+
+std::string HUD::formatTime(float seconds) {
+    int total = (int)seconds;
+    int mins = total / 60;
+    int secs = total % 60;
+
+    char buffer[16];
+    snprintf(buffer, sizeof(buffer), "%02d:%02d", mins, secs);
+    return buffer;
 }
 
 void HUD::render()
@@ -13,7 +36,7 @@ void HUD::render()
     DrawTextureEx(_infoPanel, {750, 35}, 0.0f, 2.5f, WHITE);
 
     // Draw players info
-    Font& font = ResourceManager::getInstance().getFont("GozaruDemo");
+    Font& font = ResourceManager::getInstance().getFont("Boldonse");
     Texture2D& _ready = ResourceManager::getInstance().getTexture2D("ready_image");
 
     float fontSize = 40.0f;
@@ -28,20 +51,22 @@ void HUD::render()
 
     DrawCircleV({860, 150}, radius, BLACK);
     DrawTextEx(font, "Black player", {900, 100}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Prisioners", {900, 150}, fontSize, spacing, BLACK);
-    DrawText(":", 1052, 152, fontSize, BLACK);
-    DrawTextEx(font, std::to_string(_scorePlayer1).c_str(), {1060, 150}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Prisioners:", {900, 150}, fontSize, spacing, BLACK);
+    DrawTextEx(font, std::to_string(_scorePlayer1).c_str(), {1050, 150}, fontSize, spacing, BLACK);
 
     DrawCircleV({860, 350}, radius, WHITE);
     DrawTextEx(font, "White player", {900, 300}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Prisioners", {900, 350}, fontSize, spacing, BLACK);
-    DrawText(":", 1052, 352, fontSize, BLACK);
-    DrawTextEx(font, std::to_string(_scorePlayer2).c_str(), {1060, 350}, fontSize, spacing, BLACK);
-}
+    DrawTextEx(font, "Prisioners:", {900, 350}, fontSize, spacing, BLACK);
+    DrawTextEx(font, std::to_string(_scorePlayer2).c_str(), {1050, 350}, fontSize, spacing, BLACK);
 
-void HUD::getScores(int scorePlayer1, int scorePlayer2, int currentPlayer)
-{
-    _scorePlayer1 = scorePlayer1;
-    _scorePlayer2 = scorePlayer2;
-    _currentPlayer = currentPlayer;
+    std::string timerStr = formatTime(_elapsedTime);
+    //DrawText(":", 1000, 602, 60, BLACK);
+    DrawTextEx(
+				font,
+        timerStr.c_str(),
+				{940, 600},
+        50,
+				2,
+        BLACK
+    );
 }

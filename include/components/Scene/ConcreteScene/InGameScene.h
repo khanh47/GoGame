@@ -3,7 +3,9 @@
 #include <memory>
 #include "InGameMenuController.h"
 #include "SavedGameList.h"
+#include "PassButton.h"
 #include "TextBox.h"
+#include "EndGameBox.h"
 
 // Forward declaration
 class GameModel;
@@ -31,17 +33,24 @@ public:
     // popup control functions
     void openSavedGameListPopup();
     void closeSavedGameListPopup();
+
     void openGameDataInputPopup();
     void closeGameDataInputPopup();
+
+    void openEndGameBoxPopup();
+    void closeEndGameBoxPopup();
 
 		bool isPopup();
 
 private:
     std::unique_ptr<InGameMenuController> menuController;
+    std::unique_ptr<PassButton> _passButton;
     std::unique_ptr<SavedGameList> _savedGameList;
 		std::unique_ptr<TextBox> _textBox;
+		std::unique_ptr<EndGameBox> _endGameBox;
 		GameModel* _gameModel;
     std::string _gameModeSelected;
 private:
 		void initializeMenuController();
+		void initializePassButton();
 };

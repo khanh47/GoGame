@@ -1,7 +1,6 @@
 #include "GameModel.h"
 #include "HUD.h"
 #include "Game.h"
-#include "json.hpp"
 #include <fstream>
 #include <chrono>
 #include <iostream>
@@ -114,10 +113,23 @@ void GameModel::handleInput() {
 		}
 }
 
-void GameModel::update() {
+void GameModel::update(float deltaTime) {
     if (!_game || !_hud) return;
 		const GameSnapShot* snap = currentSnapShot();
 		applySnapShot(*snap);
+		_hud->update(deltaTime);
+}
+
+bool GameModel::isGameOver() {
+		return _game->isGameOver();
+}
+
+const int GameModel::finalScorePlayer1() {
+		return _game->getScorePlayer1();
+}
+
+const int GameModel::finalScorePlayer2() {
+		return _game->getScorePlayer2();
 }
 
 void GameModel::trimHistoryAfterIndex() {
@@ -157,6 +169,11 @@ void GameModel::pushState(const GameSnapShot& snap) {
 
 void GameModel::resetGame() {
     _game = std::make_shared<Game>(19, 19); // Standard Go board size
+		pushState(createSnapShot());
+}
+
+void GameModel::passGame() {
+		_game->passTurn();
 		pushState(createSnapShot());
 }
 

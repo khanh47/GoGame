@@ -149,5 +149,5 @@ ResourceManager::ResourceManager() {
     _preLoadTexture2D("assets/background_image/main_menu_background.jpg", "main_menu_background");
     _preLoadFont("assets/fonts/GozaruDemo.ttf", "GozaruDemo");
     _preLoadFont("assets/fonts/NinjaKageDemo-Regular.otf", "NinjaKageDemo");
-
+    _preLoadFont("assets/fonts/Boldonse-Regular.ttf", "Boldonse");
 }

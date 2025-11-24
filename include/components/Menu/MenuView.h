@@ -18,6 +18,7 @@ public:
     virtual void createInGameItemsViews(int numberOfItems) = 0;
     virtual void createSavedGameItemsViews(int numberOfItems) = 0;
     virtual void createSettingMenuItemViews(int numberOfItems) = 0;
+		virtual void createPassButton(int numberOfItems) = 0;
     virtual void render(std::shared_ptr<MenuComponent> menuModel) const = 0;
 
     virtual void setItemViews(const std::vector<std::shared_ptr<MenuItemView>>& views) { _itemViews = views; }

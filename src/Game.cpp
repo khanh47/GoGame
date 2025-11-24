@@ -21,6 +21,15 @@ Game::~Game()
 {
 }
 
+void Game::passTurn() {
+		_currentPlayer = _currentPlayer == 1 ? 2 : 1;
+		if (_isLastTurnPass) {
+				_isGameOver = true;
+				std::cout << "2 pass in a row, the game end!\n";
+		}
+		_isLastTurnPass = true;
+}
+
 void Game::render()
 {
     _grid->render();
@@ -410,5 +419,6 @@ bool Game::handleInput()
         _scorePlayer1 += _FinalScorePlayer1;
         _scorePlayer2 += _FinalScorePlayer2;
     }
+		if (isValidMove) _isLastTurnPass = false;
 		return isValidMove;
 }

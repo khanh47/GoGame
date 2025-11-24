@@ -35,3 +35,9 @@ void SaveCommand::execute() {
 				}
 		}
 }
+
+void PassCommand::execute() {
+		if (_gameModel) {
+				_gameModel->passGame();
+		}
+}
