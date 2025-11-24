@@ -3,9 +3,11 @@
 #include "colors.h"
 #include "raylib.h"
 
-void EndGameBox::open() {
+void EndGameBox::open(const int& scorePlayer1, const int& scorePlayer2) {
     if (_open) return;
     _open = true;
+		_scorePlayer1 = scorePlayer1;
+		_scorePlayer2 = scorePlayer2;
 }
 
 void EndGameBox::close() {

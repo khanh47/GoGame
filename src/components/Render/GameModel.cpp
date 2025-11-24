@@ -151,11 +151,11 @@ bool GameModel::isGameOver() {
 		return _game->isGameOver();
 }
 
-int GameModel::finalScorePlayer1() {
+int GameModel::getScorePlayer1() {
 		return _game->getScorePlayer1();
 }
 
-int GameModel::finalScorePlayer2() {
+int GameModel::getScorePlayer2() {
 		return _game->getScorePlayer2();
 }
 

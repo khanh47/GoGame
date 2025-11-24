@@ -35,11 +35,14 @@ void InGameScene::init(void) {
 		initializeMenuController();
 		_savedGameList = std::make_unique<SavedGameList>(this, _gameModel);
 		_textBox = std::make_unique<TextBox>(this);
-		_endGameBox = std::make_unique<EndGameBox>(_gameModel->finalScorePlayer1(), _gameModel->finalScorePlayer2());
+		_endGameBox = std::make_unique<EndGameBox>();
 		std::cout << "InGameScene initialize" << std::endl;
 }
 
 void InGameScene::update(float deltaTime) {
+		if (_gameModel->isGameOver()) {
+				_endGameBox->open(_gameModel->getScorePlayer1(), _gameModel->getScorePlayer2());
+		}
 		if (_endGameBox->isOpen()) {
 				_endGameBox->update();
 				return;
@@ -61,9 +64,6 @@ void InGameScene::update(float deltaTime) {
 
 		if (_passButton)
 				_passButton->update();
-		if (_gameModel->isGameOver()) {
-				_endGameBox->open();
-		}
 }
 
 void InGameScene::render(void) {
@@ -166,14 +166,6 @@ void InGameScene::openGameDataInputPopup() {
 
 void InGameScene::closeGameDataInputPopup() {
 		_textBox->close();
-}
-
-void InGameScene::openEndGameBoxPopup() {
-		_endGameBox->open();
-}
-
-void InGameScene::closeEndGameBoxPopup() {
-		_endGameBox->close();
 }
 
 bool InGameScene::isPopup() {

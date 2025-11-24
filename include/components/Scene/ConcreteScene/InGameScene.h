@@ -37,9 +37,6 @@ public:
     void openGameDataInputPopup();
     void closeGameDataInputPopup();
 
-    void openEndGameBoxPopup();
-    void closeEndGameBoxPopup();
-
 		bool isPopup();
 
 private:

@@ -2,11 +2,10 @@
 
 class EndGameBox {
 public:
-		EndGameBox(const int& scorePlayer1, const int& scorePlayer2)
-		: _scorePlayer1(scorePlayer1), _scorePlayer2(scorePlayer2) {}
+		EndGameBox() = default;
 		~EndGameBox() = default;
 
-		void open();
+		void open(const int& scorePlayer1, const int& scorePlayer2);
 		void close();
 
 		bool isOpen() const { return _open; }

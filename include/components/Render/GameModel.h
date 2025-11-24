@@ -53,8 +53,8 @@ public:
     void update(float deltaTime);
 
 		bool isGameOver();
-		int finalScorePlayer1();
-		int finalScorePlayer2();
+		int getScorePlayer1();
+		int getScorePlayer2();
 
 // Game Data Manager
 		// snapshot history
@@ -75,14 +75,15 @@ public:
     void setSelectedGameData(const std::optional<std::string>& name) { _gameDataSelected = name; }
     std::optional<std::string> getSelectedGameData() const { return _gameDataSelected; }
 		bool isGameDataSelected() { return _gameDataSelected.has_value(); }
+
     bool saveCurrentToSelectedFile();
     bool deleteSelectedFile();
     bool createNewSaveFile(const std::string& filename);
+		bool deleteSavedGame(const std::string& filename);
 		bool saveToFile(const GameSnapShot& snap, const std::string& filename);
+
 		std::optional<GameSnapShot> loadFromFile(const std::string& filename);
 		std::vector<std::string> getSavedGamesList() const;
-		bool deleteSavedGame(const std::string& filename);
-
 		std::optional<std::string> latestSavedGameFileName() const;
 };
 
