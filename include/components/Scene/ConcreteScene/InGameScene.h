@@ -2,7 +2,8 @@
 #include "Scene.h"
 #include <memory>
 #include "InGameMenuController.h"
-#include "SavedGameListMenuController.h"
+#include "SavedGameList.h"
+#include "TextBox.h"
 
 // Forward declaration
 class GameModel;
@@ -11,8 +12,6 @@ class InGameScene : public Scene {
 public:
     InGameScene(const std::string &gameMode);
     ~InGameScene() override = default;
-
-    void setDependencies(GameModel* gameModel);
 
     void init(void) override;
     void update(float deltaTime) override;
@@ -35,20 +34,14 @@ public:
     void openGameDataInputPopup();
     void closeGameDataInputPopup();
 
-    // UI handlers
-    void initializeSavedGameList(); // builds the menu and attaches view
-    void initializeGameDataInput(); // initializes input buffer
-    void updatePopups(float dt);
-    void renderPopups() const;
+		bool isPopup();
 
 private:
     std::unique_ptr<InGameMenuController> menuController;
-    std::unique_ptr<SavedGameListMenuController> _savedListController;
+    std::unique_ptr<SavedGameList> _savedGameList;
+		std::unique_ptr<TextBox> _textBox;
 		GameModel* _gameModel;
     std::string _gameModeSelected;
-    std::string _gameDataInputBuffer;
-    bool isSavedGameListPopup = false;
-    bool isGameDataInputPopup = false;
 private:
 		void initializeMenuController();
 };

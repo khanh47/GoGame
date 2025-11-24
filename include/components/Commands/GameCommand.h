@@ -85,16 +85,19 @@ public:
 
 class SaveCommand : public GameCommand {
 public:
-    SaveCommand(GameModel* model)
-        : GameCommand(model) {}
+    SaveCommand(GameModel* model, const std::string& file)
+        : GameCommand(model), _filename(file) {}
 
     void execute() override;
 
     std::string getName() const override { return "Save Command"; }
 
     std::unique_ptr<ICommand> clone() const override {
-        auto cloned = std::make_unique<SaveCommand>(_gameModel);
+        auto cloned = std::make_unique<SaveCommand>(_gameModel, _filename);
         cloned->_callback = _callback;
         return cloned;
     }
+
+private:
+    std::string _filename;
 };

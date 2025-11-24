@@ -27,11 +27,11 @@ void ResetCommand::execute() {
 }
 
 void SaveCommand::execute() {
-//		if (_gameModel) {
-//				const GameSnapShot* snap = _gameModel->currentSnapShot();
-//				if (snap) {
-//						_gameModel->saveToFile(*snap, _filename);
-//
-//				}
-//		}
+		if (_gameModel) {
+				const GameSnapShot* snap = _gameModel->currentSnapShot();
+				if (snap) {
+						_gameModel->saveToFile(*snap, _filename);
+
+				}
+		}
 }

@@ -86,6 +86,9 @@ void SceneManager::update(float deltaTime){
         if (currentScene->isActive()) {
             currentScene->handleInput();
             currentScene->update(deltaTime);
+						if (auto* inGameScene = dynamic_cast<InGameScene*>(currentScene.get())) {
+        		    if (inGameScene->isPopup()) return;
+        		}
         }
     }
 
@@ -93,19 +96,18 @@ void SceneManager::update(float deltaTime){
     if (_menuActive && _navigationMenuController) {
         updateMenuSystem(deltaTime);
     }
-
-    // Handle toggle menu input
-    if (IsKeyPressed(KEY_TAB)) {
-        toggleMenu();
-    }
 }
 
 void SceneManager::render(){
+		bool isInGameScenePopup = 0;
     if (!isEmpty()) {
         auto &currentScene = _sceneStack.top();
-        if (currentScene->isActive()) {
+				if (auto* inGameScene = dynamic_cast<InGameScene*>(currentScene.get())) {
+    		    if (inGameScene->isPopup()) isInGameScenePopup = true;
+        }
+        if (currentScene->isActive() && !isInGameScenePopup) {
             currentScene->render();
-    }
+				}
     } else {
         std::cerr << "Warning: No scene to render." << std::endl;
     }
@@ -114,6 +116,12 @@ void SceneManager::render(){
     if (_menuActive && _navigationMenuController) {
         renderMenuSystem();
     }
+		if (isInGameScenePopup) {
+        auto &currentScene = _sceneStack.top();
+        if (currentScene->isActive()) {
+            currentScene->render();
+				}
+		}
 }
 
 // Scene queries

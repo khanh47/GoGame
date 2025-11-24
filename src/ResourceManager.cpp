@@ -36,6 +36,30 @@ void ResourceManager::_preLoadFont(const std::string &filename, const std::strin
     _MappingAliasToFilename[alias] = filename;
 }
 
+void ResourceManager::_preLoadMusic(const std::string &filename, const std::string &alias) {
+    if (_musics.find(filename) != _musics.end()) return;
+
+    Music music = LoadMusicStream(filename.c_str());
+    if (music.stream.buffer == nullptr) {
+        throw std::runtime_error("Failed to load music: " + filename);
+    }
+
+    _musics[filename] = music;
+    _MappingAliasToFilename[alias] = filename;
+}
+
+void ResourceManager::_preLoadSound(const std::string &filename, const std::string &alias) {
+    if (_sounds.find(filename) != _sounds.end()) return;
+
+    Sound sound = LoadSound(filename.c_str());
+    if (sound.frameCount == 0) {
+        throw std::runtime_error("Failed to load sound: " + filename);
+    }
+
+    _sounds[filename] = sound;
+    _MappingAliasToFilename[alias] = filename;
+}
+
 void ResourceManager::_unloadTexture2D(const std::string &alias) {
     auto it = _MappingAliasToFilename.find(alias);
     if (it != _MappingAliasToFilename.end()) {
@@ -93,22 +117,32 @@ Font& ResourceManager::getFont(const std::string &alias) {
     }
 }
 
+Music& ResourceManager::getMusic(const std::string &alias) {
+    const std::string &filename = _MappingAliasToFilename.at(alias);
+    return _musics.at(filename);
+}
+
+Sound& ResourceManager::getSound(const std::string &alias) {
+    const std::string &filename = _MappingAliasToFilename.at(alias);
+    return _sounds.at(filename);
+}
+
 ResourceManager::~ResourceManager() {
     // Unload all textures and fonts
-    for (const auto &pair : _textures) {
-        UnloadTexture(pair.second);
-    }
+
+    for (auto &p : _textures) UnloadTexture(p.second);
+    for (auto &p : _fonts) UnloadFont(p.second);
+    for (auto &p : _musics) UnloadMusicStream(p.second);
+    for (auto &p : _sounds) UnloadSound(p.second);
+
     _textures.clear();
-
-    for (const auto &pair : _fonts) {
-        UnloadFont(pair.second);
-    }
     _fonts.clear();
-
+    _musics.clear();
+    _sounds.clear();
     _MappingAliasToFilename.clear();
 }
 
-ResourceManager::ResourceManager() {    
+ResourceManager::ResourceManager() {
     _preLoadTexture2D("assets/background_image/info_panel.png", "info_panel");
     _preLoadTexture2D("assets/images/Theme_0/ready.png", "ready_image");
     _preLoadTexture2D("assets/background_image/in-game_background.jpg", "in_game_background");

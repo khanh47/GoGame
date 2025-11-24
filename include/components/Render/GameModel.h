@@ -66,6 +66,7 @@ public:
 		// save/load snapshot
     void setSelectedGameData(const std::optional<std::string>& name) { _gameDataSelected = name; }
     std::optional<std::string> getSelectedGameData() const { return _gameDataSelected; }
+		bool isGameDataSelected() { return _gameDataSelected.has_value(); }
     bool saveCurrentToSelectedFile();
     bool deleteSelectedFile();
     bool createNewSaveFile(const std::string& filename);

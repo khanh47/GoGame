@@ -53,7 +53,7 @@ void Board::renderStones()
             if (_grid[i][j])
             {
                 DrawCircleV(Vector2{x + 2, y + 2}, radius, shadow);
-                DrawCircle(x, y, radius, _grid[i][j] == 1 ? WHITE : BLACK);
+                DrawCircle(x, y, radius, _grid[i][j] == 2 ? WHITE : BLACK);
             }
         }
     }
@@ -62,7 +62,7 @@ void Board::renderStones()
 void Board::renderGhostStones(int row, int col, int value)
 {
     float radius = CELL_SIZE * 0.4f;
-    DrawCircle(PADDING + (row + 1) * CELL_SIZE, PADDING + (col + 1) * CELL_SIZE, radius, value == 1 ? ghostWhite : shadow);
+    DrawCircle(PADDING + (row + 1) * CELL_SIZE, PADDING + (col + 1) * CELL_SIZE, radius, value == 2 ? ghostWhite : shadow);
 }
 
 void Board::render()

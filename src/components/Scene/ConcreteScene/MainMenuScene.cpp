@@ -15,7 +15,7 @@ void MainMenuScene::update(float deltaTime) {
 
 void MainMenuScene::render(void) {
     Texture2D background = ResourceManager::getInstance().getTexture2D("main_menu_background");
-    DrawTextureEx(background, { 0, 0 }, 0.0f, 1.6f, WHITE);
+    DrawTextureEx(background, { 0, 0 }, 0.0f, 1.8f, WHITE);
     Font _font = ResourceManager::getInstance().getFont("NinjaKageDemo");
     const int ScreenWidth = GetScreenWidth();
     DrawTextEx(_font, "GO GAME", {450, 50}, 50, 20, BLACK);

@@ -11,11 +11,12 @@ class MenuComponent;
 class IMenuView {
 protected:
     std::vector<std::shared_ptr<MenuItemView>> _itemViews;
-    
+
 public:
     virtual ~IMenuView() = default;
     virtual void createNavigationItemViews(std::shared_ptr<MenuComponent> menuModel, GameState* gameState) = 0;
     virtual void createInGameItemsViews(int numberOfItems) = 0;
+    virtual void createSavedGameItemsViews(int numberOfItems) = 0;
     virtual void createSettingMenuItemViews(int numberOfItems) = 0;
     virtual void render(std::shared_ptr<MenuComponent> menuModel) const = 0;
 

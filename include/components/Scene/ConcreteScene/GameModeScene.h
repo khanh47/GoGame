@@ -14,7 +14,6 @@ private:
     std::string _selectedGameMode;
     SceneManager* _sceneManager = nullptr;
     GameStateModel* _gameStateModel = nullptr;
-    Game* _game = nullptr;
 
 public:
     GameModeScene() = default;

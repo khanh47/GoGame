@@ -14,5 +14,6 @@ public:
     void createNavigationItemViews(std::shared_ptr<MenuComponent> menuModel, GameState* gameState) override;
     void createSettingMenuItemViews(int numberOfItems) override;
     void createInGameItemsViews(int numberOfItems) override;
+    void createSavedGameItemsViews(int numberOfItems) override;
     void render(std::shared_ptr<MenuComponent> menuModel) const override;
 };

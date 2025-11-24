@@ -100,6 +100,28 @@ std::unique_ptr<ICommand> createOpenCreateInputCommand(InGameScene* scene) {
 }
 
 // Close saved list (tell scene to close popup)
+class CloseCreateInputCommand : public ICommand {
+public:
+    CloseCreateInputCommand(InGameScene* s) : _s(s) {}
+    void execute() override {
+        if (_s) _s->closeGameDataInputPopup();
+    }
+    bool canUndo() const override { return false; }
+    bool canRedo() const override { return false; }
+    void undo() override {}
+    void redo() override {}
+    std::string getName() const override { return "CloseCreateInput"; }
+    std::unique_ptr<ICommand> clone() const override { return std::make_unique<CloseCreateInputCommand>(_s); }
+    CommandType getType() const override { return CommandType::IMMEDIATE; }
+private:
+    InGameScene* _s;
+};
+
+std::unique_ptr<ICommand> createCloseCreateInputCommand(InGameScene* scene) {
+    return std::make_unique<CloseCreateInputCommand>(scene);
+}
+
+// Close saved list (tell scene to close popup)
 class CloseSavedListCommand : public ICommand {
 public:
     CloseSavedListCommand(InGameScene* s) : _s(s) {}
@@ -178,3 +200,33 @@ std::unique_ptr<ICommand> createSavedGameSelectCommand(
     return std::make_unique<SavedGameSelectCommand>(model, filename);
 }
 
+class SaveFromInputCommand : public ICommand {
+public:
+    SaveFromInputCommand(GameModel* model, const std::string& filename)
+        : _model(model), _filename(filename) {}
+
+    void execute() override {
+        if (!_model) return;
+        _model->createNewSaveFile(_filename);
+    }
+
+    std::string getName() const override { return "Save from input Command"; }
+    bool canUndo() const override { return false; }
+    bool canRedo() const override { return false; }
+    void undo() override {}
+    void redo() override {}
+    std::unique_ptr<ICommand> clone() const override {
+        return std::make_unique<SaveFromInputCommand>(_model, _filename);
+    }
+    CommandType getType() const override { return CommandType::IMMEDIATE; }
+
+private:
+    GameModel* _model;
+		std::string _filename;
+};
+
+std::unique_ptr<ICommand> createSaveFromInputCommand(
+        GameModel* model, const std::string& filename)
+{
+    return std::make_unique<SaveFromInputCommand>(model, filename);
+}
