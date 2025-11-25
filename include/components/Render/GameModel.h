@@ -37,14 +37,14 @@ class GameModel {
 private:
     std::shared_ptr<HUD> _hud;
     std::shared_ptr<Game> _game;
-		std::optional<std::string> _gameDataSelected;
+	std::optional<std::string> _gameDataSelected;
 
 // Game Data Manager
-		std::vector<GameSnapShot> _history;
-		size_t _historyIndex = -1;
-		std::filesystem::path _dataDir;
+	std::vector<GameSnapShot> _history;
+	size_t _historyIndex = -1;
+	std::filesystem::path _dataDir;
 
-		void trimHistoryAfterIndex();
+	void trimHistoryAfterIndex();
 
 public:
     GameModel();
@@ -52,24 +52,24 @@ public:
     void handleInput();
     void update(float deltaTime);
 
-		bool isGameOver();
-		int getScorePlayer1();
-		int getScorePlayer2();
+	bool isGameOver();
+	int getScorePlayer1();
+	int getScorePlayer2();
 
 // Game Data Manager
 		// snapshot history
-		const std::vector<GameSnapShot> getHistory() { return _history; }
-		const GameSnapShot createSnapShot() const;
-		const GameSnapShot* currentSnapShot() const;
-		void applySnapShot(const GameSnapShot& snap);
-		void pushState(const GameSnapShot& snap);
-		void pushResetState(const GameSnapShot& snap);
-		void resetGame();
-		void passGame();
-		bool canUndo() const;
-		bool canRedo() const;
-		bool undo();
-		bool redo();
+	const std::vector<GameSnapShot> getHistory() { return _history; }
+	const GameSnapShot createSnapShot() const;
+	const GameSnapShot* currentSnapShot() const;
+	void applySnapShot(const GameSnapShot& snap);
+	void pushState(const GameSnapShot& snap);
+	void pushResetState(const GameSnapShot& snap);
+	void resetGame();
+	void passGame();
+	bool canUndo() const;
+	bool canRedo() const;
+	bool undo();
+	bool redo();
 
 		// save/load snapshot
     void setSelectedGameData(const std::optional<std::string>& name) { _gameDataSelected = name; }
@@ -79,11 +79,13 @@ public:
     bool saveCurrentToSelectedFile();
     bool deleteSelectedFile();
     bool createNewSaveFile(const std::string& filename);
-		bool deleteSavedGame(const std::string& filename);
-		bool saveToFile(const GameSnapShot& snap, const std::string& filename);
+	bool deleteSavedGame(const std::string& filename);
+	bool saveToFile(const GameSnapShot& snap, const std::string& filename);
 
-		std::optional<GameSnapShot> loadFromFile(const std::string& filename);
-		std::vector<std::string> getSavedGamesList() const;
-		std::optional<std::string> latestSavedGameFileName() const;
+	std::optional<GameSnapShot> loadFromFile(const std::string& filename);
+	std::vector<std::string> getSavedGamesList() const;
+	std::optional<std::string> latestSavedGameFileName() const;
+	bool writeSnapshots(const std::vector<GameSnapShot>& list, const std::string& filename);
+	bool readSnapshots(std::vector<GameSnapShot>& list, const std::string& filename);
 };
 

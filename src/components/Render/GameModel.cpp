@@ -1,6 +1,8 @@
 #include "GameModel.h"
 #include "HUD.h"
 #include "Game.h"
+
+#include <algorithm>
 #include <fstream>
 #include <chrono>
 #include <iostream>
@@ -315,4 +317,40 @@ bool GameModel::createNewSaveFile(const std::string& filename) {
         _gameDataSelected = filename;
     }
     return ok;
+}
+
+bool writeSnapshots(const std::vector<GameSnapShot>& list, const std::string& filename) {
+    std::ofstream out(filename, std::ios::binary);
+    if (!out) return false;
+
+    // Write the number of snapshots
+    uint64_t count = list.size();
+    out.write(reinterpret_cast<const char*>(&count), sizeof(count));
+
+    // Write each snapshot
+    for (const auto& snap : list) {
+        snap.serialize(out);
+    }
+
+    return true;
+}
+
+bool readSnapshots(std::vector<GameSnapShot>& list, const std::string& filename) {
+    std::ifstream in(filename, std::ios::binary);
+    if (!in) return false;
+
+    uint64_t count = 0;
+    if (!in.read(reinterpret_cast<char*>(&count), sizeof(count)))
+        return false;
+
+    list.clear();
+    list.reserve(count);
+
+    for (uint64_t i = 0; i < count; i++) {
+        GameSnapShot snap;
+        if (!snap.deserialize(in)) return false;
+        list.push_back(std::move(snap));
+    }
+
+    return true;
 }
