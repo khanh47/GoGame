@@ -1,7 +1,7 @@
-# Saved files
-savegame.json
+*.json
 
 # Compiled Dynamic libraries
+*.cache
 *.so
 *.dylib
 *.dll
