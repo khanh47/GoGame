@@ -1,10 +1,23 @@
 #include "SettingsScene.h"
 #include "raylib.h"
-#include "ResourceManager.h"
+#include "ButtonMenuView.h"
+#include "AudioManager.h"
 #include <iostream>
 
+void SettingsScene::setDependencies(AudioManager* audioManager) {
+	_audioManager = audioManager;
+}
+
 void SettingsScene::init(void) {
-    std::cout << "SettingsScene initialized." << std::endl;
+  std::cout << "SettingsScene initialized." << std::endl;
+	initializeMenuController();
+}
+
+void SettingsScene::initializeMenuController() {
+  menuController = std::make_unique<SettingsMenuController>(this);
+
+  menuController->setViewStrategy(std::make_unique<ButtonMenuView>());
+  menuController->createSettingsMenu();
 }
 
 void SettingsScene::handleInput(void) {
@@ -14,9 +27,10 @@ void SettingsScene::update(float deltaTime) {
 }
 
 void SettingsScene::render(void) {
-    ClearBackground(GRAY);
-    Font _font = ResourceManager::getInstance().getFont("NinjaKageDemo");
-    DrawTextEx(_font, "SETTINGS", {450, 50}, 50, 20, BLACK);
+  ClearBackground(GRAY);
+
+	if (menuController)
+		menuController->render();
 }
 
 void SettingsScene::cleanup(void) {

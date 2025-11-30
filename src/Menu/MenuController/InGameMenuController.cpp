@@ -1,17 +1,14 @@
 #include "InGameMenuController.h"
 #include "InGameScene.h"
 #include "MenuView.h"
-#include "MenuComponent.h"
 #include "Menu.h"
 #include "MenuItem.h"
-#include "ButtonMenuView.h"
 #include "GameCommand.h"
 #include "SavedGameCommand.h"
 #include "GameController.h"
 
 #include <iostream>
 #include <cmath>
-#include <algorithm>
 
 InGameMenuController::InGameMenuController(InGameScene* inGameScene, GameController* gameModel)
     : _inGameScene(inGameScene), _gameController(gameModel) {

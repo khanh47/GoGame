@@ -29,7 +29,7 @@ public:
     void createNavigationItemViews(std::shared_ptr<MenuComponent> menuModel, GameState *gameState) override;
     void createInGameItemsViews(int numberOfItems) override;
     void createSavedGameItemsViews(int numberOfItems) override;
-    void createSettingMenuItemViews(int numberOfItems) override {};
+    void createSettingsItemsViews(int numberOfItems) override;
 		void createPassButton(int numberOfItems) override {};
     void render(std::shared_ptr<MenuComponent> menuModel) const override;
 

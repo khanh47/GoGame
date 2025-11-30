@@ -1,14 +1,12 @@
 #include "GameDataMenuController.h"
 #include "GameDataScene.h"
 #include "MenuView.h"
-#include "MenuComponent.h"
 #include "Menu.h"
 #include "MenuItem.h"
 #include "ListMenuView.h"
 #include "MenuCommand.h"
 #include "DataManager.h"
 #include <cmath>
-#include <algorithm>
 
 GameDataMenuController::GameDataMenuController(GameDataScene* gameDataScene)
     : _gameDataScene(gameDataScene) {

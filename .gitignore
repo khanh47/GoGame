@@ -16,5 +16,6 @@ makefile
 Makefile
 CMakeLists.txt
 /.vscode
+.clangd
 
 data

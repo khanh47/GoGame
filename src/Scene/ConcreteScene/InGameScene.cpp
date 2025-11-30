@@ -134,10 +134,10 @@ void InGameScene::initializeMenuController() {
 		std::cout << "No game gameController\n";
 		return;
 	}
-    menuController = std::make_unique<InGameMenuController>(this, _gameController);
+  menuController = std::make_unique<InGameMenuController>(this, _gameController);
 
-    menuController->setViewStrategy(std::make_unique<ButtonMenuView>());
-    menuController->createInGameMenu();
+  menuController->setViewStrategy(std::make_unique<ButtonMenuView>());
+  menuController->createInGameMenu();
 }
 
 void InGameScene::initializePassButton() {
@@ -145,10 +145,10 @@ void InGameScene::initializePassButton() {
 		std::cout << "No game gameController\n";
 		return;
 	}
-    _passButton = std::make_unique<PassButton>(_gameController);
+  _passButton = std::make_unique<PassButton>(_gameController);
 
-    _passButton ->setViewStrategy(std::make_unique<ButtonMenuView>());
-    _passButton->createPassButton();
+  _passButton ->setViewStrategy(std::make_unique<ButtonMenuView>());
+  _passButton->createPassButton();
 }
 
 void InGameScene::openSavedGameListPopup() {

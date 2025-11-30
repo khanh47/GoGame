@@ -83,6 +83,25 @@ void ListMenuView::createInGameItemsViews(int numberOfItems) {
     autoResizeToFitContent();
 }
 
+void ListMenuView::createSettingsItemsViews(int numberOfItems) {
+    _itemViews.clear();
+    _itemViews.reserve(numberOfItems);
+
+    for (int i = 0; i < numberOfItems; ++i) {
+        Vector2 position = {
+            listArea.x + 10.0f,
+            listArea.y + i * (itemHeight + itemSpacing)
+        };
+        Vector2 size = { listArea.width - scrollbarWidth - 20.0f, itemHeight };
+        auto itemView = std::make_shared<MenuItemView>(position, size);
+        itemView->setFont(ResourceManager::getInstance().getFont("GozaruDemo"));
+        _itemViews.push_back(itemView);
+    }
+
+    calculateMaxScrollOffset();
+    autoResizeToFitContent();
+}
+
 void ListMenuView::createSavedGameItemsViews(int numberOfItems) {
     _itemViews.clear();
     _itemViews.reserve(numberOfItems);

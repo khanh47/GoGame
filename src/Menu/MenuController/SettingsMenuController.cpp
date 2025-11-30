@@ -1,24 +1,25 @@
-#include "TextBoxMenuController.h"
-#include "SavedGameCommand.h"
-#include "InGameScene.h"
+#include "SettingsMenuController.h"
+#include "SettingsScene.h"
 #include "MenuView.h"
 #include "Menu.h"
 #include "MenuItem.h"
-#include <iostream>
 
-TextBoxMenuController::TextBoxMenuController(InGameScene* inGameScene)
-    : _inGameScene(inGameScene) {
+#include <iostream>
+#include <cmath>
+
+SettingsMenuController::SettingsMenuController(SettingsScene* settingsScene)
+    : _settingsScene(settingsScene) {
     _menuView = nullptr;
 }
 
-void TextBoxMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
+void SettingsMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
     _menuView = std::move(view);
     if (_menuView && _menuSystem) {
-        _menuView->createSavedGameItemsViews(_menuSystem->getChildrens().size());
+        _menuView->createSettingsItemsViews(_menuSystem->getChildrens().size());
     }
 }
 
-void TextBoxMenuController::handleInput() {
+void SettingsMenuController::handleInput() {
     if (!_menuView || !_menuSystem) return;
     Vector2 mousePosition = GetMousePosition();
     bool mouseClicked = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
@@ -49,27 +50,25 @@ void TextBoxMenuController::handleInput() {
     }
 }
 
-void TextBoxMenuController::update() {
+void SettingsMenuController::update() {
 }
 
-void TextBoxMenuController::render() const {
-    if (_menuView && _menuSystem) {
-        _menuView->render(_menuSystem);
-    }
+void SettingsMenuController::render() const {
+  if (_menuView && _menuSystem) {
+    _menuView->render(_menuSystem);
+  }
 }
 
-void TextBoxMenuController::createMenu() {
-    _menuSystem = std::make_shared<Menu>("Game Data selection", true);
+void SettingsMenuController::createSettingsMenu() {
+  _menuSystem = std::make_shared<Menu>("Settings selection", true);
 
-    auto btnBack = std::make_shared<MenuItem>("BACK", true);
-		btnBack->setCommand(createCloseCreateInputCommand(_inGameScene));
-		_menuSystem->addItem(btnBack);
+	auto Sound = std::make_shared<MenuItem>("SOUND", true);
+	_menuSystem->addItem(Sound);
 
-    auto btnEnter = std::make_shared<MenuItem>("ENTER", true);
-		btnEnter->setCommand(createCloseAndCreateInputCommand(_inGameScene));
-		_menuSystem->addItem(btnEnter);
+	auto Theme = std::make_shared<MenuItem>("THEME", true);
+	_menuSystem->addItem(Theme);
 
-    if (_menuView) {
-        _menuView->createSavedGameItemsViews(_menuSystem->getChildrens().size());
-    }
+  if (_menuView) {
+		_menuView->createSettingsItemsViews(_menuSystem->getChildrens().size());
+  }
 }

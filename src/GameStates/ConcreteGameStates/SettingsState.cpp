@@ -50,25 +50,22 @@ std::vector<std::shared_ptr<MenuItemView>> SettingsState::createNavigationMenuBu
     std::vector<std::shared_ptr<MenuItemView>> itemViews;
 
     int activeItems = 0;
-    for (const auto &child : menu->getChildrens())
-    {
-        if (child)
-        {
+    for (const auto& child : menu->getChildrens()) {
+        if (child) {
             ++activeItems;
         }
     }
 
     const float verticalSpacing = 20.0f; // spacing between items
-    const float itemHeight = 60.0f;
-    const float itemWidth = 240.0f;
-    const Rectangle menuArea = {0, 0, 400, (float)GetScreenHeight()}; // Example menu area
-    // std::cout << menuArea.x << std::endl;
+    const float itemHeight = 30.0f;
+    const float itemWidth = 150.0f;
+    const Rectangle menuArea = {0, 0, 250, 50}; // Example menu area
+
     const float startX = menuArea.x + (menuArea.width - itemWidth) / 2;
     const float startY = menuArea.y + (menuArea.height - (activeItems * itemHeight + (activeItems - 1) * verticalSpacing)) / 2;
 
     itemViews.reserve(activeItems); // Reserve space for active items
-    for (int i = 0; i < activeItems; ++i)
-    {
+    for (int i = 0; i < activeItems; ++i) {
         Vector2 position = {startX, startY + i * (itemHeight + verticalSpacing)};
         Vector2 size = {itemWidth, itemHeight};
         auto itemView = std::make_shared<MenuItemView>(position, size);
