@@ -3,11 +3,11 @@
 
 class StoneController : public ThemeController {
 public:
-    StoneController();
-    ~StoneController() override = default;
+	StoneController();
+	~StoneController() override = default;
 
 protected:
-    void applyTheme() override;
-    void applyColor() override;
-    void syncFromSettings() override;
+	void applyTheme() override;
+	void applyColor() override;
+	void syncFromSettings() override;
 };

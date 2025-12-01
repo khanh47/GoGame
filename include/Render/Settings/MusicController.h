@@ -3,11 +3,11 @@
 
 class MusicController : public SoundController {
 public:
-    MusicController(AudioManager* audioManager);
-    ~MusicController() override = default;
+	MusicController(AudioManager *audioManager);
+	~MusicController() override = default;
 
 protected:
-    void applyVolume() override;
-    void applyMute() override;
-    void syncFromAudioManager() override;
+	void applyVolume() override;
+	void applyMute() override;
+	void syncFromAudioManager() override;
 };
