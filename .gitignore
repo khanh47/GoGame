@@ -17,6 +17,3 @@ Makefile
 CMakeLists.txt
 /.vscode
 .clangd
-
-data
-_codeql_detected_source_root
