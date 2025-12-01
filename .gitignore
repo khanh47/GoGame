@@ -1,7 +1,7 @@
-# Saved files
-savegame.json
+*.json
 
 # Compiled Dynamic libraries
+*.cache
 *.so
 *.dylib
 *.dll
@@ -16,4 +16,7 @@ makefile
 Makefile
 CMakeLists.txt
 /.vscode
+.clangd
 
+data
+_codeql_detected_source_root
