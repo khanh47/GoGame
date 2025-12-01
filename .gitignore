@@ -19,3 +19,6 @@ CMakeLists.txt
 .clangd
 
 data
+
+# CodeQL artifacts
+_codeql_detected_source_root

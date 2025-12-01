@@ -3,11 +3,11 @@
 
 class BoardController : public ThemeController {
 public:
-    BoardController();
-    ~BoardController() override = default;
+	BoardController();
+	~BoardController() override = default;
 
 protected:
-    void applyTheme() override;
-    void applyColor() override;
-    void syncFromSettings() override;
+	void applyTheme() override;
+	void applyColor() override;
+	void syncFromSettings() override;
 };

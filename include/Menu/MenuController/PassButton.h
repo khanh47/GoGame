@@ -7,15 +7,15 @@ class GameController;
 
 class PassButton : public MenuController {
 public:
-    PassButton(GameController* gameModel);
+	PassButton(GameController *gameModel);
 
-    void setViewStrategy(std::unique_ptr<IMenuView> view) override;
-    void handleInput() override;
-    void update() override;
-    void render() const override;
+	void setViewStrategy(std::unique_ptr<IMenuView> view) override;
+	void handleInput() override;
+	void update() override;
+	void render() const override;
 
-    void createPassButton();     // dynamic list
+	void createPassButton(); // dynamic list
 
 private:
-    GameController* _gameController;
+	GameController *_gameController;
 };
