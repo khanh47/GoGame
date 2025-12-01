@@ -16,11 +16,15 @@ void GameController::init() {
 	_dataManager = new DataManager(_game, _board);
 	_hud = std::make_unique<HUD>(_game);
 
-	if (!_dataManager)
-		return;
-	if (_gameMode != "PVP" && _gameMode != "PVE") {
+	if (!_dataManager) return;
+	int type = 0;
+	if (_gameMode == "PVP") {
+		_dataManager->addState();
+	} else if (_gameMode == "EASY" || _gameMode == "MEDIUM" || _gameMode == "HARD") {
+		_dataManager->addState();
+	} else {
 		auto savedFiles = _dataManager->getSavedGamesList();
-		std::cout << "Game data: " << _gameMode << std::endl;
+		std::cout << "Load game from file: " << _gameMode << std::endl;
 
 		for (auto &file : savedFiles) {
 			if (file == _gameMode) {
@@ -30,11 +34,9 @@ void GameController::init() {
 				break;
 			}
 		}
-	} else {
-		_dataManager->addState();
 	}
-	_hud->update(_dataManager->getTime());
 
+	_hud->update(_dataManager->getTime());
 	_textBox = std::make_unique<TextBox>(_inGameScene, _dataManager);
 	_savedGameList = std::make_unique<SavedGameList>(_inGameScene, _dataManager);
 }

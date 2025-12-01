@@ -3,6 +3,9 @@
 #include "GameModeScene.h"
 #include "GameState.h"
 #include "ICommand.h"
+#include "GameModeScene.h"
+#include "GameDataScene.h"
+#include "GameLevelScene.h"
 #include <functional>
 
 // Forawrd declarations
@@ -39,13 +42,13 @@ public:
 };
 
 // Factory functions for specific state switchers
-std::unique_ptr<MenuCommand> createNewGameCommand(GameStateModel *gameStateModel, SceneManager *sceneManager);
-std::unique_ptr<MenuCommand> createGameModeBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager);
-std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel *gameStateModel, SceneManager *sceneManager,
-																							 const std::string &gameMode);
-std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager);
-std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel *gameStateModel, SceneManager *sceneManager);
-std::unique_ptr<MenuCommand> createLoadGameCommand(GameStateModel *gameStateModel, SceneManager *sceneManager);
+std::unique_ptr<MenuCommand> createNewGameCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createGameModeBackCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel* gameStateModel, SceneManager* sceneManager, const std::string& gameMode);
+std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createPVECommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
+std::unique_ptr<MenuCommand> createLoadGameCommand(GameStateModel* gameStateModel, SceneManager* sceneManager);
 
 class GameModeSelectCommand : public ICommand {
 private:
@@ -84,6 +87,26 @@ public:
 	std::unique_ptr<ICommand> clone() const override;
 	CommandType getType() const override { return CommandType::IMMEDIATE; }
 };
+
+class GameLevelSelectCommand : public ICommand {
+private:
+    std::string _gameLevel;
+    GameLevelScene* _gameLevelScene;
+
+public:
+    GameLevelSelectCommand(const std::string& gameLevel, GameLevelScene* gameLevelScene)
+        : _gameLevel(gameLevel), _gameLevelScene(gameLevelScene) {}
+
+    void execute() override;
+    virtual bool canUndo() const override { return false; }
+    virtual bool canRedo() const override { return false; }
+    void undo() override {}
+    void redo() override {}
+    std::string getName() const override { return "Game Level Select Command"; }
+    std::unique_ptr<ICommand> clone() const override;
+    CommandType getType() const override { return CommandType::IMMEDIATE; }
+};
+
 
 class PopSceneCommand : public ICommand {
 public:

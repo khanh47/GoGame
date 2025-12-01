@@ -26,12 +26,16 @@ std::unique_ptr<GameState> GameModeState::clone() const {
 
 std::unique_ptr<Scene> GameModeState::createScene() const { return std::make_unique<GameModeScene>(); }
 
-std::shared_ptr<MenuComponent> GameModeState::createNavigationMenu(GameStateModel *gameStateModel,
-																																	 SceneManager *sceneManager) {
-	auto gameModeMenu = std::make_shared<Menu>("Game Mode Menu", true);
-	auto Back = std::make_shared<MenuItem>("BACK", true);
-	Back->setCommand(createGameModeBackCommand(gameStateModel, sceneManager));
-	gameModeMenu->addItem(Back);
+std::shared_ptr<MenuComponent> GameModeState::createNavigationMenu(GameStateModel *gameStateModel, SceneManager *sceneManager)
+{
+    auto gameModeMenu = std::make_shared<Menu>("Game Mode Menu", true);
+    auto Back = std::make_shared<MenuItem>("BACK", true);
+    Back->setCommand(createGameModeBackCommand(gameStateModel, sceneManager));
+    gameModeMenu->addItem(Back);
+
+    auto playerVsBot = std::make_shared<MenuItem>("PVE", true);
+    playerVsBot->setCommand(createPVECommand(gameStateModel, sceneManager));
+    gameModeMenu->addItem(playerVsBot);
 
 	if (gameModeSelected) {
 		auto Play = std::make_shared<MenuItem>("PLAY", true);

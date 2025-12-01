@@ -394,9 +394,9 @@ bool Game::handleInput() {
 			}
 		}
 
-		_currentPlayer = ((_currentPlayer == 1) ? 2 : 1);
+        _currentPlayer = ((_currentPlayer == 1) ? 2 : 1);
 		isValidMove = true;
-	}
+    }
 
 	// Checking for captures
 
@@ -407,12 +407,11 @@ bool Game::handleInput() {
 
 	// When the Game is Over
 
-	if (_isGameOver) {
-		DetermineTerritories();
-		_scorePlayer1 += _FinalScorePlayer1;
-		_scorePlayer2 += _FinalScorePlayer2;
-	}
-	if (isValidMove)
-		_isLastTurnPass = false;
+    if (_isGameOver) {
+        DetermineTerritories();
+        _scorePlayer1 += _FinalScorePlayer1;
+        _scorePlayer2 += _FinalScorePlayer2;
+    }
+	if (isValidMove) _isLastTurnPass = false;
 	return isValidMove;
 }

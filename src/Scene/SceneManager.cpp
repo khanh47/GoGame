@@ -4,8 +4,8 @@
 #include "GameController.h"
 #include "GameDataScene.h"
 #include "GameModeScene.h"
-#include "GameState.h"
-#include "InGameScene.h"
+#include "GameDataScene.h"
+#include "GameLevelScene.h"
 #include "MainMenuScene.h"
 #include "MenuComponent.h"
 #include "NavigationMenuController.h"
@@ -35,35 +35,38 @@ SceneManager::~SceneManager() {
 	}
 }
 
-void SceneManager::pushScene(std::unique_ptr<Scene> scene) {
-	// check if the scene was created succesfully
-	if (scene) {
-		// Set music
-		if (auto *inGameScene = dynamic_cast<InGameScene *>(scene.get())) {
-			_audioManager->playMusic("in_game_music");
-		} else {
-			_audioManager->playMusic("main_music");
-		}
-
-		// Inject dependencies for GameModeScene
-		if (auto *gameModeScene = dynamic_cast<GameModeScene *>(scene.get())) {
-			gameModeScene->setDependencies(_gameStateModel, this);
-		}
-		if (auto *gameDataScene = dynamic_cast<GameDataScene *>(scene.get())) {
-			gameDataScene->setDependencies(_gameStateModel, this);
-		}
-		if (auto *settingsScene = dynamic_cast<SettingsScene *>(scene.get())) {
-			settingsScene->setDependencies(_audioManager, this);
-		}
-		if (auto *inGameScene = dynamic_cast<InGameScene *>(scene.get())) {
-			inGameScene->setDependencies(_audioManager);
-		}
-		_sceneStack.emplace(std::move(scene));
-		auto &entry = _sceneStack.top();
-		entry->init();
-		entry->onEnter();
-		std::cout << "Pushed scene: " << entry->getName() << std::endl;
-	}
+void SceneManager::pushScene(std::unique_ptr<Scene> scene){
+    // check if the scene was created succesfully
+    if (scene){
+        // Set music
+        if (auto* inGameScene = dynamic_cast<InGameScene*>(scene.get())) {
+            _audioManager->playMusic("in_game_music");
+        } else {
+            _audioManager->playMusic("main_music");
+        }
+        
+        // Inject dependencies
+        if (auto* gameModeScene = dynamic_cast<GameModeScene*>(scene.get())) {
+            gameModeScene->setDependencies(_gameStateModel, this);
+        }
+        if (auto* gameDataScene = dynamic_cast<GameDataScene*>(scene.get())) {
+            gameDataScene->setDependencies(_gameStateModel, this);
+        }
+        if (auto* gameLevelScene = dynamic_cast<GameLevelScene*>(scene.get())) {
+            gameLevelScene->setDependencies(_gameStateModel, this);
+        }
+        if (auto* settingsScene = dynamic_cast<SettingsScene*>(scene.get())) {
+            settingsScene->setDependencies(_audioManager, this);
+        }
+        if (auto* inGameScene = dynamic_cast<InGameScene*>(scene.get())) {
+            inGameScene->setDependencies(_audioManager);
+        }
+        _sceneStack.emplace(std::move(scene));
+        auto &entry = _sceneStack.top();
+        entry->init();
+        entry->onEnter();
+        std::cout << "Pushed scene: " << entry->getName() << std::endl;
+    }
 }
 
 void SceneManager::popScene() {

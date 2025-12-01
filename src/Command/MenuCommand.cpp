@@ -7,6 +7,8 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "SettingsState.h"
+#include "GameDataState.h"
+#include "GameLevelState.h"
 
 // MenuCommand Implementation
 void MenuCommand::execute() {
@@ -50,10 +52,25 @@ std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel *gameStateMo
 }
 
 std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
-	return std::make_unique<MenuCommand>(gameStateModel, sceneManager, std::function<std::unique_ptr<GameState>()>([]() {
-																				 return std::make_unique<SettingsState>();
-																			 }),
-																			 "Settings Command");
+    return std::make_unique<MenuCommand>(
+        gameStateModel,
+        sceneManager,
+        std::function<std::unique_ptr<GameState>()>([]() {
+            return std::make_unique<SettingsState>();
+        }),
+        "Settings Command"
+    );
+}
+
+std::unique_ptr<MenuCommand> createPVECommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
+    return std::make_unique<MenuCommand>(
+        gameStateModel,
+        sceneManager,
+        std::function<std::unique_ptr<GameState>()>([]() {
+            return std::make_unique<GameLevelState>();
+        }),
+        "Settings Command"
+    );
 }
 
 std::unique_ptr<MenuCommand> createLoadGameCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
@@ -109,6 +126,22 @@ std::unique_ptr<ICommand> GameDataSelectCommand::clone() const {
 	cloned->_callback = _callback; // Copy the callback
 	return cloned;
 }
+
+// GameLevelSelectCommand Implementation
+void GameLevelSelectCommand::execute() {
+    if (_gameLevelScene) {
+        std::cout << "Selected game level: " << _gameLevel << std::endl;
+        _gameLevelScene->selectGameLevel(_gameLevel);
+    }
+    executeCallback();
+}
+
+std::unique_ptr<ICommand> GameLevelSelectCommand::clone() const {
+    auto cloned = std::make_unique<GameLevelSelectCommand>(_gameLevel, _gameLevelScene);
+    cloned->_callback = _callback; // Copy the callback
+    return cloned;
+}
+
 // Exit Command Implementation
 std::unique_ptr<ICommand> ExitCommand::clone() const { return std::make_unique<ExitCommand>(); }
 

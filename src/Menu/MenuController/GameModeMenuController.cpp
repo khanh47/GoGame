@@ -113,13 +113,9 @@ void GameModeMenuController::render() const {
 void GameModeMenuController::createGameModeMenu() {
 	_menuSystem = std::make_shared<Menu>("Game Mode selection", true);
 
-	auto playerVsPlayer = std::make_shared<MenuItem>("PVP", true);
-	playerVsPlayer->setCommand(std::make_unique<GameModeSelectCommand>("PVP", _gameModeScene));
-	_menuSystem->addItem(playerVsPlayer);
-
-	auto playerVsBot = std::make_shared<MenuItem>("PVE", true);
-	playerVsBot->setCommand(std::make_unique<GameModeSelectCommand>("PVE", _gameModeScene));
-	_menuSystem->addItem(playerVsBot);
+    auto playerVsPlayer = std::make_shared<MenuItem>("PVP", true);
+    playerVsPlayer->setCommand(std::make_unique<GameModeSelectCommand>("PVP", _gameModeScene));
+    _menuSystem->addItem(playerVsPlayer);
 
 	if (_menuView) {
 		_menuView->createInGameItemsViews(_menuSystem->getChildrens().size());
