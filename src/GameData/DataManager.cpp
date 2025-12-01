@@ -34,8 +34,8 @@ void DataManager::trimHistoryAfterIndex() {
 const GameSnapShot DataManager::createSnapShot() const {
 	GameSnapShot snap;
 	snap.grid = _game->getGrid();
-	snap.validPlayer1 = _game->getValidPlayer1Map();
-	snap.validPlayer2 = _game->getValidPlayer2Map();
+	snap.validPlayer1 = _board->getValidPlayer1Map();
+	snap.validPlayer2 = _board->getValidPlayer2Map();
 	snap.currentPlayer = _game->getCurrentPlayer();
 	snap.scorePlayer1 = _game->getScorePlayer1();
 	snap.scorePlayer2 = _game->getScorePlayer2();

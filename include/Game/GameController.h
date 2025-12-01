@@ -15,12 +15,17 @@ class GameController {
 private:
 	std::string _gameMode;
 	InGameScene *_inGameScene = nullptr;
-	DataManager *_dataManager = nullptr;
-	Game *_game = nullptr;
-	Board *_board = nullptr;
+    std::unique_ptr<Board> _board;
+    std::unique_ptr<Game> _game;
+    std::unique_ptr<DataManager> _dataManager;
 	std::unique_ptr<HUD> _hud;
 	std::unique_ptr<SavedGameList> _savedGameList;
 	std::unique_ptr<TextBox> _textBox;
+	
+    // AI timing
+    float _aiThinkTimer = 0.0f;
+    float _aiThinkDelay = 0.5f;  // Half second delay before AI moves
+    bool _aiIsThinking = false;
 
 public:
 	GameController(InGameScene *inGameScene, const std::string &gameMode);

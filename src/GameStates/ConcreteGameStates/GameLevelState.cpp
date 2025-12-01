@@ -84,7 +84,6 @@ std::vector<std::shared_ptr<MenuItemView>> GameLevelState::createNavigationMenuB
 
 void GameLevelState::setGameLevelSelected(bool selected, const std::string &level)
 {
-    std::cout << "Increase menu version: " << level << ' ' << menuVersion << std::endl;
     gameLevelSelected = selected;
     if (selected && !level.empty()) {
         selectedGameLevel = level;

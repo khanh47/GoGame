@@ -1,11 +1,28 @@
 #pragma once
+#include "GroupManager.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 // Forward declaration
 class Board;
+class GoAI;
 
 class Game {
+private:
+    // AI
+    std::unique_ptr<GoAI> _ai;
+    bool _isAIEnabled = false;
+
+    int _aiColor = 2;  // AI plays white by default
+    int _aiDepth = 3;  // Search depth
+	
+public:
+    void enableAI(bool enable, int aiColor = 2, int depth = 3);
+    bool isAIEnabled() const { return _isAIEnabled; }
+    bool isAITurn() const { return _isAIEnabled && _currentPlayer == _aiColor; }
+    bool makeAIMove();
+
 public:
 	Game(int rows, int cols, Board *board);
 	~Game();
@@ -15,10 +32,6 @@ public:
 	void resetGame();
 	void passTurn();
 	void DetermineTerritories();
-	void CheckValid(int CurrentPlayer, int OpponentPlayer);
-	void BeingCaptured(int CurrentPlayer, int OpponentPlayer, std::pair<int, int> lastMove);
-	void SelfCapture(int CurrentPlayer, std::vector<std::pair<int, int>> Stones,
-									 std::vector<std::pair<int, int>> EmptySpots);
 
 	void setCurrentPlayer(const int &currentPlayer) { _currentPlayer = currentPlayer; }
 	void setScorePlayer1(const int &scorePlayer1) { _scorePlayer1 = scorePlayer1; }
@@ -33,8 +46,13 @@ public:
 	std::string getGameMode() const { return _gameMode; }
 
 	std::vector<std::vector<int>> getGrid();
-	std::vector<std::vector<int>> getValidPlayer1Map();
-	std::vector<std::vector<int>> getValidPlayer2Map();
+
+	// Access to GroupManager for AI
+    GroupManager& getGroupManager() { return _groupManager; }
+
+    // For AI: make/undo moves efficiently
+    bool tryMove(int row, int col, int color, std::vector<std::pair<int,int>>& captured);
+    void undoMoveAI(int row, int col, int color, const std::vector<std::pair<int,int>>& captured);
 
 private:
 	Board *_board = nullptr;
@@ -48,4 +66,14 @@ private:
 	int _FinalScorePlayer1 = 0;
 	int _FinalScorePlayer2 = 0;
 	std::string _gameMode = "NONE";
+
+    // Optimized group management
+    GroupManager _groupManager;
+
+    // Ko tracking (simple: last captured single stone position)
+    bool _hasKo = false;
+    int _koRow = -1, _koCol = -1;
+
+    // Sync GroupManager state with Board (for rendering)
+    void syncBoardFromGroupManager();
 };
