@@ -13,6 +13,6 @@ private:
 public:
     HUD(Game* game);
 		void update(float deltaTime);
-    void getScores(int scorePlayer1, int scorePlayer2, int currentPlayer);
+    float getTime() { return _elapsedTime; }
     void render();
 };

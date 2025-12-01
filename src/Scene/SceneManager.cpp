@@ -4,19 +4,21 @@
 #include "GameDataScene.h"
 #include "MainMenuScene.h"
 #include "InGameScene.h"
+#include "SettingsScene.h"
 #include "GameState.h"
 #include "NavigationMenuController.h"
 #include "MenuComponent.h"
 #include "ButtonMenuView.h"
 #include "GameController.h"
+#include "AudioManager.h"
 
 #include "raylib.h"
 #include <iostream>
 #include <cassert>
 
 // Scene manager implementation
-SceneManager::SceneManager(GameStateModel* gameStateModel)
-    : _gameStateModel(gameStateModel) {
+SceneManager::SceneManager(GameStateModel* gameStateModel, AudioManager* audioManager)
+    : _gameStateModel(gameStateModel), _audioManager(audioManager) {
     // Constructor with dependency injection (GameState is required)
     if (!_gameStateModel){
         std::cerr << "Error: GameStateModel is required for SceneManager" << std::endl;
@@ -36,12 +38,25 @@ SceneManager::~SceneManager() {
 void SceneManager::pushScene(std::unique_ptr<Scene> scene){
     // check if the scene was created succesfully
     if (scene){
+        // Set music
+        if (auto* inGameScene = dynamic_cast<InGameScene*>(scene.get())) {
+            _audioManager->playMusic("in_game_music");
+        } else {
+            _audioManager->playMusic("main_music");
+        }
+        
         // Inject dependencies for GameModeScene
         if (auto* gameModeScene = dynamic_cast<GameModeScene*>(scene.get())) {
             gameModeScene->setDependencies(_gameStateModel, this);
         }
         if (auto* gameDataScene = dynamic_cast<GameDataScene*>(scene.get())) {
             gameDataScene->setDependencies(_gameStateModel, this);
+        }
+        if (auto* settingsScene = dynamic_cast<SettingsScene*>(scene.get())) {
+            settingsScene->setDependencies(_audioManager, this);
+        }
+        if (auto* inGameScene = dynamic_cast<InGameScene*>(scene.get())) {
+            inGameScene->setDependencies(_audioManager);
         }
         _sceneStack.emplace(std::move(scene));
         auto &entry = _sceneStack.top();
@@ -78,6 +93,10 @@ void SceneManager::pushSceneDeferred(std::unique_ptr<Scene> scene) {
 
 // Core loop methods
 void SceneManager::update(float deltaTime){
+    if (_audioManager) {
+        _audioManager->update();
+    }
+    
     if (_pendingTransition) {
         processTransitions();
     }

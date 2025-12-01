@@ -8,10 +8,11 @@ class GameStateModel;
 class MenuComponent;
 class NavigationMenuController;
 class GameController;
+class AudioManager;
 
 class SceneManager {
 public:
-    SceneManager(GameStateModel* gameStateModel);
+    SceneManager(GameStateModel* gameStateModel, AudioManager* audioManager = nullptr);
     ~SceneManager();
 
     // Scene management
@@ -37,10 +38,12 @@ public:
 
     // Game state gameController access
     GameStateModel* getGameStateModel() const;
+    AudioManager* getAudioManager() const { return _audioManager; }
 
 private:
     std::stack<std::unique_ptr<Scene>> _sceneStack;
     GameStateModel* _gameStateModel;
+    AudioManager* _audioManager;
     std::shared_ptr<NavigationMenuController> _navigationMenuController;
     std::shared_ptr<MenuComponent> _navigationMenuSystem;
     bool _menuActive = false;

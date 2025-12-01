@@ -18,6 +18,7 @@ void SavedGameList::open() {
 
 void SavedGameList::close() {
     _open = false;
+    _shouldUpdate = true;
     _listMenuController.reset();
 		_menuController.reset();
 }
@@ -50,6 +51,19 @@ void SavedGameList::initializeSavedGameMenuController() {
 }
 
 void SavedGameList::update() {
+//    // special case for SavedGameList to always update
+//    if (_gameData->getMenuVersion() != _lastMenuVersion) {
+//        _shouldUpdate = true;
+//    }
+//
+//    if (_shouldUpdate) {
+//        std::shared_ptr<MenuComponent> newMenuModel = _gameStateModel->getCurrentState()->createNavigationMenu(_gameStateModel, _sceneManager);
+//        if (newMenuModel) {
+//            _currentMenuModel = newMenuModel;
+//            _menuView->createNavigationItemViews(_currentMenuModel, _gameStateModel->getCurrentState());
+//        }
+//        _lastState = std::move(_gameStateModel->getCurrentState()->clone());
+//    }
     if (!_open || !_listMenuController || !_menuController) return;
     _listMenuController->update();
     _menuController->update();

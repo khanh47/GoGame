@@ -33,7 +33,7 @@ static void writeVector2D(std::ostream& out, const std::vector<std::vector<int>>
 }
 
 template <typename T>
-static void writeInt(std::ostream& out, const T& value) {
+static void writeValue(std::ostream& out, const T& value) {
     out.write(reinterpret_cast<const char*>(&value), sizeof(value));
 }
 
@@ -53,7 +53,7 @@ static bool readVector2D(std::istream& in, std::vector<std::vector<int>>& list) 
 }
 
 template <typename T>
-static bool readInt(std::istream& in, T& value) {
+static bool readValue(std::istream& in, T& value) {
 	if (in.read(reinterpret_cast<char*>(&value), sizeof(value)).good())
 		return true;
 	else
@@ -80,9 +80,9 @@ bool GameSnapShot::deserialize(std::istream& in) {
     }
 
     // Read numeric data
-		if (!readInt(in, currentPlayer)) return false;
-		if (!readInt(in, scorePlayer1)) return false;
-		if (!readInt(in, scorePlayer2)) return false;
+		if (!readValue(in, currentPlayer)) return false;
+		if (!readValue(in, scorePlayer1)) return false;
+		if (!readValue(in, scorePlayer2)) return false;
 
     // Read strings
     if (!readString(in, gameMode)) return false;
@@ -103,9 +103,9 @@ void GameSnapShot::serialize(std::ostream& out) const {
 		writeVector2D(out, validPlayer2);
 
     // Write numeric game info
-		writeInt(out, currentPlayer);
-		writeInt(out, scorePlayer1);
-		writeInt(out, scorePlayer2);
+		writeValue(out, currentPlayer);
+		writeValue(out, scorePlayer1);
+		writeValue(out, scorePlayer2);
 
     // Write strings
     writeString(out, gameMode);
@@ -115,14 +115,15 @@ void GameSnapShot::serialize(std::ostream& out) const {
     out.write(reinterpret_cast<const char*>(&timestamp), sizeof(timestamp));
 }
 
-bool writeSnapshots(const int& index, const std::vector<GameSnapShot>& list, const std::string& filename) {
+bool writeSnapshots(const float& time, const int& index, const std::vector<GameSnapShot>& list, const std::string& filename) {
   std::ofstream out(filename, std::ios::binary);
   if (!out) return false;
 
   // Write the number of snapshots
   uint64_t count = list.size();
-	writeInt(out, index);
-	writeInt(out, count);
+	writeValue(out, time);
+	writeValue(out, index);
+	writeValue(out, count);
 
     // Write each snapshot
   for (const auto& snap : list) {
@@ -132,15 +133,19 @@ bool writeSnapshots(const int& index, const std::vector<GameSnapShot>& list, con
   return true;
 }
 
-bool readSnapshots(int &index, std::vector<GameSnapShot>& list, const std::string& filename) {
+bool readSnapshots(float &time, int &index, std::vector<GameSnapShot>& list, const std::string& filename) {
   std::ifstream in(filename, std::ios::binary);
   if (!in) return false;
 
-	if (!readInt(in, index)) {
+	if (!readValue(in, time)) {
+		return false;
+	}
+
+	if (!readValue(in, index)) {
 		return false;
 	}
   uint64_t count = 0;
-  if (!readInt(in, count)) {
+  if (!readValue(in, count)) {
     return false;
 	}
 

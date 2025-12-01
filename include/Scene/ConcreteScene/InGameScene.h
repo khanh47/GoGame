@@ -10,11 +10,13 @@
 // Forward declaration
 class GameController;
 class Game;
+class AudioManager;
 
 class InGameScene : public Scene {
 public:
     InGameScene(const std::string &gameMode);
     ~InGameScene() override = default;
+	  void setDependencies(AudioManager* audioManager);
 
     void init(void) override;
     void update(float deltaTime) override;
@@ -47,7 +49,9 @@ private:
 		std::unique_ptr<TextBox> _textBox;
 		std::unique_ptr<EndGameBox> _endGameBox;
 		GameController* _gameController = nullptr;
+	  AudioManager* _audioManager = nullptr;
 		std::string _gameModeSelected;
+    bool _playedWinningSound = false;
 
 private:
 		void initializeMenuController();

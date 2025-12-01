@@ -32,39 +32,53 @@ void GameController::init() {
 	} else {
 		_dataManager->addState();
 	}
+	_hud->update(_dataManager->getTime());
 
+	_textBox = std::make_unique<TextBox>(_inGameScene, _dataManager);
 	_savedGameList = std::make_unique<SavedGameList>(_inGameScene, _dataManager);
 }
 
 void GameController::render() {
-  if (!_game || !_hud) return;
+  	if (!_game || !_hud || !_textBox || !_savedGameList) return;
 	if (!_dataManager) return;
-  _game->render();
-  _hud->render();
-	if (_savedGameList->isOpen()) {
-		_savedGameList->render();
-	}
+  	_game->render();
+  	_hud->render();
+    if (_textBox && _textBox->isOpen()) {
+        _textBox->render();
+    } else if (_savedGameList && _savedGameList->isOpen()) {
+        _savedGameList->render();
+    }
 }
 
-void GameController::handleInput() {
-  if (!_game || !_hud) return;
-	if (!_dataManager) return;
+bool GameController::handleInput() {
+  	if (!_game || !_hud || !_dataManager || !_textBox || !_savedGameList) return false;
+	if (_textBox->isOpen()) {
+		_textBox->handleInput();
+		return false;
+	}
 	if (_savedGameList->isOpen()) {
 		_savedGameList->handleInput();
-		return;
+		return false;
 	}
-  if (_game->handleInput()) {
+  	if (_game->handleInput()) {
 		_dataManager->addState();
+		return true;
 	}
+	return false;
 }
 
 void GameController::update(float deltaTime) {
-  if (!_game || !_hud || !_dataManager) return;
-  if (_savedGameList->isOpen()) {
+  	if (!_game || !_hud || !_textBox || !_dataManager) return;
+  	if (_textBox->isOpen()) {
+		_textBox->update();
+		return;
+  	}
+  	if (_savedGameList->isOpen()) {
 		_savedGameList->update();
-  }
+		return;
+  	}
 
-	_dataManager->update();
+	_dataManager->update(deltaTime);
 	_hud->update(deltaTime);
 }
 
@@ -111,4 +125,16 @@ void GameController::openSaveGameMenu() {
 
 void GameController::closeSaveGameMenu() {
 	_savedGameList->close();
+}
+
+void GameController::openTextBox() {
+	_textBox->open();
+}
+
+void GameController::closeTextBox() {
+	_textBox->close();
+}
+
+void GameController::closeTextBoxAndSave() {
+	_textBox->closeAndCreate();
 }

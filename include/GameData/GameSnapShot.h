@@ -29,5 +29,5 @@ public:
   bool deserialize(std::istream& in);
 };
 
-bool writeSnapshots(const int& index, const std::vector<GameSnapShot>& list, const std::string& filename);
-bool readSnapshots(int& index, std::vector<GameSnapShot>& list, const std::string& filename);
+bool writeSnapshots(const float& time, const int& index, const std::vector<GameSnapShot>& list, const std::string& filename);
+bool readSnapshots(float &time, int& index, std::vector<GameSnapShot>& list, const std::string& filename);

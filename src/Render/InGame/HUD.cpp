@@ -49,12 +49,12 @@ void HUD::render()
 
     DrawCircleV({860, 150}, radius, BLACK);
     DrawTextEx(font, "Black player", {900, 100}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Prisioners:", {900, 150}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Prisoners:", {900, 150}, fontSize, spacing, BLACK);
     DrawTextEx(font, std::to_string(scorePlayer1).c_str(), {1050, 150}, fontSize, spacing, BLACK);
 
     DrawCircleV({860, 350}, radius, WHITE);
     DrawTextEx(font, "White player", {900, 300}, fontSize, spacing, BLACK);
-    DrawTextEx(font, "Prisioners:", {900, 350}, fontSize, spacing, BLACK);
+    DrawTextEx(font, "Prisoners:", {900, 350}, fontSize, spacing, BLACK);
     DrawTextEx(font, std::to_string(scorePlayer2).c_str(), {1050, 350}, fontSize, spacing, BLACK);
 
     std::string timerStr = formatTime(_elapsedTime);

@@ -1,10 +1,28 @@
 #include "Board.h"
 #include "raylib.h"
 #include "colors.h"
+#include "ResourceManager.h"
+#include "SettingsData.h"
+#include "ThemeController.h"
+#include <string>
 #include <cmath>
 
 const float CELL_SIZE = 36;
 const float PADDING = 50;
+
+static void DrawTextureCenteredAtDiameter(const Texture2D &tex, float cx, float cy, float targetDiam) {
+    if (tex.id == 0) return;
+
+    Rectangle src = { 0.f, 0.f, (float)tex.width, (float)tex.height };
+
+    float dstX = std::round(cx - targetDiam * 0.5f);
+    float dstY = std::round(cy - targetDiam * 0.5f);
+    Rectangle dst = { dstX, dstY, targetDiam, targetDiam };
+
+    Vector2 origin = { 0.f, 0.f };
+
+    DrawTexturePro(tex, src, dst, origin, 0.0f, WHITE);
+}
 
 Board::Board(int rows, int cols) : numRows(rows), numCols(cols) {
     init();
@@ -38,9 +56,10 @@ void Board::render()
 		// Render Border Lines
     Rectangle recBorderLines = {PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE};
     DrawRectangleLinesEx(recBorderLines, 1, BLACK);
+    Color boardColor = SettingsData::getInstance().getBoardColorAsColor();
 
 		// Render Board
-    DrawRectangle(PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE, lightBrown);
+    DrawRectangle(PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE, boardColor);
     for (int i = 1; i <= numRows; i++)
     {
         DrawLine(PADDING + CELL_SIZE, PADDING + i * CELL_SIZE, PADDING + numRows * CELL_SIZE, PADDING + i * CELL_SIZE, BLACK);
@@ -50,18 +69,34 @@ void Board::render()
         DrawLine(PADDING + i * CELL_SIZE, PADDING + CELL_SIZE, PADDING + i * CELL_SIZE, PADDING + numRows * CELL_SIZE, BLACK);
     }
 
-		// Render Stones
+	// Render Stones
+    ThemeType stoneTheme = SettingsData::getInstance().getStoneTheme();
+    
     float radius = CELL_SIZE * 0.4f;
+    float targetDiam = radius * 2.0f;
+
     for (int i = 0; i < numRows; i++)
     {
         for (int j = 0; j < numCols; j++)
         {
             float x = PADDING + (i + 1) * CELL_SIZE;
             float y = PADDING + (j + 1) * CELL_SIZE;
-            if (_grid[i][j])
-            {
+            if (_grid[i][j]) {
                 DrawCircleV(Vector2{x + 2, y + 2}, radius, shadow);
-                DrawCircle(x, y, radius, _grid[i][j] == 2 ? WHITE : BLACK);
+                std::string alias = _grid[i][j] == 2 ? "white_" : "black_";
+
+                if (stoneTheme == ThemeType::Cartoon) {
+                    alias += "cartoon_stone";
+                    Texture2D &tex = ResourceManager::getInstance().getTexture2D(alias);
+                    DrawTextureCenteredAtDiameter(tex, x, y, targetDiam * 1.15f);
+                } else if (stoneTheme == ThemeType::Aesthetic) {
+                    alias += "aesthetic_stone";
+                    Texture2D &tex = ResourceManager::getInstance().getTexture2D(alias);
+                    DrawTextureCenteredAtDiameter(tex, x, y, targetDiam);
+                } else {
+                    DrawCircle(x, y, radius, _grid[i][j] == 2 ? WHITE : BLACK);
+                }
+                
             }
         }
     }

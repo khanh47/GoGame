@@ -15,7 +15,7 @@ SavedGameMenuController::SavedGameMenuController(InGameScene* inGameScene, DataM
 void SavedGameMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
     _menuView = std::move(view);
     if (_menuView && _menuSystem) {
-        _menuView->createInGameItemsViews(_menuSystem->getChildrens().size());
+        _menuView->createSavedGameItemsViews(_menuSystem->getChildrens().size());
     }
 }
 

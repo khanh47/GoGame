@@ -7,8 +7,8 @@
 #include "raylib.h"
 #include <iostream>
 
-TextBox::TextBox(InGameScene* scene)
-    : _inGameScene(scene) {}
+TextBox::TextBox(InGameScene* scene, DataManager* data)
+    : _inGameScene(scene), _dataManager(data) {}
 
 void TextBox::open() {
     if (_open) return;
@@ -22,7 +22,7 @@ void TextBox::open() {
 
 void TextBox::closeAndCreate() {
 	std::cout << _buffer << std::endl;
-	if (createNewSaveFile(_buffer))
+	if (_dataManager->createNewSaveFile(_buffer))
 		std::cout << "Create new saved file success\n";
 	else
 		std::cout << "Create new saved file failed\n";
@@ -41,7 +41,7 @@ void TextBox::init() {
   _menuController->createMenu();
 }
 
-void TextBox::update(float dt) {
+void TextBox::update() {
     if (!_open || !_menuController) return;
     _menuController->update();
 

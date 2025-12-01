@@ -94,7 +94,7 @@ void ButtonMenuView::createSavedGameItemsViews(int numberOfItems)
     const float horizontalSpacing = 20.0f; // spacing between items
     const float itemHeight = 30.0f;
     const float itemWidth = 150.0f;
-    const Rectangle menuArea = {100, 500, (float)GetScreenWidth(), 50.0f}; // Example menu area
+    const Rectangle menuArea = {100, 600, (float)GetScreenWidth() - 200.0f, 100.0f}; // Example menu area
 
     const float startX = menuArea.x + (menuArea.width - numberOfItems * itemWidth - (numberOfItems - 1) * horizontalSpacing) / 2;
     const float startY = menuArea.y + (menuArea.height - itemHeight) / 2;

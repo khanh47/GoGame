@@ -25,8 +25,10 @@ private:
 		void initializeSavedGameMenuController();
 
 		bool _open = false;
+		bool _shouldUpdate = false;
 		std::unique_ptr<SavedGameListMenuController> _listMenuController;
 		std::unique_ptr<SavedGameMenuController> _menuController;
 		InGameScene* _inGameScene = nullptr;
 		DataManager* _gameData = nullptr;
+		int _lastMenuVersion = -1;
 };

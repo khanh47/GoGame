@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "ButtonMenuView.h"
 #include "SavedGameCommand.h"
+#include "AudioManager.h"
 #include "raylib.h"
 #include <iostream>
 
@@ -15,11 +16,14 @@ InGameScene::InGameScene(const std::string &gameMode)
 	init();
 }
 
+void InGameScene::setDependencies(AudioManager* audioManager) {
+	_audioManager = audioManager;
+}
+
 void InGameScene::init(void) {
 	_gameController = new GameController(this, _gameModeSelected);
 	initializePassButton();
 	initializeMenuController();
-	_textBox = std::make_unique<TextBox>(this);
 	_endGameBox = std::make_unique<EndGameBox>();
 	std::cout << "InGameScene initialize" << std::endl;
 }
@@ -30,25 +34,28 @@ void InGameScene::update(float deltaTime) {
 		return;
 	}
 	if (_gameController->isGameOver()) {
-		_endGameBox->open(_gameController->getScorePlayer1(), _gameController->getScorePlayer2());
-	}
+        if (!_playedWinningSound) {
+            std::cout << "[InGameScene] Game over detected, playing winning sound\n";
+            if (_audioManager) {
+                _audioManager->playSoundEffect("winning_sound");
+				_audioManager->stopMusic();
+            }
+            _playedWinningSound = true;
+        }
+        _endGameBox->open(_gameController->getScorePlayer1(), _gameController->getScorePlayer2());
+    }
 	if (_endGameBox->isOpen()) {
 		_endGameBox->update();
 		return;
 	}
-	if (_textBox->isOpen()) {
-		_textBox->update(deltaTime);
-		return;
+	if (_gameController) {
+    	_gameController->update(deltaTime);
 	}
 	if (_gameController->isSavingGame()) {
 		return;
 	}
-  if (menuController) {
-    menuController->update();
-	}
-
-  if (_gameController) {
-    _gameController->update(deltaTime);
+  	if (menuController) {
+    	menuController->update();
 	}
 
 	if (_passButton) {
@@ -61,20 +68,20 @@ void InGameScene::render(void) {
 		std::cout << "No game gameController\n";
 		return;
 	}
-  Texture2D background = ResourceManager::getInstance().getTexture2D("in_game_background");
-  DrawTextureEx(background, { 0, 0 }, 0.0f, 1.3f, WHITE);
+	Texture2D background = ResourceManager::getInstance().getTexture2D("in_game_background");
+	DrawTextureEx(background, { 0, 0 }, 0.0f, 1.3f, WHITE);
 	if (menuController) {
 		menuController->render();
 	}
+  	if (_gameController && !_gameController->isSavingGame()  ) {
+    	_gameController->render();
+  	}
 	if (_passButton) {
 		_passButton->render();
 	}
-  if (_gameController) {
-    _gameController->render();
-  }
-	if (_textBox->isOpen()) {
-		_textBox->render();
-	}
+  	if (_gameController && _gameController->isSavingGame()) {
+    	_gameController->render();
+  	}
 	if (_endGameBox->isOpen()) {
 		_endGameBox->render();
 	}
@@ -85,21 +92,21 @@ void InGameScene::handleInput() {
 		std::cout << "No game gameController\n";
 		return;
 	}
-		if (_endGameBox->isOpen()) {
-				_endGameBox->handleInput();
-				return;
+	if (_endGameBox->isOpen()) {
+		_endGameBox->handleInput();
+		return;
+	}
+    if (_gameController){
+        if (_gameController->handleInput()) {
+			_audioManager->playSoundEffect("placing_stones");
 		}
-		if (_textBox->isOpen()) {
-				_textBox->handleInput();
-				return;
-		}
+	}
+	if (_gameController->isSavingGame()) return;
 
-		if (_passButton)
-				_passButton->handleInput();
+	if (_passButton)
+		_passButton->handleInput();
     if (menuController)
         menuController->handleInput();
-    if (_gameController)
-        _gameController->handleInput();
 }
 
 void InGameScene::cleanup(void) {
@@ -168,15 +175,15 @@ void InGameScene::closeSavedGameListPopup() {
 }
 
 void InGameScene::openGameDataInputPopup() {
-		_textBox->open();
+	_gameController->openTextBox();
 }
 
 void InGameScene::closeGameDataInputPopup() {
-		_textBox->close();
+	_gameController->closeTextBox();
 }
 
 void InGameScene::closeGameDataInputPopupAndCreate() {
-		_textBox->closeAndCreate();
+	_gameController->closeTextBoxAndSave();
 }
 
 bool InGameScene::isPopup() {
@@ -184,5 +191,5 @@ bool InGameScene::isPopup() {
 		std::cout << "No game gameController\n";
 		return false;
 	}
-		return _gameController->isSavingGame() || _textBox->isOpen();
+		return _gameController->isSavingGame();
 }

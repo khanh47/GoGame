@@ -21,7 +21,8 @@ DataManager::DataManager(Game* game, Board* board) : _game(game), _board(board) 
 		_historyIndex = -1;
 }
 
-void DataManager::update() {
+void DataManager::update(float deltaTime) {
+	_timeCount += deltaTime;
 }
 
 const std::vector<GameSnapShot> DataManager::getHistory() {
@@ -108,14 +109,21 @@ bool DataManager::loadFromFile(const std::string& filename) {
     if (!std::filesystem::exists(fullPath)) return false;
     int index = 0;
     std::vector<GameSnapShot> snapshots;
-    if (!readSnapshots(index, snapshots, fullPath.string()))
+	float time = 0.0f;
+    if (!readSnapshots(time, index, snapshots, fullPath.string()))
         return false;
-    if (snapshots.empty() || index < 0 || index >= (int)snapshots.size())
+    if (snapshots.empty() || index < 0 || index >= (int)snapshots.size() || time < 0)
         return false;
     _history = snapshots;
     _historyIndex = index;
-		applySnapShot(_history[_historyIndex]);
-		return true;
+	_timeCount = time;
+	applySnapShot(_history[_historyIndex]);
+	return true;
+}
+
+void DataManager::setSelectedGameData(const std::optional<std::string>& name) {
+    _gameDataSelected = name;
+    ++_menuVersion; // Increment menu version to force menu refresh
 }
 
 bool DataManager::saveCurrentToSelectedFile() {
@@ -139,7 +147,7 @@ bool DataManager::saveCurrentToSelectedFile() {
     return false;
   }
 
-  bool ok = writeSnapshots(_historyIndex, _history, full.string());
+  bool ok = writeSnapshots(_timeCount, _historyIndex, _history, full.string());
   if (!ok) {
     std::cerr << "saveCurrentToSelectedFile: writeSnapshots failed for: " << full << "\n";
     std::ofstream ofs(full, std::ios::binary);
@@ -166,7 +174,7 @@ bool DataManager::deleteSelectedFile() {
     return ok;
 }
 
-bool createNewSaveFile(const std::string& filename) {
+bool DataManager::createNewSaveFile(const std::string& filename) {
   if (filename.empty()) return false;
   char c = filename[0];
   if (!(std::isalnum(static_cast<unsigned char>(c)) || c == '_' || c == '-' || c == '.')) return false;
@@ -191,7 +199,7 @@ bool createNewSaveFile(const std::string& filename) {
       std::cerr << "createNewSaveFile: cannot open file for writing: " << full << std::endl;
       return false;
   }
-
+  _menuVersion++;
   ofs.close();
   return true;
 }

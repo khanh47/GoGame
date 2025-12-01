@@ -144,10 +144,27 @@ ResourceManager::~ResourceManager() {
 
 ResourceManager::ResourceManager() {
     _preLoadTexture2D("assets/background_image/info_panel.png", "info_panel");
-    _preLoadTexture2D("assets/images/Theme_0/ready.png", "ready_image");
     _preLoadTexture2D("assets/background_image/in-game_background.jpg", "in_game_background");
     _preLoadTexture2D("assets/background_image/main_menu_background.jpg", "main_menu_background");
+    
+    _preLoadTexture2D("assets/images/white_cartoon_stone.png", "white_cartoon_stone");
+    _preLoadTexture2D("assets/images/black_cartoon_stone.png", "black_cartoon_stone");
+    _preLoadTexture2D("assets/images/white_aesthetic_stone.png", "white_aesthetic_stone");
+    _preLoadTexture2D("assets/images/black_aesthetic_stone.png", "black_aesthetic_stone");
+
+    _preLoadTexture2D("assets/images/no_volume.png", "no_volume");
+    _preLoadTexture2D("assets/images/low_volume.png", "low_volume");
+    _preLoadTexture2D("assets/images/high_volume.png", "high_volume");
+
+    _preLoadTexture2D("assets/images/ready.png", "ready_image");
+
     _preLoadFont("assets/fonts/GozaruDemo.ttf", "GozaruDemo");
     _preLoadFont("assets/fonts/NinjaKageDemo-Regular.otf", "NinjaKageDemo");
     _preLoadFont("assets/fonts/Boldonse-Regular.ttf", "Boldonse");
+
+    _preLoadMusic("assets/musics/Hikaru no Go - OST 1 - 10 - Yuu.mp3", "main_music");
+    _preLoadMusic("assets/musics/Hikaru no Go - OST 2 - 17 - Unmei No Ashioto.mp3", "in_game_music");
+
+    _preLoadSound("assets/sounds/placing_stones.mp3", "placing_stones");
+    _preLoadSound("assets/sounds/winning_sound.mp3", "winning_sound");
 }
