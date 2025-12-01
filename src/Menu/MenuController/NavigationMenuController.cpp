@@ -2,6 +2,7 @@
 #include "ButtonMenuView.h"
 #include "GameDataState.h"
 #include "GameModeState.h"
+#include "GameLevelState.h"
 #include "GameState.h"
 #include "ICommand.h"
 #include "MainMenuState.h"
@@ -48,6 +49,16 @@ void NavigationMenuController::updateNavigationMenuForCurrentState() {
 	else if (auto *gameDataState = dynamic_cast<GameDataState *>(_gameStateModel->getCurrentState())) {
 		if (auto *lastGameDataState = dynamic_cast<GameDataState *>(_lastState.get())) {
 			if (gameDataState->getMenuVersion() != lastGameDataState->getMenuVersion()) {
+				shouldUpdate = true;
+			}
+		} else {
+			shouldUpdate = true;
+		}
+	}
+	// special case for GameLevelState to always update
+	else if (auto *gameLevelState = dynamic_cast<GameLevelState *>(_gameStateModel->getCurrentState())) {
+		if (auto *lastGameLevelState = dynamic_cast<GameLevelState *>(_lastState.get())) {
+			if (gameLevelState->getMenuVersion() != lastGameLevelState->getMenuVersion()) {
 				shouldUpdate = true;
 			}
 		} else {

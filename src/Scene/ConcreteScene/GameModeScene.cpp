@@ -84,7 +84,7 @@ void GameModeScene::selectGameMode(const std::string &mode) {
 }
 
 void GameModeScene::initializeMenuController() {
-	menuController = std::make_unique<GameModeMenuController>(this);
+	menuController = std::make_unique<GameModeMenuController>(this, _gameStateModel, _sceneManager);
 
 	// Create the ListMenuView with custom positioning
 	Rectangle menuArea = {

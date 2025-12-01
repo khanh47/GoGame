@@ -46,10 +46,6 @@ void GameStateModel::update(float deltaTime) {
 std::unique_ptr<GameState> GameStateModel::createState(const std::string &stateName) {
 	if (stateName == "MAIN_MENU") {
 		return std::make_unique<MainMenuState>();
-	} else if (stateName == "IN_GAME") {
-		return std::make_unique<GameModeState>();
-	} else if (stateName == "SETTINGS") {
-		return std::make_unique<SettingsState>();
 	}
 	// Add other states as needed
 	return nullptr;

@@ -39,9 +39,10 @@ std::unique_ptr<Scene> GameLevelState::createScene() const
 
 std::shared_ptr<MenuComponent> GameLevelState::createNavigationMenu(GameStateModel *gameStateModel, SceneManager *sceneManager)
 {
-    auto GameLevelMenu = std::make_shared<Menu>("Game Mode Menu", true);
+    std::cout << "Create game level menu controller with: " << selectedGameLevel << std::endl;
+    auto GameLevelMenu = std::make_shared<Menu>("Game Level Menu", true);
     auto Back = std::make_shared<MenuItem>("BACK", true);
-    Back->setCommand(createGameModeBackCommand(gameStateModel, sceneManager));
+    Back->setCommand(createGameLevelBackCommand(gameStateModel, sceneManager));
     GameLevelMenu->addItem(Back);
 
     if (gameLevelSelected) {
@@ -81,11 +82,12 @@ std::vector<std::shared_ptr<MenuItemView>> GameLevelState::createNavigationMenuB
     return itemViews;
 }
 
-void GameLevelState::setGameLevelSelected(bool selected, const std::string &mode)
+void GameLevelState::setGameLevelSelected(bool selected, const std::string &level)
 {
+    std::cout << "Increase menu version: " << level << ' ' << menuVersion << std::endl;
     gameLevelSelected = selected;
-    if (selected && !mode.empty()) {
-        selectedGameLevel = mode;
+    if (selected && !level.empty()) {
+        selectedGameLevel = level;
     } else {
         selectedGameLevel = "NONE";
     }

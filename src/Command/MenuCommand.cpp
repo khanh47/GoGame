@@ -45,12 +45,6 @@ std::unique_ptr<MenuCommand> createPlayCommand(GameStateModel *gameStateModel, S
 			"Game Mode Play Command");
 }
 
-std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
-	return std::make_unique<MenuCommand>(
-			gameStateModel, sceneManager,
-			std::function<std::unique_ptr<GameState>()>([]() { return std::make_unique<MainMenuState>(); }), "Back Command");
-}
-
 std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
     return std::make_unique<MenuCommand>(
         gameStateModel,
@@ -60,6 +54,18 @@ std::unique_ptr<MenuCommand> createSettingsCommand(GameStateModel *gameStateMode
         }),
         "Settings Command"
     );
+}
+
+std::unique_ptr<MenuCommand> createInGameBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
+	return std::make_unique<MenuCommand>(
+			gameStateModel, sceneManager,
+			std::function<std::unique_ptr<GameState>()>([]() { return std::make_unique<MainMenuState>(); }), "Back Command");
+}
+
+std::unique_ptr<MenuCommand> createGameLevelBackCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
+	return std::make_unique<MenuCommand>(
+			gameStateModel, sceneManager,
+			std::function<std::unique_ptr<GameState>()>([]() { return std::make_unique<GameModeState>(); }), "Back Command");
 }
 
 std::unique_ptr<MenuCommand> createPVECommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {

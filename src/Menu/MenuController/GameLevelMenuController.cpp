@@ -73,11 +73,11 @@ void GameLevelMenuController::handleInput() {
 
             itemViews[i]->setHovered(isHovered);
 
-            // Set selected state based on the currently selected game mode index
+            // Set selected state based on the currently selected game level index
             itemViews[i]->setSelected(static_cast<int>(i) == _selectedGameLevelIndex);
 
             if (isHovered && mouseClicked) {
-                // Update selected game mode index
+                // Update selected game level index
                 _selectedGameLevelIndex = static_cast<int>(i);
 
                 // Execute the command for this menu item
@@ -133,14 +133,14 @@ void GameLevelMenuController::createGameLevelMenu() {
     }
 }
 
-void GameLevelMenuController::selectGameLevel(const std::string &mode) {
-    _selectedGameLevel = mode;
+void GameLevelMenuController::selectGameLevel(const std::string &level) {
+    _selectedGameLevel = level;
 
-    // Find selected game mode index
+    // Find selected game level index
     if (_menuSystem) {
         const auto& menuItem = _menuSystem->getChildrens();
         for (size_t i = 0; i < menuItem.size(); ++i) {
-            if (menuItem[i]->getTitle() == mode) {
+            if (menuItem[i]->getTitle() == level) {
                 _selectedGameLevelIndex = static_cast<int>(i);
                 break;
             }

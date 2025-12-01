@@ -7,8 +7,10 @@
 #include "GameDataScene.h"
 #include "GameLevelScene.h"
 #include "MainMenuScene.h"
+#include "InGameScene.h"
 #include "MenuComponent.h"
 #include "NavigationMenuController.h"
+#include "GameState.h"
 #include "Scene.h"
 #include "SettingsScene.h"
 

@@ -1,5 +1,7 @@
 #include "GameModeMenuController.h"
-#include "ConcreteScene/GameModeScene.h"
+#include "GameModeScene.h"
+#include "GameState.h"
+#include "SceneManager.h"
 #include "ListMenuView.h"
 #include "Menu.h"
 #include "MenuCommand.h"
@@ -9,7 +11,8 @@
 #include <algorithm>
 #include <cmath>
 
-GameModeMenuController::GameModeMenuController(GameModeScene *gameModeScene) : _gameModeScene(gameModeScene) {
+GameModeMenuController::GameModeMenuController(GameModeScene *gameModeScene, GameStateModel *gameStateModel, SceneManager *sceneManager) 
+	: _gameModeScene(gameModeScene), _gameStateModel(gameStateModel), _sceneManager(sceneManager) {
 	_menuView = nullptr;
 }
 
@@ -116,6 +119,10 @@ void GameModeMenuController::createGameModeMenu() {
     auto playerVsPlayer = std::make_shared<MenuItem>("PVP", true);
     playerVsPlayer->setCommand(std::make_unique<GameModeSelectCommand>("PVP", _gameModeScene));
     _menuSystem->addItem(playerVsPlayer);
+
+    auto playerVsBot = std::make_shared<MenuItem>("PVE", true);
+    playerVsBot->setCommand(createPVECommand(_gameStateModel, _sceneManager));
+    _menuSystem->addItem(playerVsBot);
 
 	if (_menuView) {
 		_menuView->createInGameItemsViews(_menuSystem->getChildrens().size());

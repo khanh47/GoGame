@@ -4,15 +4,19 @@
 
 // Forward declaration
 class GameModeScene;
+class SceneManager;
+class GameStateModel;
 class IMenuView;
 
 class GameModeMenuController : public MenuController {
 private:
-	GameModeScene *_gameModeScene;
+	GameModeScene *_gameModeScene = nullptr;
+	SceneManager *_sceneManager = nullptr;
+	GameStateModel *_gameStateModel = nullptr;
 	int _selectedGameModeIndex = -1;
 
 public:
-	GameModeMenuController(GameModeScene *gameModeScene);
+	GameModeMenuController(GameModeScene *gameModeScene, GameStateModel *gameStateModel, SceneManager *sceneManager);
 
 	void setViewStrategy(std::unique_ptr<IMenuView> view) override;
 	void handleInput() override;

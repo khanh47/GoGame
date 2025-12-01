@@ -33,10 +33,6 @@ std::shared_ptr<MenuComponent> GameModeState::createNavigationMenu(GameStateMode
     Back->setCommand(createGameModeBackCommand(gameStateModel, sceneManager));
     gameModeMenu->addItem(Back);
 
-    auto playerVsBot = std::make_shared<MenuItem>("PVE", true);
-    playerVsBot->setCommand(createPVECommand(gameStateModel, sceneManager));
-    gameModeMenu->addItem(playerVsBot);
-
 	if (gameModeSelected) {
 		auto Play = std::make_shared<MenuItem>("PLAY", true);
 		Play->setCommand(createPlayCommand(gameStateModel, sceneManager, selectedGameMode));
