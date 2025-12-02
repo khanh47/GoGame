@@ -46,6 +46,10 @@ public:
 	std::string getGameMode() const { return _gameMode; }
 
 	std::vector<std::vector<int>> getGrid();
+	
+    // Async AI support
+    std::pair<int, int> calculateAIMove();  // Runs on background thread
+    bool applyAIMove(int row, int col);     // Runs on main thread
 
 	// Access to GroupManager for AI
     GroupManager& getGroupManager() { return _groupManager; }

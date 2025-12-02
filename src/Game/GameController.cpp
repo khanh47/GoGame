@@ -4,35 +4,39 @@
 
 #include <iostream>
 #include <memory>
+#include <chrono>
 
 GameController::GameController(InGameScene *inGameScene, const std::string &gameMode)
     : _inGameScene(inGameScene), _gameMode(gameMode) {
     init();
 }
 
+GameController::~GameController() {
+    // IMPORTANT: Wait for AI thread to finish before destroying
+    if (_aiFuture.valid()) {
+        _aiFuture. wait();
+    }
+}
+
 void GameController::init() {
     _board = std::make_unique<Board>(19, 19);
     _game = std::make_unique<Game>(19, 19, _board.get());
-    _dataManager = std::make_unique<DataManager>(_game.get(), _board. get());
+    _dataManager = std::make_unique<DataManager>(_game.get(), _board.get());
     _hud = std::make_unique<HUD>(_game.get());
 
-    if (! _dataManager) return;
+    if (!_dataManager) return;
 
-    // Setup based on game mode
     if (_gameMode == "PVP") {
         _dataManager->addState();
     } else if (_gameMode == "EASY") {
         _dataManager->addState();
-        _game->enableAI(true, 2, 1);
-        _aiThinkDelay = 0.3f;  // Faster for easy
+        _game->enableAI(true, 2, 1);  // depth 1
     } else if (_gameMode == "MEDIUM") {
         _dataManager->addState();
-        _game->enableAI(true, 2, 2);
-        _aiThinkDelay = 0.5f;
+        _game->enableAI(true, 2, 2);  // depth 2
     } else if (_gameMode == "HARD") {
         _dataManager->addState();
-        _game->enableAI(true, 2, 3);
-        _aiThinkDelay = 0.8f;  // Slower for hard (more thinking)
+        _game->enableAI(true, 2, 4);  // depth 3
     } else {
         auto savedFiles = _dataManager->getSavedGamesList();
         std::cout << "Load game from file: " << _gameMode << std::endl;
@@ -48,22 +52,49 @@ void GameController::init() {
     }
 
     _hud->update(_dataManager->getTime());
-    _textBox = std::make_unique<TextBox>(_inGameScene, _dataManager.get());
-    _savedGameList = std::make_unique<SavedGameList>(_inGameScene, _dataManager.get());
+    _textBox = std::make_unique<TextBox>(_inGameScene, _dataManager. get());
+    _savedGameList = std::make_unique<SavedGameList>(_inGameScene, _dataManager. get());
+}
+
+void GameController::startAICalculation() {
+    if (_aiIsCalculating || ! _game || !_game->isAIEnabled()) {
+        return;
+    }
+
+    _aiIsCalculating = true;
+
+    // Launch AI on separate thread - DOES NOT BLOCK! 
+    _aiFuture = std::async(std::launch::async, [this]() {
+        return _game->calculateAIMove();
+    });
+}
+
+void GameController::checkAIResult() {
+    if (! _aiIsCalculating || !_aiFuture.valid()) {
+        return;
+    }
+
+    // Check if done - NON-BLOCKING (0 milliseconds wait)
+    auto status = _aiFuture.wait_for(std::chrono::milliseconds(0));
+    
+    if (status == std::future_status::ready) {
+        // AI finished!  Get result
+        auto [row, col] = _aiFuture.get();
+        _aiIsCalculating = false;
+
+        if (_game->applyAIMove(row, col)) {
+            _dataManager->addState();
+        }
+    }
+    // If not ready, just return - game loop continues!
 }
 
 void GameController::render() {
-    if (! _game || !_hud || !_textBox || ! _savedGameList || !_dataManager)
+    if (!_game || !_hud || !_textBox || ! _savedGameList || !_dataManager)
         return;
 
     _game->render();
     _hud->render();
-    
-    // Optional: Show "AI thinking..." indicator
-    if (_aiIsThinking) {
-        // You can add a visual indicator here
-        // DrawText("AI thinking...", 10, 10, 20, GRAY);
-    }
 
     if (_textBox && _textBox->isOpen()) {
         _textBox->render();
@@ -73,7 +104,7 @@ void GameController::render() {
 }
 
 bool GameController::handleInput() {
-    if (!_game || !_hud || !_dataManager || !_textBox || ! _savedGameList)
+    if (!_game || !_hud || !_dataManager || !_textBox || !_savedGameList)
         return false;
 
     if (_textBox->isOpen()) {
@@ -85,6 +116,11 @@ bool GameController::handleInput() {
         return false;
     }
 
+    // Don't accept player input while AI is thinking
+    if (_aiIsCalculating) {
+        return false;
+    }
+
     // Don't accept player input during AI's turn
     if (_game->isAITurn()) {
         return false;
@@ -93,20 +129,13 @@ bool GameController::handleInput() {
     // Handle player input
     if (_game->handleInput()) {
         _dataManager->addState();
-        
-        // If AI is enabled and it's now AI's turn, start thinking timer
-        if (_game->isAITurn()) {
-            _aiIsThinking = true;
-            _aiThinkTimer = 0.0f;
-        }
-        
         return true;
     }
     return false;
 }
 
 void GameController::update(float deltaTime) {
-    if (!_game || ! _hud || !_textBox || !_dataManager)
+    if (!_game || !_hud || !_textBox || !_dataManager)
         return;
 
     if (_textBox->isOpen()) {
@@ -118,28 +147,16 @@ void GameController::update(float deltaTime) {
         return;
     }
 
-    // ALWAYS update these - this was the bug!
+    // ALWAYS update these - this is the key! 
     _dataManager->update(deltaTime);
     _hud->update(deltaTime);
 
-    // Handle AI turn with delay
-    if (_game->isAITurn() && ! _game->isGameOver()) {
-        if (! _aiIsThinking) {
-            // Just became AI's turn
-            _aiIsThinking = true;
-            _aiThinkTimer = 0.0f;
+    // Handle AI turn (non-blocking)
+    if (_game->isAITurn() && !_game->isGameOver()) {
+        if (! _aiIsCalculating) {
+            startAICalculation();  // Start background thread
         } else {
-            // AI is "thinking"
-            _aiThinkTimer += deltaTime;
-            
-            if (_aiThinkTimer >= _aiThinkDelay) {
-                // Time to make the move
-                if (_game->makeAIMove()) {
-                    _dataManager->addState();
-                }
-                _aiIsThinking = false;
-                _aiThinkTimer = 0.0f;
-            }
+            checkAIResult();       // Check if done (instant)
         }
     }
 }
@@ -149,7 +166,7 @@ bool GameController::isGameOver() {
 }
 
 int GameController::getScorePlayer1() { 
-    return _game ?  _game->getScorePlayer1() : 0; 
+    return _game ? _game->getScorePlayer1() : 0; 
 }
 
 int GameController::getScorePlayer2() { 
@@ -157,39 +174,51 @@ int GameController::getScorePlayer2() {
 }
 
 void GameController::resetGame() {
+    // Wait for AI to finish before resetting
+    if (_aiFuture.valid()) {
+        _aiFuture.wait();
+    }
+    _aiIsCalculating = false;
+
     if (! _dataManager || !_board || !_game)
         return;
     _board->reset();
     _game->resetGame();
     _dataManager->addState();
-    _aiIsThinking = false;
-    _aiThinkTimer = 0.0f;
 }
 
 void GameController::passGame() {
-    if (!_dataManager || ! _game)
+    // Wait for AI to finish before passing
+    if (_aiFuture.valid()) {
+        _aiFuture.wait();
+    }
+    _aiIsCalculating = false;
+
+    if (!_dataManager || !_game)
         return;
     _game->passTurn();
     _dataManager->addState();
-    
-    // If it's now AI's turn after pass, start thinking
-    if (_game->isAITurn()) {
-        _aiIsThinking = true;
-        _aiThinkTimer = 0.0f;
-    }
 }
 
 bool GameController::undo() {
-    if (!_dataManager) return false;
-    _aiIsThinking = false;
-    _aiThinkTimer = 0.0f;
+    // Wait for AI to finish before undo
+    if (_aiFuture. valid()) {
+        _aiFuture.wait();
+    }
+    _aiIsCalculating = false;
+
+    if (! _dataManager) return false;
     return _dataManager->undo();
 }
 
 bool GameController::redo() {
+    // Wait for AI to finish before redo
+    if (_aiFuture.valid()) {
+        _aiFuture.wait();
+    }
+    _aiIsCalculating = false;
+
     if (!_dataManager) return false;
-    _aiIsThinking = false;
-    _aiThinkTimer = 0.0f;
     return _dataManager->redo();
 }
 

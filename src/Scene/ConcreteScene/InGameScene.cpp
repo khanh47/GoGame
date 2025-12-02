@@ -93,15 +93,13 @@ void InGameScene::handleInput() {
 		_endGameBox->handleInput();
 		return;
 	}
-	if (_gameController) {
-		if (_gameController->handleInput()) {
-			_audioManager->playSoundEffect("placing_stones");
-		}
+	if (_gameController->handleInput()) {
+		_audioManager->playSoundEffect("placing_stones");
 	}
 	if (_gameController->isSavingGame())
 		return;
 
-	if (_passButton)
+	if (!_gameController->isAIThinking() && _passButton)
 		_passButton->handleInput();
 	if (menuController)
 		menuController->handleInput();

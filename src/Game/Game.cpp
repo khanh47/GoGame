@@ -3,6 +3,8 @@
 #include "GoAI.h"
 #include "colors.h"
 #include "raylib.h"
+
+#include <iostream>
 #include <cctype>
 #include <cmath>
 #include <queue>
@@ -26,6 +28,87 @@ void Game::enableAI(bool enable, int aiColor, int depth) {
     if (enable && ! _ai) {
         _ai = std::make_unique<GoAI>(_rows, _cols);
     }
+}
+
+std::pair<int, int> Game::calculateAIMove() {
+    // This runs on a BACKGROUND thread
+    // Only reads game state, doesn't modify it
+    
+    if (! _isAIEnabled || !_ai || _isGameOver) {
+        return {-1, -1};
+    }
+    
+    if (_currentPlayer != _aiColor) {
+        return {-1, -1};
+    }
+
+    // Find best move (this is the slow part)
+    return _ai->findBestMove(this, _aiColor, _aiDepth);
+}
+
+bool Game::applyAIMove(int row, int col) {
+    // This runs on the MAIN thread
+    
+    if (!_isAIEnabled || _isGameOver) {
+        return false;
+    }
+
+    if (_currentPlayer != _aiColor) {
+        return false;
+    }
+
+    // AI passes
+    if (row == -1 && col == -1) {
+        passTurn();
+        return true;
+    }
+
+    // Safety check: shouldn't happen if AI is correct
+    if (_hasKo && row == _koRow && col == _koCol) {
+        std::cerr << "Warning: AI tried to play Ko move!" << std::endl;
+        passTurn();
+        return true;
+    }
+
+    // Make the move
+    auto [legal, capturedStones] = _groupManager.makeMove(row, col, _currentPlayer);
+
+    if (! legal) {
+        std::cerr << "Warning: AI picked illegal move at (" << row << "," << col << ")" << std::endl;
+        passTurn();
+        return true;
+    }
+
+    // Update scores
+    if (_currentPlayer == 1) {
+        _scorePlayer1 += capturedStones. size();
+    } else {
+        _scorePlayer2 += capturedStones. size();
+    }
+
+    // Ko detection
+    if (capturedStones. size() == 1) {
+        int capR = capturedStones[0].first;
+        int capC = capturedStones[0].second;
+        int myGroupSize = _groupManager. getGroupSize(row, col);
+        int myGroupLibs = _groupManager. getGroupLiberties(row, col);
+
+        if (myGroupSize == 1 && myGroupLibs == 1) {
+            _hasKo = true;
+            _koRow = capR;
+            _koCol = capC;
+        } else {
+            _hasKo = false;
+        }
+    } else {
+        _hasKo = false;
+    }
+
+    syncBoardFromGroupManager();
+    _currentPlayer = (_currentPlayer == 1) ? 2 : 1;
+    _isLastTurnPass = false;
+
+    return true;
 }
 
 bool Game::makeAIMove() {
