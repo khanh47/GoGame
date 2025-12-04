@@ -7,8 +7,7 @@
 #include <cmath>
 #include <string>
 
-const float CELL_SIZE = 36;
-const float PADDING = 50;
+const float PADDING = 58;
 
 static void DrawTextureCenteredAtDiameter(const Texture2D &tex, float cx, float cy, float targetDiam) {
 	if (tex.id == 0)
@@ -31,6 +30,9 @@ Board::~Board() {}
 
 void Board::init() {
 	_grid.resize(numRows, std::vector<int>(numCols, 0));
+    const float BOARD_TOTAL_SIZE = 740.0f;
+    
+    _cellSize = BOARD_TOTAL_SIZE / (numRows + 2);
 }
 
 void Board::reset() {
@@ -38,38 +40,45 @@ void Board::reset() {
 }
 
 void Board::renderGhostStones(int row, int col, int value) {
-	float radius = CELL_SIZE * 0.4f;
-	DrawCircle(PADDING + (row + 1) * CELL_SIZE, PADDING + (col + 1) * CELL_SIZE, radius,
+	float radius = _cellSize * 0.4f;
+	DrawCircle(PADDING + (row + 1) * _cellSize, PADDING + (col + 1) * _cellSize, radius,
 						 value == 2 ? ghostWhite : shadow);
 }
 
 void Board::render() {
 	// Render Border Lines
-	Rectangle recBorderLines = {PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE};
+	Rectangle recBorderLines = {PADDING, PADDING, (numCols + 1) * _cellSize, (numRows + 1) * _cellSize};
 	DrawRectangleLinesEx(recBorderLines, 1, BLACK);
 	Color boardColor = SettingsData::getInstance().getBoardColorAsColor();
 
 	// Render Board
-	DrawRectangle(PADDING, PADDING, (numCols + 1) * CELL_SIZE, (numRows + 1) * CELL_SIZE, boardColor);
+	DrawRectangle(PADDING, PADDING, (numCols + 1) * _cellSize, (numRows + 1) * _cellSize, boardColor);
+	float lineThickness = 2.0f;  // Adjust this!  (1.0 = thin, 2-3 = medium, 4+ = thick)
+
+	// Horizontal lines
 	for (int i = 1; i <= numRows; i++) {
-		DrawLine(PADDING + CELL_SIZE, PADDING + i * CELL_SIZE, PADDING + numRows * CELL_SIZE, PADDING + i * CELL_SIZE,
-						 BLACK);
+		Vector2 start = {PADDING + _cellSize, PADDING + i * _cellSize};
+		Vector2 end = {PADDING + numCols * _cellSize, PADDING + i * _cellSize};
+		DrawLineEx(start, end, lineThickness, BLACK);
 	}
+
+	// Vertical lines
 	for (int i = 1; i <= numCols; i++) {
-		DrawLine(PADDING + i * CELL_SIZE, PADDING + CELL_SIZE, PADDING + i * CELL_SIZE, PADDING + numRows * CELL_SIZE,
-						 BLACK);
+		Vector2 start = {PADDING + i * _cellSize, PADDING + _cellSize};
+		Vector2 end = {PADDING + i * _cellSize, PADDING + numRows * _cellSize};
+		DrawLineEx(start, end, lineThickness, BLACK);
 	}
 
 	// Render Stones
 	ThemeType stoneTheme = SettingsData::getInstance().getStoneTheme();
 
-	float radius = CELL_SIZE * 0.4f;
+	float radius = _cellSize * 0.4f;
 	float targetDiam = radius * 2.0f;
 
 	for (int i = 0; i < numRows; i++) {
 		for (int j = 0; j < numCols; j++) {
-			float x = PADDING + (i + 1) * CELL_SIZE;
-			float y = PADDING + (j + 1) * CELL_SIZE;
+			float x = PADDING + (i + 1) * _cellSize;
+			float y = PADDING + (j + 1) * _cellSize;
 			if (_grid[i][j]) {
 				DrawCircleV(Vector2{x + 2, y + 2}, radius, shadow);
 				std::string alias = _grid[i][j] == 2 ? "white_" : "black_";

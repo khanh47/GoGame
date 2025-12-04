@@ -25,6 +25,9 @@ std::shared_ptr<MenuComponent> MainMenuState::createNavigationMenu(GameStateMode
 																																	 SceneManager *sceneManager) {
 	auto mainMenu = std::make_shared<Menu>("Main Menu", true);
 
+	std::shared_ptr<MenuComponent> Continue = std::make_shared<MenuItem>("CONTINUE", true);
+	Continue->setCommand(createContinueCommand(gameStateModel, sceneManager));
+
 	std::shared_ptr<MenuComponent> NewGame = std::make_shared<MenuItem>("NEW GAME", true);
 	NewGame->setCommand(createNewGameCommand(gameStateModel, sceneManager));
 
@@ -37,10 +40,12 @@ std::shared_ptr<MenuComponent> MainMenuState::createNavigationMenu(GameStateMode
 	std::shared_ptr<MenuComponent> Exit = std::make_shared<MenuItem>("EXIT", true);
 	Exit->setCommand(createExitCommand());
 
+	mainMenu->addItem(Continue);
 	mainMenu->addItem(NewGame);
 	mainMenu->addItem(LoadGame);
 	mainMenu->addItem(Settings);
 	mainMenu->addItem(Exit);
+	
 	return mainMenu;
 }
 

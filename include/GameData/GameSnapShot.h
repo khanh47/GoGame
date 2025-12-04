@@ -5,11 +5,9 @@
 
 class GameSnapShot {
 public:
-	int rows = 0;
-	int cols = 0;
-	bool isAIEnabled = false;
-	int dep = 0;
+	int dep;
 	int moveIndex;
+	int boardSize;
 	std::vector<MoveRecord> moveHistory;
 
 public:

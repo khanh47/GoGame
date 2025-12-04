@@ -34,6 +34,8 @@ public:
 	void setStoneColor(int colorIndex);
 	int getStoneColor() const;
 
+    int getBoardSize() const { return _boardSize; }
+    void setBoardSize(int size) { _boardSize = size; }
 private:
 	SettingsData();
 	~SettingsData() = default;
@@ -52,4 +54,6 @@ private:
 	int _boardColor = 0;
 	ThemeType _stoneTheme = ThemeType::Classic;
 	int _stoneColor = 0;
+
+    int _boardSize = 19;
 };

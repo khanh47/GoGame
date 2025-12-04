@@ -2,6 +2,7 @@
 #include "MenuController.h"
 #include "Sound.h"
 #include "Theme.h"
+#include "GameSettings.h"
 #include <memory>
 
 // Forward Declaration
@@ -10,7 +11,7 @@ class AudioManager;
 
 class SettingsMenuController : public MenuController {
 public:
-	enum class Tab { Sound = 0, Theme = 1 };
+	enum class Tab { Sound = 0, Theme = 1, Game = 2 };
 
 	SettingsMenuController(SettingsScene *settingsScene, AudioManager *audioManager);
 
@@ -30,6 +31,7 @@ private:
 
 	std::unique_ptr<SoundSettings> _soundSubscene;
 	std::unique_ptr<Theme> _themeSubscene;
+    std::unique_ptr<GameSettings> _gameSubscene;
 
 	// Tab navigation UI
 	void renderTabNavigation() const;

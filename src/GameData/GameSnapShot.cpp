@@ -1,5 +1,6 @@
 #include "GameSnapShot.h"
 #include "Game.h"
+
 #include <cctype>
 #include <fstream>
 #include <iostream>
@@ -18,7 +19,7 @@ template <typename T> static bool readValue(std::istream &in, T &value) {
 }
 
 static bool readVector(std::istream &in, std::vector<MoveRecord> &list) {
-	uint64_t sz = 0;
+	int sz = 0;
 	if (!readValue(in, sz)) return false;
 
 	list.resize(sz);
@@ -36,7 +37,7 @@ static bool readVector(std::istream &in, std::vector<MoveRecord> &list) {
 }
 
 static void writeVector(std::ostream &out, const std::vector<MoveRecord> &list) {
-	uint64_t sz = list.size();
+	int sz = list.size();
 	writeValue(out, sz);
 
 	for (auto &move : list) {
@@ -47,18 +48,16 @@ static void writeVector(std::ostream &out, const std::vector<MoveRecord> &list) 
 }
 
 bool GameSnapShot::deserialize(std::istream &in) {
-	uint32_t version = 0;
-	if (!in.read(reinterpret_cast<char *>(&version), sizeof(version)))
+	int version = 0;
+	if (!readValue(in, version))
 		return false;
 
 	// Read numeric data
-	if (!readValue(in, rows))
-		return false;
-	if (!readValue(in, cols))
-		return false;
-	if (!readValue(in, isAIEnabled))
+	if (!readValue(in, dep))
 		return false;
 	if (!readValue(in, moveIndex))
+		return false;
+	if (!readValue(in, boardSize))
 		return false;
 	if (!readVector(in, moveHistory))
 		return false;
@@ -67,15 +66,13 @@ bool GameSnapShot::deserialize(std::istream &in) {
 }
 
 void GameSnapShot::serialize(std::ostream &out) const {
-	uint32_t version = 3; // bump version because we added new data
-	out.write(reinterpret_cast<const char *>(&version), sizeof(version));
+	int version = 3; // bump version because we added new data
+	writeValue(out, version);
 
 	// Write numeric game info
-	writeValue(out, rows);
-	writeValue(out, cols);
-	writeValue(out, isAIEnabled);
 	writeValue(out, dep);
 	writeValue(out, moveIndex);
+	writeValue(out, boardSize);
 	writeVector(out, moveHistory);
 }
 

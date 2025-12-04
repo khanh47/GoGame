@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 
-extern const float CELL_SIZE;
 extern const float PADDING;
 
 class Board {
@@ -19,9 +18,11 @@ public:
 	bool isCellInside(int row, int col);
 	std::vector<std::vector<int>> getGrid() { return _grid; }
 	void setGrid(const std::vector<std::vector<int>> &grid);
+    float getCellSize() const { return _cellSize; }
 
 private:
 	int numRows;
 	int numCols;
+    float _cellSize;
 	std::vector<std::vector<int>> _grid;
 };

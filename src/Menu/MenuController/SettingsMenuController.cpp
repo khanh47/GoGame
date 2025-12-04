@@ -18,6 +18,7 @@ SettingsMenuController::SettingsMenuController(SettingsScene *settingsScene, Aud
 	// Initialize subscenes
 	_soundSubscene = std::make_unique<SoundSettings>(audioManager);
 	_themeSubscene = std::make_unique<Theme>();
+    _gameSubscene = std::make_unique<GameSettings>();
 
 	// Set positions and sizes for subscenes
 	float screenWidth = (float)GetScreenWidth();
@@ -28,6 +29,9 @@ SettingsMenuController::SettingsMenuController(SettingsScene *settingsScene, Aud
 
 	_themeSubscene->setPosition({50.0f, CONTENT_Y_OFFSET});
 	_themeSubscene->setSize({contentWidth, 400.0f});
+	
+    _gameSubscene->setPosition({50.0f, CONTENT_Y_OFFSET});
+    _gameSubscene->setSize({contentWidth, 400.0f});
 }
 
 void SettingsMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
@@ -38,15 +42,15 @@ void SettingsMenuController::setViewStrategy(std::unique_ptr<IMenuView> view) {
 }
 
 void SettingsMenuController::handleInput() {
-	// Handle tab navigation first
 	handleTabNavigation();
 
-	// Delegate input to current subscene
 	if (_currentTab == Tab::Sound && _soundSubscene) {
 		_soundSubscene->handleInput();
 	} else if (_currentTab == Tab::Theme && _themeSubscene) {
 		_themeSubscene->handleInput();
-	}
+	} else if (_currentTab == Tab::Game && _gameSubscene) {
+        _gameSubscene->handleInput();
+    }
 }
 
 void SettingsMenuController::update() {
@@ -54,17 +58,20 @@ void SettingsMenuController::update() {
 		_soundSubscene->update();
 	} else if (_currentTab == Tab::Theme && _themeSubscene) {
 		_themeSubscene->update();
-	}
+	} else if (_currentTab == Tab::Game && _gameSubscene) {
+        _gameSubscene->render();
+    }
 }
 
 void SettingsMenuController::render() const {
 	renderTabNavigation();
 
-	// Render current subscene
 	if (_currentTab == Tab::Sound && _soundSubscene) {
 		_soundSubscene->render();
 	} else if (_currentTab == Tab::Theme && _themeSubscene) {
 		_themeSubscene->render();
+	} else if (_currentTab == Tab::Game && _gameSubscene) {
+		_gameSubscene->render();
 	}
 }
 
@@ -77,6 +84,9 @@ void SettingsMenuController::createSettingsMenu() {
 	auto ThemeItem = std::make_shared<MenuItem>("THEME", true);
 	_menuSystem->addItem(ThemeItem);
 
+	auto GameItem = std::make_shared<MenuItem>("GAME", true);
+	_menuSystem->addItem(GameItem);
+
 	if (_menuView) {
 		_menuView->createSettingsItemsViews(_menuSystem->getChildrens().size());
 	}
@@ -87,6 +97,8 @@ void SettingsMenuController::switchTab(int tabIndex) {
 		_currentTab = Tab::Sound;
 	} else if (tabIndex == 1) {
 		_currentTab = Tab::Theme;
+	} else if (tabIndex == 2) {
+		_currentTab = Tab::Game;
 	}
 }
 
@@ -94,20 +106,22 @@ void SettingsMenuController::renderTabNavigation() const {
 	Font font = ResourceManager::getInstance().getFont("GozaruDemo");
 	float screenWidth = (float)GetScreenWidth();
 
-	// Calculate tab positions - centered (2 tabs only: SOUND and THEME)
-	float totalTabsWidth = 2 * TAB_WIDTH + 1 * TAB_SPACING;
+	// Calculate tab positions - centered
+	float totalTabsWidth = 3 * TAB_WIDTH + 1 * TAB_SPACING;
 	float startX = (screenWidth - totalTabsWidth) / 2.0f;
 	float tabY = 10.0f;
 
-	const char *tabNames[] = {"SOUND", "THEME"};
+	const char *tabNames[] = {"SOUND", "THEME", "GAME"};
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
 		float tabX = startX + i * (TAB_WIDTH + TAB_SPACING);
 
 		bool isSelected = false;
 		if (i == 0 && _currentTab == Tab::Sound)
 			isSelected = true;
 		if (i == 1 && _currentTab == Tab::Theme)
+			isSelected = true;
+		if (i == 2 && _currentTab == Tab::Game)
 			isSelected = true;
 
 		// Determine tab colors
@@ -147,11 +161,11 @@ void SettingsMenuController::handleTabNavigation() {
 	float screenWidth = (float)GetScreenWidth();
 
 	// Calculate tab positions (2 tabs only: SOUND and THEME)
-	float totalTabsWidth = 2 * TAB_WIDTH + 1 * TAB_SPACING;
+	float totalTabsWidth = 3 * TAB_WIDTH + 1 * TAB_SPACING;
 	float startX = (screenWidth - totalTabsWidth) / 2.0f;
 	float tabY = 10.0f;
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
 		float tabX = startX + i * (TAB_WIDTH + TAB_SPACING);
 		Rectangle tabRect = {tabX, tabY, TAB_WIDTH, TAB_HEIGHT};
 
@@ -160,6 +174,8 @@ void SettingsMenuController::handleTabNavigation() {
 				_currentTab = Tab::Sound;
 			} else if (i == 1) {
 				_currentTab = Tab::Theme;
+			} else if (i == 2) {
+				_currentTab = Tab::Game;
 			}
 			break;
 		}

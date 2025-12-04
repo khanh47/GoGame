@@ -24,12 +24,18 @@ void DataManager::update(float deltaTime) { _timeCount += deltaTime; }
 
 const GameSnapShot DataManager::createSnapShot() const {
 	GameSnapShot snap;
+	snap.dep = _game->getDepth();
 	snap.moveIndex = _game->getMoveIndex();
+	snap.boardSize = _game->getBoardSize();
 	snap.moveHistory = _game->getHistoryMove();
 	return snap;
 }
 
 void DataManager::applySnapShot(const GameSnapShot &snap) {
+	_game->setDepth(snap.dep);
+	_game->setMoveIndex(snap.moveIndex);
+	_game->setBoardSize(snap.boardSize);
+	_game->setMoveHistory(snap.moveHistory);
 }
 
 bool DataManager::deleteSavedGame(const std::string &filename) {
@@ -63,11 +69,6 @@ bool DataManager::saveCurrentToSelectedFile() {
 	}
 
 	const std::string &filename = _gameDataSelected.value();
-
-	if (_history.empty()) {
-		std::cerr << "saveCurrentToSelectedFile: history is empty, nothing to save\n";
-		return false;
-	}
 
 	std::filesystem::path full = _dataDir / filename;
 	std::error_code ec;

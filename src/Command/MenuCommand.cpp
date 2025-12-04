@@ -9,6 +9,7 @@
 #include "SettingsState.h"
 #include "GameDataState.h"
 #include "GameLevelState.h"
+#include "DataManager.h"
 
 // MenuCommand Implementation
 void MenuCommand::execute() {
@@ -22,6 +23,25 @@ void MenuCommand::execute() {
 		}
 		_gameStateModel->setState(std::move(newState));
 	}
+}
+
+std::unique_ptr<MenuCommand> createContinueCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {
+    auto filename = DataManager::latestSavedGameFileName();
+    
+    if (! filename.has_value()) {
+        return nullptr;
+    }
+    
+    std::string savedFileName = filename.value();
+    
+    return std::make_unique<MenuCommand>(
+        gameStateModel, 
+        sceneManager,
+        [savedFileName]() -> std::unique_ptr<GameState> { 
+            return std::make_unique<InGameState>(savedFileName); 
+        },
+        "Continue Command"
+    );
 }
 
 std::unique_ptr<MenuCommand> createNewGameCommand(GameStateModel *gameStateModel, SceneManager *sceneManager) {

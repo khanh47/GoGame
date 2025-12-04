@@ -1,6 +1,8 @@
 #pragma once
 
 #include <utility>
+#include <cstdint>
+#include <unordered_map>
 
 class GroupManager;
 class Game;
@@ -9,20 +11,30 @@ class GoAI {
 public:
 	GoAI(Game *game, GroupManager *groupManager, bool isAB);
 
-	int evaluate(int color);
+	int evaluate();
 	bool isInvalidMove(int row, int col, int color);
 	std::pair<int, int> findBestMove(int color, int dep);
 	int minimax(int color, int dep, int alpha, int beta, bool isMax);
+    int moveHeuristic(int row, int col, int color);
 	void sync();
 
 private:
 	GroupManager *_groupManager;
 	Game *_game;
 
+	int _aiColor;
 	bool _isAB;
 	int _koRow;
 	int _koCol;
 	bool _hasKo;
 	int _rows;
 	int _cols;
+
+	uint64_t _zobristTable[19][19][3];  // [row][col][color]
+    uint64_t _currentHash = 0;
+    
+    std::unordered_map<uint64_t, int> _transpositionTable;
+    
+    void initZobrist();
+    uint64_t computeHash() const;
 };

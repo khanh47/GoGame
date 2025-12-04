@@ -12,16 +12,9 @@ class Board;
 class DataManager {
 private:
 	Game *_game;
-	Board *_board;
 	std::optional<std::string> _gameDataSelected;
 	int _menuVersion = 0;
-
-	// Game Data Manager
-	std::vector<GameSnapShot> _history;
-	size_t _historyIndex = -1;
 	float _timeCount = 0.0f;
-
-	void trimHistoryAfterIndex();
 
 public:
 	DataManager(Game *game);
@@ -32,7 +25,6 @@ public:
 	// snapshot history
 	const std::vector<GameSnapShot> getHistory();
 	const GameSnapShot createSnapShot() const;
-	const GameSnapShot *currentSnapShot() const;
 	void applySnapShot(const GameSnapShot &snap);
 
 	// save/load snapshot

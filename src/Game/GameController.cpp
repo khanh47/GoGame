@@ -1,6 +1,7 @@
 #include "GameController.h"
 #include "InGameScene.h"
 #include "SavedGameList.h"
+#include "SettingsData.h"
 
 #include <iostream>
 #include <memory>
@@ -13,39 +14,43 @@ GameController::GameController(InGameScene *inGameScene, const std::string &game
 
 GameController::~GameController() {
     if (_aiFuture.valid()) {
-        _aiFuture. wait();
+        _aiFuture.wait();
     }
 }
 
 void GameController::init() {
-		int sz = 19;
-    _game = std::make_unique<Game>(sz, sz);
+	int boardSize = SettingsData::getInstance().getBoardSize();
+    _game = std::make_unique<Game>(boardSize, boardSize);
     _dataManager = std::make_unique<DataManager>(_game.get());
     _hud = std::make_unique<HUD>(_game.get());
-
-    if (!_dataManager) return;
-
-    if (_gameMode == "PVP") {
-    } else if (_gameMode == "EASY") {
-				_game->enableAI(true, 2, false);
-    } else if (_gameMode == "MEDIUM") {
-				_game->enableAI(true, 3, false);
-    } else if (_gameMode == "HARD") {
-				_game->enableAI(true, 4, true);
-    } else {
+    if (_gameMode != "PVP" && _gameMode != "EASY"
+     && _gameMode != "MEDIUM" && _gameMode != "HARD") {
         auto savedFiles = _dataManager->getSavedGamesList();
         std::cout << "Load game from file: " << _gameMode << std::endl;
 
         for (auto &file : savedFiles) {
             if (file == _gameMode) {
-                if (! _dataManager->loadFromFile(file)) {
+                if (!_dataManager->loadFromFile(file)) {
                     std::cout << "Can't load game's data from file\n";
                 }
                 break;
             }
         }
     }
-
+    _game->init();
+    int dep = _game->getDepth();
+    if (dep) {
+        _game->enableAI(true, dep, dep > 2);
+    }
+    _game->replayToIndex(_game->getMoveIndex());
+    if (_gameMode == "PVP") {
+    } else if (_gameMode == "EASY") {
+		_game->enableAI(true, 2, false);
+    } else if (_gameMode == "MEDIUM") {
+		_game->enableAI(true, 4, true);
+    } else if (_gameMode == "HARD") {
+		_game->enableAI(true, 5, true);
+    }
     _hud->update(_dataManager->getTime());
     _textBox = std::make_unique<TextBox>(_inGameScene, _dataManager.get());
     _savedGameList = std::make_unique<SavedGameList>(_inGameScene, _dataManager.get());
