@@ -42,13 +42,14 @@ public:
 	void closeGameDataInputPopupAndCreate();
 
 	bool isPopup();
+	bool isAIThinking();
 
 private:
 	std::unique_ptr<InGameMenuController> menuController;
 	std::unique_ptr<PassButton> _passButton;
 	std::unique_ptr<TextBox> _textBox;
 	std::unique_ptr<EndGameBox> _endGameBox;
-	GameController *_gameController = nullptr;
+	std::unique_ptr<GameController> _gameController;
 	AudioManager *_audioManager = nullptr;
 	std::string _gameModeSelected;
 	bool _playedWinningSound = false;

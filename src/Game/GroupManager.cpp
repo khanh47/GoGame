@@ -1,450 +1,328 @@
 #include "GroupManager.h"
+
 #include <queue>
-#include <algorithm>
+#include <iostream>
 
 constexpr int GroupManager::dx[4];
 constexpr int GroupManager::dy[4];
 
-GroupManager::GroupManager(int rows, int cols)
-    : _rows(rows), _cols(cols), _nextGroupId(1)
-{
-    reset();
+GroupManager::GroupManager(int rows, int cols) : _rows(rows), _cols(cols) {
+	reset();
 }
 
 void GroupManager::reset() {
-    _board.assign(_rows, std::vector<int>(_cols, 0));
-    _parent.assign(_rows * _cols, -1);
-    _rank.assign(_rows * _cols, 0);
-    _groupId.assign(_rows * _cols, -1);
-    _groups.clear();
-    _nextGroupId = 1;
+  _lab.assign(_rows * _cols, -1);
+	_groups.assign(_rows * _cols, Node());
+	_groupChangeCount = 0;
+	_libertyChangeCount = 0;
+	while (_groupChanges.size()) _groupChanges.pop();
+	while (_libertyChanges.size()) _libertyChanges.pop();
+	while (_history.size()) _history.pop();
+	_history.push({0, 0});
 }
 
-// DSU Find with path compression
-int GroupManager::find(int x) {
-    if (_parent[x] < 0) return x;  // x is a root or uninitialized
-    if (_parent[x] == x) return x;
-    return _parent[x] = find(_parent[x]);  // path compression
+int GroupManager::find(int u) {
+	return _lab[u] < 0 ? u : find(_lab[u]);
 }
 
-// DSU Unite by rank
-void GroupManager::unite(int x, int y) {
-    int rootX = find(x);
-    int rootY = find(y);
-    if (rootX == rootY) return;
+bool GroupManager::unite(int u, int v) {
+	u = find(u);
+	v = find(v);
+	if (u == v) return false;
+	if (_lab[u] > _lab[v]) std::swap(u, v);
 
-    // Union by rank
-    if (_rank[rootX] < _rank[rootY]) std::swap(rootX, rootY);
-    _parent[rootY] = rootX;
-    if (_rank[rootX] == _rank[rootY]) _rank[rootX]++;
+	pushGroupChange(getGroupChange(u));
+	pushGroupChange(getGroupChange(v));
 
-    // Merge group info: merge rootY into rootX
-    mergeGroups(rootX, rootY);
+	_lab[u] += _lab[v];
+	_lab[v] = u;
+	mergeGroups(u, v);
+	return true;
 }
 
-void GroupManager::createNewGroup(int row, int col, int color) {
-    int pos = encode(row, col);
-    _parent[pos] = pos;  // self-root
-    _rank[pos] = 0;
-    _groupId[pos] = pos;
-
-    GroupInfo info;
-    info.color = color;
-    info. size = 1;
-    info.members.insert(pos);
-
-    // Compute initial liberties
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (isInside(nr, nc) && _board[nr][nc] == 0) {
-            info. liberties.insert(encode(nr, nc));
-        }
-    }
-
-    _groups[pos] = std::move(info);
+void GroupManager::pushGroupChange(GroupChange info) {
+	_groupChangeCount++;
+	_groupChanges.push(info);
 }
 
-void GroupManager::mergeGroups(int rootKeep, int rootMerge) {
-    if (! _groups.count(rootKeep) || !_groups. count(rootMerge)) return;
-    if (rootKeep == rootMerge) return;
-
-    GroupInfo& keep = _groups[rootKeep];
-    GroupInfo& merge = _groups[rootMerge];
-
-    // Merge members
-    for (int pos : merge.members) {
-        keep.members.insert(pos);
-        _groupId[pos] = rootKeep;
-    }
-    keep.size += merge.size;
-
-    // Merge liberties (union of both, minus any positions that are now members)
-    for (int lib : merge.liberties) {
-        if (keep.members.find(lib) == keep.members.end()) {
-            keep. liberties.insert(lib);
-        }
-    }
-    // Remove any liberties that are actually members
-    for (int mem : keep.members) {
-        keep.liberties.erase(mem);
-    }
-
-    // Remove old group
-    _groups.erase(rootMerge);
+void GroupManager::pushLibertyChange(int root, int liberty, bool isInsert) {
+	_libertyChangeCount++;
+	_libertyChanges.push({root, liberty, isInsert});
 }
 
-void GroupManager::removeGroup(int root, std::vector<std::pair<int,int>>& removedStones) {
-    if (! _groups.count(root)) return;
-
-    GroupInfo& group = _groups[root];
-    for (int pos : group.members) {
-        auto [r, c] = decode(pos);
-        _board[r][c] = 0;
-        _parent[pos] = -1;
-        _groupId[pos] = -1;
-        removedStones. push_back({r, c});
-    }
-    _groups.erase(root);
-}
-
-void GroupManager::updateLibertiesAfterCapture(const std::vector<std::pair<int,int>>& capturedStones) {
-    // For each captured stone position (now empty), add it as liberty to adjacent groups
-    for (auto [r, c] : capturedStones) {
-        int pos = encode(r, c);
-        for (int k = 0; k < 4; k++) {
-            int nr = r + dx[k], nc = c + dy[k];
-            if (! isInside(nr, nc)) continue;
-            if (_board[nr][nc] == 0) continue;
-
-            int neighborPos = encode(nr, nc);
-            int root = find(neighborPos);
-            if (_groups.count(root)) {
-                _groups[root].liberties.insert(pos);
-            }
-        }
-    }
-}
-
-void GroupManager::computeLibertiesForGroup(int root) {
-    if (!_groups.count(root)) return;
-    GroupInfo& group = _groups[root];
-    group.liberties.clear();
-
-    for (int pos : group.members) {
-        auto [r, c] = decode(pos);
-        for (int k = 0; k < 4; k++) {
-            int nr = r + dx[k], nc = c + dy[k];
-            if (isInside(nr, nc) && _board[nr][nc] == 0) {
-                group. liberties.insert(encode(nr, nc));
-            }
-        }
-    }
-}
-
-std::pair<bool, std::vector<std::pair<int,int>>> GroupManager::makeMove(int row, int col, int color) {
-    std::vector<std::pair<int,int>> capturedStones;
-
-    if (! isInside(row, col) || _board[row][col] != 0) {
-        return {false, capturedStones};  // invalid move
-    }
-
-    int pos = encode(row, col);
-    int opp = (color == 1) ? 2 : 1;
-
-    // 1) Place the stone
-    _board[row][col] = color;
-    createNewGroup(row, col, color);
-
-    // 2) Remove this position from liberties of all adjacent groups
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (! isInside(nr, nc)) continue;
-        if (_board[nr][nc] == 0) continue;
-
-        int neighborPos = encode(nr, nc);
-        int root = find(neighborPos);
-        if (_groups.count(root)) {
-            _groups[root].liberties.erase(pos);
-        }
-    }
-
-    // 3) Merge with adjacent friendly groups
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (!isInside(nr, nc)) continue;
-        if (_board[nr][nc] != color) continue;
-
-        int neighborPos = encode(nr, nc);
-        unite(pos, neighborPos);
-    }
-
-    // 4) Check adjacent opponent groups for capture
-    std::unordered_set<int> checkedRoots;
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (!isInside(nr, nc)) continue;
-        if (_board[nr][nc] != opp) continue;
-
-        int neighborPos = encode(nr, nc);
-        int root = find(neighborPos);
-        if (checkedRoots.count(root)) continue;
-        checkedRoots.insert(root);
-
-        if (_groups.count(root) && _groups[root].liberties.empty()) {
-            // Capture this group
-            removeGroup(root, capturedStones);
-        }
-    }
-
-    // 5) Update liberties for groups adjacent to captured stones
-    if (!capturedStones.empty()) {
-        updateLibertiesAfterCapture(capturedStones);
-    }
-
-    // 6) Check if our newly placed group has liberties (self-capture check)
-    int myRoot = find(pos);
-    if (_groups.count(myRoot) && _groups[myRoot].liberties.empty()) {
-        // Self-capture!  Undo placement
-        std::vector<std::pair<int,int>> selfRemoved;
-        removeGroup(myRoot, selfRemoved);
-
-        // Restore captured opponent stones (if any)
-        for (auto [r, c] : capturedStones) {
-            _board[r][c] = opp;
-            createNewGroup(r, c, opp);
-        }
-        // Re-merge restored opponent stones
-        for (auto [r, c] : capturedStones) {
-            int p = encode(r, c);
-            for (int k = 0; k < 4; k++) {
-                int nr2 = r + dx[k], nc2 = c + dy[k];
-                if (!isInside(nr2, nc2)) continue;
-                if (_board[nr2][nc2] != opp) continue;
-                unite(p, encode(nr2, nc2));
-            }
-        }
-        // Recompute liberties for restored groups
-        std::unordered_set<int> restoredRoots;
-        for (auto [r, c] : capturedStones) {
-            restoredRoots.insert(find(encode(r, c)));
-        }
-        for (int root : restoredRoots) {
-            computeLibertiesForGroup(root);
-        }
-
-        return {false, {}};  // illegal self-capture
-    }
-
-    return {true, capturedStones};
-}
-
-GroupManager::MoveRecord GroupManager::prepareMoveRecord(int row, int col, int color) {
-    MoveRecord record;
-    record.row = row;
-    record.col = col;
-    record. color = color;
-
-    // Save full state (simplified approach - for complex undo)
-    record.previousParent = _parent;
-    record.previousRank = _rank;
-    record. previousGroupId = _groupId;
-    for (auto& [id, info] : _groups) {
-        record. previousGroups.push_back({id, info});
-    }
-
-    return record;
-}
-
-bool GroupManager::applyMove(MoveRecord& record) {
-    auto [legal, captured] = makeMove(record.row, record.col, record. color);
-    record.capturedStones = std::move(captured);
-    return legal;
-}
-
-void GroupManager::undoMove(const MoveRecord& record) {
-    // Restore board
-    _board[record.row][record. col] = 0;
-    for (auto [r, c] : record.capturedStones) {
-        int opp = (record. color == 1) ? 2 : 1;
-        _board[r][c] = opp;
-    }
-
-    // Restore DSU state
-    _parent = record.previousParent;
-    _rank = record.previousRank;
-    _groupId = record. previousGroupId;
-
-    // Restore groups
-    _groups.clear();
-    for (auto& [id, info] : record.previousGroups) {
-        _groups[id] = info;
-    }
-}
-
-int GroupManager::getGroupId(int row, int col) {
-    if (!isInside(row, col) || _board[row][col] == 0) return -1;
-    return find(encode(row, col));
-}
-
-int GroupManager::getGroupLiberties(int row, int col) {
-    int root = getGroupId(row, col);
-    if (root < 0 || !_groups. count(root)) return 0;
-    return _groups[root].liberties.size();
+int GroupManager::getValue(int row, int col) {
+	int pos = encode(row, col);
+	return _groups[find(pos)].color;
 }
 
 int GroupManager::getGroupSize(int row, int col) {
-    int root = getGroupId(row, col);
-    if (root < 0 || !_groups.count(root)) return 0;
-    return _groups[root].size;
+	int pos = encode(row, col);
+	return -_lab[find(pos)];
 }
 
-bool GroupManager::hasLiberties(int row, int col) {
-    return getGroupLiberties(row, col) > 0;
+int GroupManager::getGroupLiberties(int row, int col) {
+	int pos = encode(row, col);
+	return _groups[find(pos)].liberties.size();
 }
 
-bool GroupManager::wouldBeSelfCapture(int row, int col, int color) {
-    if (!isInside(row, col) || _board[row][col] != 0) return true;
-
-    int opp = (color == 1) ? 2 : 1;
-    int pos = encode(row, col);
-
-    // Check 1: Does placing here give us at least one liberty? 
-    bool hasDirectLiberty = false;
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (isInside(nr, nc) && _board[nr][nc] == 0) {
-            hasDirectLiberty = true;
-            break;
-        }
-    }
-    if (hasDirectLiberty) return false;  // Not self-capture
-
-    // Check 2: Does placing here connect to a friendly group with >1 liberty? 
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (!isInside(nr, nc)) continue;
-        if (_board[nr][nc] == color) {
-            int root = find(encode(nr, nc));
-            if (_groups. count(root) && _groups[root]. liberties.size() > 1) {
-                return false;  // Connected group has other liberties
-            }
-        }
-    }
-
-    // Check 3: Does placing here capture an opponent group?
-    for (int k = 0; k < 4; k++) {
-        int nr = row + dx[k], nc = col + dy[k];
-        if (!isInside(nr, nc)) continue;
-        if (_board[nr][nc] == opp) {
-            int root = find(encode(nr, nc));
-            if (_groups.count(root) && _groups[root].liberties.size() == 1) {
-                // This opponent group has only one liberty (this position)
-                // Capturing it would give us liberties
-                return false;
-            }
-        }
-    }
-
-    // All checks failed -> would be self-capture
-    return true;
+bool GroupManager::isRoot(int row, int col) {
+	int pos = encode(row, col);
+	return pos == find(pos);
 }
 
-std::vector<std::pair<int,int>> GroupManager::generateCandidates(int radius) {
-    std::vector<std::vector<char>> candidate(_rows, std::vector<char>(_cols, 0));
-    bool hasStone = false;
+void GroupManager::createNewGroup(int row, int col, int color) {
+	const int pos = encode(row, col);
+	if (_groups[pos].valid) return;
+	pushGroupChange(getGroupChange(pos));
 
-    for (int i = 0; i < _rows && !hasStone; i++) {
-        for (int j = 0; j < _cols && !hasStone; j++) {
-            if (_board[i][j] != 0) hasStone = true;
-        }
-    }
+	_lab[pos] = -1;
+	_groups[pos].valid = true;
+	_groups[pos].color = color;
 
-    if (!hasStone) {
-        // Empty board: return center
-        return {{_rows / 2, _cols / 2}};
-    }
+	for (int i = 0; i < 4; i++) {
+		int nrow = row + dx[i],
+				ncol = col + dy[i];
+		if (isOutside(nrow, ncol)) continue;
+		int npos = encode(nrow, ncol);
+		npos = find(npos);
+		if (_groups[npos].valid) {
+			pushLibertyChange(npos, pos, 0);
+			_groups[npos].liberties.erase(pos);
+		} else {
+			_groups[pos].liberties.insert(npos);
+		}
+	}
 
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            if (_board[i][j] != 0) {
-                for (int di = -radius; di <= radius; di++) {
-                    for (int dj = -radius; dj <= radius; dj++) {
-                        int ni = i + di, nj = j + dj;
-                        if (isInside(ni, nj) && _board[ni][nj] == 0) {
-                            candidate[ni][nj] = 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    std::vector<std::pair<int,int>> moves;
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            if (candidate[i][j]) {
-                moves. push_back({i, j});
-            }
-        }
-    }
-
-    if (moves.empty()) {
-        // Fallback: all empty cells
-        for (int i = 0; i < _rows; i++) {
-            for (int j = 0; j < _cols; j++) {
-                if (_board[i][j] == 0) {
-                    moves.push_back({i, j});
-                }
-            }
-        }
-    }
-
-    return moves;
+	_groups[pos].positions.insert(pos);
 }
 
-int GroupManager::countTerritory(int color) {
-    std::vector<std::vector<bool>> visited(_rows, std::vector<bool>(_cols, false));
-    int territory = 0;
+void GroupManager::resetGroup(int root) {
+	_groups[root].liberties.clear();
+	_groups[root].positions.clear();
+	_groups[root].color = 0;
+	_groups[root].valid = false;
+}
 
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            if (visited[i][j] || _board[i][j] != 0) continue;
+void GroupManager::mergeGroups(int keep, int merge) {
+	for (int i : _groups[merge].positions) {
+		_groups[keep].positions.insert(i);
+	}
+	for (int i : _groups[merge].liberties) {
+		_groups[keep].liberties.insert(i);
+	}
+	for (int i : _groups[keep].positions) {
+		_groups[keep].liberties.erase(i);
+	}
+	resetGroup(merge);
+}
 
-            // BFS to find empty region
-            std::queue<std::pair<int,int>> q;
-            std::vector<std::pair<int,int>> region;
-            bool touchesColor = false;
-            bool touchesOther = false;
-            int other = (color == 1) ? 2 : 1;
+void GroupManager::removeGroup(int root, std::vector<std::pair<int, int>>& removedStones) {
+	for (int pos : _groups[root].positions) {
+		pushGroupChange(getGroupChange(pos));
 
-            q.push({i, j});
-            visited[i][j] = true;
+		_lab[pos] = -1;
+		auto [row, col] = decodePos(pos, _cols);
+		removedStones.push_back({row, col});
 
-            while (!q. empty()) {
-                auto [r, c] = q.front();
-                q.pop();
-                region.push_back({r, c});
+		for (int i = 0; i < 4; i++) {
+			int nrow = row + dx[i],
+					ncol = col + dy[i];
+			if (isOutside(nrow, ncol)) continue;
+			int npos = encode(nrow, ncol);
+			npos = find(npos);
+			if (_groups[npos].valid && _groups[npos].color != _groups[root].color) {
+				pushLibertyChange(npos, pos, 1);
+				_groups[npos].liberties.insert(pos);
+			}
+		}
+	}
 
-                for (int k = 0; k < 4; k++) {
-                    int nr = r + dx[k], nc = c + dy[k];
-                    if (! isInside(nr, nc)) continue;
+	_lab[root] = -1;
+	resetGroup(root);
+}
 
-                    if (_board[nr][nc] == 0 && !visited[nr][nc]) {
-                        visited[nr][nc] = true;
-                        q.push({nr, nc});
-                    } else if (_board[nr][nc] == color) {
-                        touchesColor = true;
-                    } else if (_board[nr][nc] == other) {
-                        touchesOther = true;
-                    }
-                }
-            }
+std::pair<bool, std::vector<std::pair<int, int>>> GroupManager::makeMove(int row, int col, int color) {
+	_history.push({_groupChangeCount, _libertyChangeCount});
 
-            if (touchesColor && ! touchesOther) {
-                territory += region.size();
-            }
-        }
-    }
+	createNewGroup(row, col, color);
+	int pos = encode(row, col);
 
-    return territory;
+	// Merge current stone to 4 adjacent stones
+	for (int i = 0; i < 4; i++) {
+		int nrow = row + dx[i],
+				ncol = col + dy[i];
+		if (isOutside(nrow, ncol)) continue;
+		int npos = encode(nrow, ncol);
+		npos = find(npos);
+		if (_groups[npos].valid && color == _groups[npos].color) {
+			unite(pos, npos);
+		}
+	}
+
+	// Check to capture adjacent opponent stones
+	std::vector<std::pair<int, int>> capturedStones;
+	for (int i = 0; i < 4; i++) {
+		int nrow = row + dx[i],
+				ncol = col + dy[i];
+		if (isOutside(nrow, ncol)) continue;
+		int npos = encode(nrow, ncol);
+		npos = find(npos);
+		if (_groups[npos].valid && color != _groups[npos].color) {
+			if (_groups[npos].liberties.empty()) {
+				removeGroup(npos, capturedStones);
+			}
+		}
+	}
+
+	// Check if self captured
+	pos = find(pos);
+	if (_groups[pos].liberties.empty()) {
+		std::vector<std::pair<int, int>> removedStones;
+		removeGroup(pos, removedStones);
+		return {false, {}};
+	}
+
+	return {true, capturedStones};
+}
+
+bool GroupManager::isSelfCaptured(int row, int col, int color) {
+	if (isOutside(row, col) || getValue(row, col)) return false;
+
+	for (int i = 0; i < 4; i++) {
+		int nrow = row + dx[i],
+				ncol = col + dy[i];
+		if (isOutside(nrow, ncol)) continue;
+		int npos = encode(nrow, ncol);
+		npos = find(npos);
+		if (!_groups[npos].valid) {
+			return false;
+		}
+		if (color == _groups[npos].color) {
+			if (_groups[npos].liberties.size() > 1) {
+				return false;
+			}
+		} else {
+			if (_groups[npos].liberties.size() == 1) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+int GroupManager::getTerritory(int color) {
+	std::vector<bool> visited(_rows * _cols, false);
+	int territory = 0;
+
+	for (int row = 0; row < _rows; row++) {
+		for (int col = 0; col < _cols; col++) {
+			int pos = encode(row, col);
+			pos = find(pos);
+
+			if (_groups[pos].valid || visited[pos]) continue;
+
+			std::queue<int> q;
+			int count = 0;
+			bool touchedColor = false;
+			bool touchedOther = false;
+
+			visited[pos] = true;
+			q.push(pos);
+
+			while (q.size()) {
+				int pos = q.front(); q.pop();
+				auto [row, col] = decode(pos);
+				count++;
+				for (int i = 0; i < 4; i++) {
+					int nrow = row + dx[i],
+							ncol = col + dy[i];
+					if (isOutside(nrow, ncol)) continue;
+					int npos = encode(nrow, ncol);
+					npos = find(npos);
+					if (_groups[npos].valid) {
+						if (_groups[npos].color == color) {
+							touchedColor = true;
+						} else {
+							touchedOther = true;
+						}
+					} else if (!visited[npos]) {
+						visited[npos] = true;
+						q.push(npos);
+					}
+				}
+			}
+			if (touchedColor && !touchedOther) {
+				territory += count;
+			}
+		}
+	}
+
+	return territory;
+}
+
+std::vector<std::pair<int, int>> GroupManager::getValidMoves(int radius, int color) {
+	bool hasStone = false;
+	for (int row = 0; row < _rows && !hasStone; row++) {
+		for (int col = 0; col < _cols && !hasStone; col++) {
+			if (getValue(row, col)){
+				hasStone = true;
+			}
+		}
+	}
+	if (!hasStone) {
+		return {{_rows >> 1, _cols >> 1}};
+	}
+
+	std::vector<std::pair<int, int>> validMoves;
+	for (int row = 0; row < _rows; row++) {
+		for (int col = 0; col < _cols; col++) {
+			if (getValue(row, col) || isSelfCaptured(row, col, color)) continue;
+			bool canGet = false;
+			for (int dx = -radius; dx <= radius && !canGet; dx++) {
+				for (int dy = -radius; dy <= radius; dy++) {
+					int nrow = row + dx,
+							ncol = col + dy;
+					if (isOutside(nrow, ncol)) continue;
+					int npos = encode(nrow, ncol);
+					npos = find(npos);
+					if (_groups[npos].valid) {
+						canGet = true;
+						validMoves.push_back({row, col});
+						break;
+					}
+				}
+			}
+		}
+	}
+	return validMoves;
+}
+
+bool GroupManager::applyMove(int row, int col, int color) {
+	auto [isValid, captured] = makeMove(row, col, color);
+	return isValid;
+}
+
+void GroupManager::rollBack(int groupChangeCount, int libertyChangeCount) {
+	for (; _groupChanges.size() && groupChangeCount; groupChangeCount--) {
+		auto [node, lab, group] = _groupChanges.top(); _groupChanges.pop();
+		_lab[node] = lab;
+		_groups[node] = group;
+	}
+	for (; _libertyChanges.size() && libertyChangeCount; libertyChangeCount--) {
+		auto [root, value, wasInsert] = _libertyChanges.top(); _libertyChanges.pop();
+		if (wasInsert) {
+			_groups[root].liberties.erase(value);
+		} else {
+			_groups[root].liberties.insert(value);
+		}
+	}
+}
+
+void GroupManager::undo() {
+	if (_history.empty()) return;
+	auto [groupChangeCount, libertyChangeCount] = _history.top(); _history.pop();
+	rollBack(_groupChangeCount - groupChangeCount, _libertyChangeCount - libertyChangeCount);
+  _groupChangeCount = groupChangeCount;
+  _libertyChangeCount = libertyChangeCount;
 }

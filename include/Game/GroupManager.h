@@ -1,103 +1,91 @@
 #pragma once
 #include <vector>
+#include <stack>
 #include <unordered_set>
-#include <unordered_map>
 
-// Encode (row, col) into a single integer for hashing
+const int MAX = 400;
+
 inline int encodePos(int r, int c, int cols) { return r * cols + c; }
-inline std::pair<int,int> decodePos(int code, int cols) { return {code / cols, code % cols}; }
+inline std::pair<int, int> decodePos(int code, int cols) { return {code / cols, code % cols}; }
 
-struct GroupInfo {
-    int color;                          // 1 = black, 2 = white, 0 = empty/invalid
-    int size;                           // number of stones in group
-    std::unordered_set<int> liberties;  // set of encoded liberty positions
-    std::unordered_set<int> members;    // set of encoded member positions
+struct Node {
+	bool valid;
+	int color;
+	std::unordered_set<int> liberties;
+	std::unordered_set<int> positions;
+
+	Node() {
+		valid = false;
+		color = 0;
+	}
+};
+
+struct GroupChange {
+	int root;
+	int lab;
+	Node node;
+
+	GroupChange(int _root = 0, int _lab = -1, Node _node = Node()) {
+		root = _root; lab = _lab; node = _node;
+	}
+};
+
+struct LibertyChange {
+	int root;
+	int value;
+	bool wasInsert;
 };
 
 class GroupManager {
 public:
-    GroupManager(int rows, int cols);
-    ~GroupManager() = default;
+	GroupManager(int rows, int cols);
+	~GroupManager() = default;
 
-    void reset();
+	void reset();
+	int find(int u);
+	bool unite(int u, int v);
 
-    // DSU operations
-    int find(int x);
-    void unite(int x, int y);
+	void pushGroupChange(GroupChange info);
+	GroupChange getGroupChange(int u) { return GroupChange(u, _lab[u], _groups[u]); }
+	void pushLibertyChange(int root, int liberty, bool isInsert);
 
-    // Core move operations
-    // Returns: pair<isLegal, capturedStones>
-    // isLegal = false means self-capture (illegal move)
-    // capturedStones = list of (row,col) positions that were captured
-    std::pair<bool, std::vector<std::pair<int,int>>> makeMove(int row, int col, int color);
+	int getValue(int row, int col);
+	int getGroupSize(int row, int col);
+	int getGroupLiberties(int row, int col);
+	bool isRoot(int row, int col);
 
-    // Undo a move (for AI search) - requires the MoveRecord from makeMove
-    struct MoveRecord {
-        int row, col, color;
-        std::vector<std::pair<int,int>> capturedStones;
-        // Store previous DSU state for affected groups (simplified: we'll use full restore)
-        std::vector<std::pair<int, GroupInfo>> previousGroups;
-        std::vector<int> previousParent;
-        std::vector<int> previousRank;
-        std::vector<int> previousGroupId;
-    };
+	void createNewGroup(int row, int col, int color);
+	void resetGroup(int root);
+	void mergeGroups(int keep, int merge);
+	void removeGroup(int root, std::vector<std::pair<int, int>>& removedStones);
+	std::pair<bool, std::vector<std::pair<int, int>>> makeMove(int row, int col, int color);
 
-    MoveRecord prepareMoveRecord(int row, int col, int color);
-    bool applyMove(MoveRecord& record);  // returns false if illegal (self-capture)
-    void undoMove(const MoveRecord& record);
+	int getTerritory(int color);
+	std::vector<std::pair<int, int>> getValidMoves(int radius, int color);
+	bool applyMove(int row, int col, int color);
+	bool isSelfCaptured(int row, int col, int color);
+	void rollBack(int groupChangeCount, int libertyChangeCount);
 
-    // Query functions
-    int getGroupId(int row, int col);
-    int getGroupLiberties(int row, int col);
-    int getGroupSize(int row, int col);
-    bool hasLiberties(int row, int col);
+	void undo();
 
-    // For territory calculation
-    int countTerritory(int color);  // returns territory count for given color
-
-    // Generate candidate moves (for AI)
-    std::vector<std::pair<int,int>> generateCandidates(int radius = 2);
-
-    // Check if a move would be self-capture (without actually making it)
-    bool wouldBeSelfCapture(int row, int col, int color);
-
-    // Get current board state
-    int getValue(int row, int col) const { return _board[row][col]; }
-    void setValue(int row, int col, int val) { _board[row][col] = val; }
-
-    int getRows() const { return _rows; }
-    int getCols() const { return _cols; }
+	bool isOutside(int row, int col) { return row < 0 || row >= _rows || col < 0 || col >= _cols; }
+	int encode(int row, int col) { return encodePos(row, col, _cols); }
+	std::pair<int, int> decode(int pos) { return decodePos(pos, _cols); }
 
 private:
-    int _rows, _cols;
+	int _rows;
+	int _cols;
 
-    // Board state
-    std::vector<std::vector<int>> _board;  // 0=empty, 1=black, 2=white
+	int _groupChangeCount = 0;
+	int _libertyChangeCount = 0;
+	std::vector<int> _lab;
+	std::vector<Node> _groups;
 
-    // DSU arrays
-    std::vector<int> _parent;
-    std::vector<int> _rank;
+	std::stack<GroupChange> _groupChanges;
+	std::stack<LibertyChange> _libertyChanges;
+	std::stack<std::pair<int, int>> _history;
 
-    // Group ID for each cell (maps to root of DSU)
-    std::vector<int> _groupId;  // encoded position -> group root
-
-    // Group info indexed by group root
-    std::unordered_map<int, GroupInfo> _groups;
-
-    int _nextGroupId;
-
-    // Direction arrays
-    static constexpr int dx[4] = {0, 0, -1, 1};
-    static constexpr int dy[4] = {-1, 1, 0, 0};
-
-    // Helper functions
-    bool isInside(int r, int c) const { return r >= 0 && r < _rows && c >= 0 && c < _cols; }
-    int encode(int r, int c) const { return r * _cols + c; }
-    std::pair<int,int> decode(int code) const { return {code / _cols, code % _cols}; }
-
-    void createNewGroup(int row, int col, int color);
-    void mergeGroups(int root1, int root2);
-    void removeGroup(int root, std::vector<std::pair<int,int>>& removedStones);
-    void updateLibertiesAfterCapture(const std::vector<std::pair<int,int>>& capturedStones);
-    void computeLibertiesForGroup(int root);
+  static constexpr int dx[4] = {1, 0, -1, 0};
+  static constexpr int dy[4] = {0, 1, 0, -1};
 };
+

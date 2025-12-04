@@ -18,7 +18,7 @@ InGameScene::InGameScene(const std::string &gameMode) : _gameModeSelected(gameMo
 void InGameScene::setDependencies(AudioManager *audioManager) { _audioManager = audioManager; }
 
 void InGameScene::init(void) {
-	_gameController = new GameController(this, _gameModeSelected);
+	_gameController = std::make_unique<GameController>(this, _gameModeSelected);
 	initializePassButton();
 	initializeMenuController();
 	_endGameBox = std::make_unique<EndGameBox>();
@@ -93,14 +93,13 @@ void InGameScene::handleInput() {
 		_endGameBox->handleInput();
 		return;
 	}
-	if (_gameController) {
-		if (_gameController->handleInput()) {
-			_audioManager->playSoundEffect("placing_stones");
-		}
+	if (_gameController->handleInput()) {
+		_audioManager->playSoundEffect("placing_stones");
 	}
 	if (_gameController->isSavingGame())
 		return;
-
+	if (_gameController->isAIThinking())
+		return;
 	if (_passButton)
 		_passButton->handleInput();
 	if (menuController)
@@ -126,7 +125,7 @@ void InGameScene::initializeMenuController() {
 		std::cout << "No game gameController\n";
 		return;
 	}
-	menuController = std::make_unique<InGameMenuController>(this, _gameController);
+	menuController = std::make_unique<InGameMenuController>(this, _gameController.get());
 
 	menuController->setViewStrategy(std::make_unique<ButtonMenuView>());
 	menuController->createInGameMenu();
@@ -137,7 +136,7 @@ void InGameScene::initializePassButton() {
 		std::cout << "No game gameController\n";
 		return;
 	}
-	_passButton = std::make_unique<PassButton>(_gameController);
+	_passButton = std::make_unique<PassButton>(_gameController.get());
 
 	_passButton->setViewStrategy(std::make_unique<ButtonMenuView>());
 	_passButton->createPassButton();
@@ -171,4 +170,9 @@ bool InGameScene::isPopup() {
 		return false;
 	}
 	return _gameController->isSavingGame();
+}
+
+bool InGameScene::isAIThinking() {
+	if (_gameController) return _gameController->isAIThinking();
+	return false;
 }

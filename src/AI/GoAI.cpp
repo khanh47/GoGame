@@ -1,189 +1,139 @@
 #include "GoAI.h"
 #include "Game.h"
+#include "GroupManager.h"
+
+#include <iostream>
 #include <algorithm>
-#include <cmath>
 
-GoAI::GoAI(int rows, int cols) 
-    : _rows(rows), _cols(cols), 
-      _simManager(std::make_unique<GroupManager>(rows, cols)) {}
+const int INF = 1e9;
 
-std::pair<int, int> GoAI::findBestMove(Game* game, int aiColor, int depth) {
-    if (! game) return {-1, -1};
-    
-    // Copy current board state to simulation manager
-    GroupManager& gameGM = game->getGroupManager();
-    _simManager->reset();
-    
-    // Copy board state
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            int val = gameGM.getValue(i, j);
-            if (val != 0) {
-                _simManager->makeMove(i, j, val);
-            }
-        }
-    }
-
-    // Generate candidate moves
-    auto candidates = generateCandidates(2);
-
-    if (candidates.empty()) {
-        return {-1, -1};  // Pass
-    }
-
-    std::pair<int, int> bestMove = {-1, -1};
-    int bestScore = std::numeric_limits<int>::min();
-    int alpha = std::numeric_limits<int>::min();
-    int beta = std::numeric_limits<int>::max();
-
-    for (auto& [r, c] : candidates) {
-        // Skip if would be self-capture
-        if (_simManager->wouldBeSelfCapture(r, c, aiColor)) {
-            continue;
-        }
-
-        // Prepare move record for undo
-        auto record = _simManager->prepareMoveRecord(r, c, aiColor);
-        
-        // Try the move
-        if (! _simManager->applyMove(record)) {
-            continue;  // Illegal move
-        }
-
-        // Run minimax from opponent's perspective
-        int opponentColor = (aiColor == 1) ? 2 : 1;
-        int score = minimax(depth - 1, opponentColor, aiColor, alpha, beta);
-
-        // Undo the move
-        _simManager->undoMove(record);
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestMove = {r, c};
-        }
-        
-        // Alpha-beta pruning
-        alpha = std::max(alpha, score);
-    }
-
-    return bestMove;
+GoAI::GoAI(Game *game, GroupManager *groupManager, bool isAB) {
+	_game = game;
+	_rows = game->getRow();
+	_cols = game->getCol();
+	_groupManager = groupManager;
+	_isAB = isAB;
 }
 
-int GoAI::minimax(int depth, int currentPlayer, int aiColor, int alpha, int beta, bool useAlphaBeta) {
-    // Base case: evaluate position
-    if (depth == 0) {
-        return evaluate(aiColor);
-    }
-
-    // Generate candidates
-    auto candidates = generateCandidates(2);
-
-    if (candidates.empty()) {
-        return evaluate(aiColor);
-    }
-
-    bool isMaximizing = (currentPlayer == aiColor);
-    int bestScore = isMaximizing ? std::numeric_limits<int>::min()
-                                 : std::numeric_limits<int>::max();
-
-    int nextPlayer = (currentPlayer == 1) ? 2 : 1;
-
-    for (auto& [r, c] : candidates) {
-        // Skip if would be self-capture
-        if (_simManager->wouldBeSelfCapture(r, c, currentPlayer)) {
-            continue;
-        }
-
-        // Prepare and apply move
-        auto record = _simManager->prepareMoveRecord(r, c, currentPlayer);
-        
-        if (!_simManager->applyMove(record)) {
-            continue;
-        }
-
-        // Recurse
-        int score = minimax(depth - 1, nextPlayer, aiColor, alpha, beta, useAlphaBeta);
-
-        // Undo
-        _simManager->undoMove(record);
-
-        // Update best score
-        if (isMaximizing) {
-            bestScore = std::max(bestScore, score);
-            if (useAlphaBeta) {
-                alpha = std::max(alpha, score);
-                if (beta <= alpha) break;  // Beta cutoff
-            }
-        } else {
-            bestScore = std::min(bestScore, score);
-            if (useAlphaBeta) {
-                beta = std::min(beta, score);
-                if (beta <= alpha) break;  // Alpha cutoff
-            }
-        }
-    }
-
-    // If no legal moves found, return evaluation
-    if (bestScore == std::numeric_limits<int>::min() ||
-        bestScore == std::numeric_limits<int>::max()) {
-        return evaluate(aiColor);
-    }
-
-    return bestScore;
+void GoAI::sync() {
+	_koRow = _game->getKoRow();
+	_koCol = _game->getKoCol();
+	_hasKo = _game->getHasKo();
 }
 
-std::vector<std::pair<int, int>> GoAI::generateCandidates(int radius) {
-    return _simManager->generateCandidates(radius);
+bool GoAI::isInvalidMove(int row, int col, int color) {
+	return (_hasKo && _koRow == row && _koCol == col) || _groupManager->isSelfCaptured(row, col, color);
 }
 
-int GoAI::evaluate(int aiColor) {
-    int oppColor = (aiColor == 1) ? 2 : 1;
-    int score = 0;
+std::pair<int, int> GoAI::findBestMove(int color, int dep) {
+	auto moves = _groupManager->getValidMoves(2, color);
+	if (moves.empty()) return {-1, -1};
 
-    // 1. Stone count difference (weight: 10)
-    int aiStones = 0, oppStones = 0;
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            int val = _simManager->getValue(i, j);
-            if (val == aiColor) aiStones++;
-            else if (val == oppColor) oppStones++;
-        }
-    }
-    score += (aiStones - oppStones) * 10;
+	sync();
+	std::pair<int, int> bestMove = {-1, -1};
+	int bestValue = -INF;
 
-    // 2. Territory estimate (weight: 5)
-    int aiTerritory = _simManager->countTerritory(aiColor);
-    int oppTerritory = _simManager->countTerritory(oppColor);
-    score += (aiTerritory - oppTerritory) * 5;
+	for (auto [row, col] : moves) {
+		if (isInvalidMove(row, col, color)) continue;
+		if (!_groupManager->applyMove(row, col, color)) {
+			_groupManager->undo();
+			continue;
+		}
 
-    // 3.  Liberty count (weight: 2)
-    int aiLiberties = 0, oppLiberties = 0;
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            int val = _simManager->getValue(i, j);
-            if (val == aiColor) {
-                aiLiberties += _simManager->getGroupLiberties(i, j);
-            } else if (val == oppColor) {
-                oppLiberties += _simManager->getGroupLiberties(i, j);
-            }
-        }
-    }
-    score += (aiLiberties - oppLiberties) * 2;
+		int curValue = minimax(3 - color, dep - 1, -INF, INF, false);
+		if (curValue > bestValue) {
+			bestMove = {row, col};
+			bestValue = curValue;
+		}
 
-    // 4. Position bonus (center is slightly better)
-    int centerR = _rows / 2, centerC = _cols / 2;
-    for (int i = 0; i < _rows; i++) {
-        for (int j = 0; j < _cols; j++) {
-            int val = _simManager->getValue(i, j);
-            if (val == aiColor) {
-                int dist = std::abs(i - centerR) + std::abs(j - centerC);
-                score += std::max(0, 10 - dist);
-            } else if (val == oppColor) {
-                int dist = std::abs(i - centerR) + std::abs(j - centerC);
-                score -= std::max(0, 10 - dist);
-            }
-        }
-    }
+		_groupManager->undo();
+	}
+	return bestMove;
+}
 
-    return score;
+int GoAI::minimax(int color, int dep, int alpha, int beta, bool isMax) {
+	if (!dep) return evaluate(color);
+
+	auto moves = _groupManager->getValidMoves(2, color);
+	if (moves.empty()) return evaluate(color);
+	int bestValue = isMax ? -INF : INF;
+
+	for (auto [row, col] : moves) {
+		if (isInvalidMove(row, col, color)) continue;
+		if (!_groupManager->applyMove(row, col, color)) {
+			_groupManager->undo();
+			continue;
+		}
+
+		int curValue = minimax(3 - color, dep - 1, alpha, beta, !isMax);
+		_groupManager->undo();
+
+		if (isMax) {
+			bestValue = std::max(bestValue, curValue);
+			alpha = std::max(alpha, curValue);
+		} else {
+			bestValue = std::min(bestValue, curValue);
+			beta = std::min(beta, curValue);
+		}
+
+		if (_isAB && beta <= alpha) {
+			break;
+		}
+	}
+
+	if (bestValue == INF || bestValue == -INF) return evaluate(color);
+
+	return bestValue;
+}
+
+int GoAI::evaluate(int color) {
+	int oppColor = 3 - color;
+	int aiScore = 0;
+	int oppScore = 0;
+	int score = 0;
+
+	for (int row = 0; row < _rows; row++) {
+		for (int col = 0; col < _cols; col++) {
+			int cur = _groupManager->getValue(row, col);
+			if (cur == color)
+				aiScore++;
+			else if (cur == oppColor)
+				oppScore++;
+		}
+	}
+	score += (aiScore - oppScore) * 10;
+
+	aiScore = _groupManager->getTerritory(color);
+	oppScore = _groupManager->getTerritory(oppColor);
+	score += (aiScore - oppScore) * 5;
+
+	aiScore = oppScore = 0;
+	for (int row = 0; row < _rows; row++) {
+		for (int col = 0; col < _cols; col++) {
+			int cur = _groupManager->getValue(row, col);
+			if (!cur || !_groupManager->isRoot(row, col)) continue;
+			if (cur == color)
+				aiScore += _groupManager->getGroupLiberties(row, col);
+			else if (cur == oppColor)
+				oppScore += _groupManager->getGroupLiberties(row, col);
+		}
+	}
+	score += (aiScore - oppScore) * 2;
+
+	int centerR = _rows >> 1;
+	int centerC = _cols >> 1;
+	aiScore = oppScore = 0;
+	for (int row = 0; row < _rows; row++) {
+		for (int col = 0; col < _cols; col++) {
+			int cur = _groupManager->getValue(row, col);
+			int dis = std::abs(row - centerR) + std::abs(col - centerC);
+			if (cur == color)
+				aiScore += std::max(0, 10 - dis);
+			else if (cur == oppColor)
+				oppScore += std::max(0, 10 - dis);
+		}
+	}
+	score += (aiScore - oppScore) * 1;
+
+	return score;
 }

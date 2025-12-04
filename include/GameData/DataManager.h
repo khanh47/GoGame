@@ -24,7 +24,7 @@ private:
 	void trimHistoryAfterIndex();
 
 public:
-	DataManager(Game *game, Board *board);
+	DataManager(Game *game);
 	void update(float deltaTime);
 	float getTime() { return _timeCount; }
 	int getMenuVersion() const { return _menuVersion; }
@@ -34,12 +34,6 @@ public:
 	const GameSnapShot createSnapShot() const;
 	const GameSnapShot *currentSnapShot() const;
 	void applySnapShot(const GameSnapShot &snap);
-	void addState();
-	void pushState(const GameSnapShot &snap);
-	bool canUndo() const;
-	bool canRedo() const;
-	bool undo();
-	bool redo();
 
 	// save/load snapshot
 	void setSelectedGameData(const std::optional<std::string> &name);

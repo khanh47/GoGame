@@ -1,6 +1,7 @@
 #include "DataManager.h"
 #include "Board.h"
 #include "Game.h"
+#include "GameSnapShot.h"
 
 #include <algorithm>
 #include <cctype>
@@ -9,7 +10,7 @@
 
 std::filesystem::path DataManager::_dataDir = std::filesystem::current_path() / "data";
 
-DataManager::DataManager(Game *game, Board *board) : _game(game), _board(board) {
+DataManager::DataManager(Game *game) : _game(game) {
 	if (!std::filesystem::exists(_dataDir)) {
 		std::error_code ec;
 		std::filesystem::create_directories(_dataDir, ec);
@@ -17,78 +18,18 @@ DataManager::DataManager(Game *game, Board *board) : _game(game), _board(board) 
 			std::cerr << "Cannot create Data directory: " << ec.message() << std::endl;
 		}
 	}
-	_history.clear();
-	_historyIndex = -1;
 }
 
 void DataManager::update(float deltaTime) { _timeCount += deltaTime; }
 
-const std::vector<GameSnapShot> DataManager::getHistory() { return _history; }
-
-void DataManager::trimHistoryAfterIndex() {
-	if (_historyIndex + 1 < _history.size()) {
-		_history.erase(_history.begin() + _historyIndex + 1, _history.end());
-	}
-}
-
 const GameSnapShot DataManager::createSnapShot() const {
 	GameSnapShot snap;
-	snap.grid = _game->getGrid();
-	snap.validPlayer1 = _board->getValidPlayer1Map();
-	snap.validPlayer2 = _board->getValidPlayer2Map();
-	snap.currentPlayer = _game->getCurrentPlayer();
-	snap.scorePlayer1 = _game->getScorePlayer1();
-	snap.scorePlayer2 = _game->getScorePlayer2();
-	snap.gameMode = _game->getGameMode();
+	snap.moveIndex = _game->getMoveIndex();
+	snap.moveHistory = _game->getHistoryMove();
 	return snap;
 }
 
-const GameSnapShot *DataManager::currentSnapShot() const {
-	if (_history.empty())
-		return nullptr;
-	return &_history[_historyIndex];
-}
-
 void DataManager::applySnapShot(const GameSnapShot &snap) {
-	_game->setCurrentPlayer(snap.currentPlayer);
-	_game->setScorePlayer1(snap.scorePlayer1);
-	_game->setScorePlayer2(snap.scorePlayer2);
-	_board->setGrid(snap.grid);
-	_board->setValidPlayer1Map(snap.validPlayer1);
-	_board->setValidPlayer2Map(snap.validPlayer2);
-}
-
-void DataManager::addState() { pushState(createSnapShot()); }
-
-void DataManager::pushState(const GameSnapShot &snap) {
-	trimHistoryAfterIndex();
-	_history.push_back(snap);
-	_historyIndex = _history.size() - 1;
-	applySnapShot(_history[_historyIndex]);
-}
-
-bool DataManager::canUndo() const { return !_history.empty() && _historyIndex > 0; }
-
-bool DataManager::canRedo() const { return !_history.empty() && _historyIndex + 1 < _history.size(); }
-
-bool DataManager::undo() {
-	if (!canUndo())
-		return false;
-	_historyIndex--;
-	if (const GameSnapShot *s = currentSnapShot()) {
-		applySnapShot(*s);
-	}
-	return true;
-}
-
-bool DataManager::redo() {
-	if (!canRedo())
-		return false;
-	_historyIndex++;
-	if (const GameSnapShot *s = currentSnapShot()) {
-		applySnapShot(*s);
-	}
-	return true;
 }
 
 bool DataManager::deleteSavedGame(const std::string &filename) {
@@ -101,17 +42,12 @@ bool DataManager::loadFromFile(const std::string &filename) {
 	std::filesystem::path fullPath = _dataDir / filename;
 	if (!std::filesystem::exists(fullPath))
 		return false;
-	int index = 0;
-	std::vector<GameSnapShot> snapshots;
+	GameSnapShot snap;
 	float time = 0.0f;
-	if (!readSnapshots(time, index, snapshots, fullPath.string()))
+	if (!readSnapshots(time, snap, fullPath.string()))
 		return false;
-	if (snapshots.empty() || index < 0 || index >= (int)snapshots.size() || time < 0)
-		return false;
-	_history = snapshots;
-	_historyIndex = index;
 	_timeCount = time;
-	applySnapShot(_history[_historyIndex]);
+	applySnapShot(snap);
 	return true;
 }
 
@@ -141,7 +77,8 @@ bool DataManager::saveCurrentToSelectedFile() {
 		return false;
 	}
 
-	bool ok = writeSnapshots(_timeCount, _historyIndex, _history, full.string());
+	GameSnapShot snap = createSnapShot();
+	bool ok = writeSnapshots(_timeCount, snap, full.string());
 	if (!ok) {
 		std::cerr << "saveCurrentToSelectedFile: writeSnapshots failed for: " << full << "\n";
 		std::ofstream ofs(full, std::ios::binary);
