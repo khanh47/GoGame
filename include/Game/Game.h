@@ -1,83 +1,82 @@
 #pragma once
 #include "GroupManager.h"
-#include <string>
+#include "Board.h"
+#include "GoAI.h"
+
 #include <vector>
 #include <memory>
 
-// Forward declaration
-class Board;
-class GoAI;
+struct MoveRecord {
+	int row;
+	int col;
+	int color;  // 1 = black, 2 = white
+};
 
 class Game {
-private:
-    // AI
-    std::unique_ptr<GoAI> _ai;
-    bool _isAIEnabled = false;
-
-    int _aiColor = 2;  // AI plays white by default
-    int _aiDepth = 3;  // Search depth
-	
 public:
-    void enableAI(bool enable, int aiColor = 2, int depth = 3);
-    bool isAIEnabled() const { return _isAIEnabled; }
-    bool isAITurn() const { return _isAIEnabled && _currentPlayer == _aiColor; }
-    bool makeAIMove();
+		Game(int rows, int cols);
+		~Game() = default;
+		void render();
+		bool handleInput();
 
-public:
-	Game(int rows, int cols, Board *board);
-	~Game();
-	void render();
-	bool handleInput();
+		bool applyMove(int row, int col, bool isReplay);
+		void makeAIMove();
+		bool applyAIMove(int row, int col);
+		std::pair<int, int> calculateAIMove();
 
-	void resetGame();
-	void passTurn();
-	void DetermineTerritories();
+		void reset();
+		void passTurn();
+		bool undo();
+		bool redo();
+		void trim();
 
-	void setCurrentPlayer(const int &currentPlayer) { _currentPlayer = currentPlayer; }
-	void setScorePlayer1(const int &scorePlayer1) { _scorePlayer1 = scorePlayer1; }
-	void setScorePlayer2(const int &scorePlayer2) { _scorePlayer2 = scorePlayer2; }
+		void setCurrentPlayer(const int &currentPlayer) { _currentPlayer = currentPlayer; }
+		void setScorePlayer1(const int &scorePlayer1) { _scorePlayer1 = scorePlayer1; }
+		void setScorePlayer2(const int &scorePlayer2) { _scorePlayer2 = scorePlayer2; }
+		void enableAI(bool isEnabled, int dep, bool isAB);
 
-	int getCurrentPlayer() const { return _currentPlayer; }
-	int getScorePlayer1() const { return _scorePlayer1; }
-	int getScorePlayer2() const { return _scorePlayer2; }
-	int getFinalScorePlayer1() const { return _FinalScorePlayer1; }
-	int getFinalScorePlayer2() const { return _FinalScorePlayer2; }
-	bool isGameOver() const { return _isGameOver; }
-	std::string getGameMode() const { return _gameMode; }
+		int getCurrentPlayer() const { return _currentPlayer; }
+		int getScorePlayer1() const { return _scorePlayer1; }
+		int getScorePlayer2() const { return _scorePlayer2; }
+		int getKoRow() const { return _koRow; }
+		int getKoCol() const { return _koCol; }
+		int getHasKo() const { return _hasKo; }
+		int getRow() const { return _rows; }
+		int getCol() const { return _cols; }
+		int getMoveIndex() const { return _moveIndex; }
+		std::vector<MoveRecord> getHistoryMove() const { return _moveHistory; }
+		bool isGameOver() const { return _isGameOver; }
+		bool isAITurn() { return _isAIEnabled && _currentPlayer == _aiColor; }
+		bool isAIEnabled() { return _isAIEnabled; }
 
-	std::vector<std::vector<int>> getGrid();
-	
-    // Async AI support
-    std::pair<int, int> calculateAIMove();  // Runs on background thread
-    bool applyAIMove(int row, int col);     // Runs on main thread
-
-	// Access to GroupManager for AI
-    GroupManager& getGroupManager() { return _groupManager; }
-
-    // For AI: make/undo moves efficiently
-    bool tryMove(int row, int col, int color, std::vector<std::pair<int,int>>& captured);
-    void undoMoveAI(int row, int col, int color, const std::vector<std::pair<int,int>>& captured);
+		bool isOutside(int row, int col) { return row < 0 || row >= _rows || col < 0 || col >= _cols; }
+		void sync();
 
 private:
-	Board *_board = nullptr;
-	int _rows = 0;
-	int _cols = 0;
-	bool _isLastTurnPass = false;
-	bool _isGameOver = false;
-	int _currentPlayer = 1; // 1 for black, 2 for white
-	int _scorePlayer1 = 0;
-	int _scorePlayer2 = 0;
-	int _FinalScorePlayer1 = 0;
-	int _FinalScorePlayer2 = 0;
-	std::string _gameMode = "NONE";
+    void replayToIndex(int targetIndex);
 
-    // Optimized group management
-    GroupManager _groupManager;
+private:
+		std::unique_ptr<Board> _board;
+		std::unique_ptr<GroupManager> _groupManager;
+		std::unique_ptr<GoAI> _goAI;
 
-    // Ko tracking (simple: last captured single stone position)
-    bool _hasKo = false;
-    int _koRow = -1, _koCol = -1;
+		int _rows = 0;
+		int _cols = 0;
+		bool _isAB = false;
+		bool _isAIEnabled = false;
+		int _dep = 0;
+    std::vector<MoveRecord> _moveHistory;
+    int _moveIndex = -1;
 
-    // Sync GroupManager state with Board (for rendering)
-    void syncBoardFromGroupManager();
+		int _currentPlayer = 1; // 1 for black, 2 for white
+		int _scorePlayer1 = 0;
+		int _scorePlayer2 = 0;
+		int _aiColor = 2;
+
+		bool _isLastTurnPass = false;
+		bool _isGameOver = false;
+		bool _hasKo = false;
+		int _koRow = -1;
+		int _koCol = -1;
+
 };

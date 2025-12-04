@@ -1,25 +1,16 @@
 #pragma once
-#include <cstdint>
 #include <string>
 #include <vector>
-
-// Forward declaration
-class Game;
+#include "Game.h"
 
 class GameSnapShot {
 public:
-	// --- Core Game State ---
-	std::vector<std::vector<int>> grid;
-	std::vector<std::vector<int>> validPlayer1;
-	std::vector<std::vector<int>> validPlayer2;
-	int currentPlayer = 1;
-	int scorePlayer1 = 0;
-	int scorePlayer2 = 0;
-	std::string gameMode;
-
-	// --- Metadata ---
-	std::string note;
-	uint64_t timestamp = 0;
+	int rows = 0;
+	int cols = 0;
+	bool isAIEnabled = false;
+	int dep = 0;
+	int moveIndex;
+	std::vector<MoveRecord> moveHistory;
 
 public:
 	GameSnapShot() = default;
@@ -29,6 +20,5 @@ public:
 	bool deserialize(std::istream &in);
 };
 
-bool writeSnapshots(const float &time, const int &index, const std::vector<GameSnapShot> &list,
-										const std::string &filename);
-bool readSnapshots(float &time, int &index, std::vector<GameSnapShot> &list, const std::string &filename);
+bool writeSnapshots(const float &time, const GameSnapShot &snap, const std::string &filename);
+bool readSnapshots(float &time, GameSnapShot &snap, const std::string &filename);

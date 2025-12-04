@@ -14,7 +14,6 @@
 #include "Scene.h"
 #include "SettingsScene.h"
 
-#include "raylib.h"
 #include <cassert>
 #include <iostream>
 
@@ -46,7 +45,7 @@ void SceneManager::pushScene(std::unique_ptr<Scene> scene){
         } else {
             _audioManager->playMusic("main_music");
         }
-        
+
         // Inject dependencies
         if (auto* gameModeScene = dynamic_cast<GameModeScene*>(scene.get())) {
             gameModeScene->setDependencies(_gameStateModel, this);
@@ -110,7 +109,7 @@ void SceneManager::update(float deltaTime) {
 			currentScene->handleInput();
 			currentScene->update(deltaTime);
 			if (auto *inGameScene = dynamic_cast<InGameScene *>(currentScene.get())) {
-				if (inGameScene->isPopup())
+				if (inGameScene->isPopup() || inGameScene->isAIThinking())
 					return;
 			}
 		}

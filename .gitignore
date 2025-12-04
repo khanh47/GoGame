@@ -19,6 +19,5 @@ CMakeLists.txt
 .clangd
 
 data
-
-# CodeQL artifacts
+*.vim
 _codeql_detected_source_root
