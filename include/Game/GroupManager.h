@@ -11,6 +11,7 @@ inline std::pair<int, int> decodePos(int code, int cols) { return {code / cols, 
 struct Node {
 	bool valid;
 	int color;
+	int eyeCount;
 	std::unordered_set<int> liberties;
 	std::unordered_set<int> positions;
 
@@ -60,9 +61,10 @@ public:
 	void removeGroup(int root, std::vector<std::pair<int, int>>& removedStones);
 	std::pair<bool, std::vector<std::pair<int, int>>> makeMove(int row, int col, int color);
 
-	int getTerritory(int color);
+	std::pair<int, int> getTerritory(int &myScore, int &oppScore, int color);
 	std::vector<std::pair<int, int>> getValidMoves(int radius, int color);
 	bool applyMove(int row, int col, int color);
+	bool isSeki(int row, int col);
 	bool isSelfCaptured(int row, int col, int color);
 	void rollBack(int groupChangeCount, int libertyChangeCount);
 

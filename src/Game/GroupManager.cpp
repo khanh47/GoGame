@@ -211,9 +211,45 @@ bool GroupManager::isSelfCaptured(int row, int col, int color) {
 	return true;
 }
 
-int GroupManager::getTerritory(int color) {
+bool GroupManager::isSeki(int row, int col) {
+	if (isOutside(row, col) || getValue(row, col)) return false;
+	int blackGroupCount = 0;
+	int whiteGroupCount = 0;
+	int lastBlackGroup = -1;
+	int lastWhiteGroup = -1;
+	bool seki = true;
+
+	for (int i = 0; i < 4; i++) {
+		int nrow = row + dx[i],
+				ncol = col + dy[i];
+		if (isOutside(nrow, ncol)) continue;
+		int npos = encode(nrow, ncol);
+		npos = find(npos);
+		if (!_groups[npos].valid) continue;
+		if (_groups[npos].liberties.size() != 2) {
+			return false;
+		}
+		if (_groups[npos].color == 1) {
+			if (lastBlackGroup != npos) {
+				blackGroupCount++;
+				lastBlackGroup = npos;
+			}
+		} else {
+			if (lastWhiteGroup != npos) {
+				whiteGroupCount++;
+				lastWhiteGroup = npos;
+			}
+		}
+	}
+
+	return blackGroupCount == 1 && whiteGroupCount == 1;
+}
+
+std::pair<int, int> GroupManager::getTerritory(int &myScore, int &oppScore, int color) {
 	std::vector<bool> visited(_rows * _cols, false);
-	int territory = 0;
+	std::vector<int> eyeCount(_rows * _cols, 0);
+	int myEye = 0;
+	int oppEye = 0;
 
 	for (int row = 0; row < _rows; row++) {
 		for (int col = 0; col < _cols; col++) {
@@ -223,6 +259,7 @@ int GroupManager::getTerritory(int color) {
 			if (_groups[pos].valid || visited[pos]) continue;
 
 			std::queue<int> q;
+			std::vector<int> groupList;
 			int count = 0;
 			bool touchedColor = false;
 			bool touchedOther = false;
@@ -241,6 +278,7 @@ int GroupManager::getTerritory(int color) {
 					int npos = encode(nrow, ncol);
 					npos = find(npos);
 					if (_groups[npos].valid) {
+						groupList.push_back(pos);
 						if (_groups[npos].color == color) {
 							touchedColor = true;
 						} else {
@@ -253,12 +291,26 @@ int GroupManager::getTerritory(int color) {
 				}
 			}
 			if (touchedColor && !touchedOther) {
-				territory += count;
+				for (int i : groupList) {
+					eyeCount[i]++;
+					if (eyeCount[i] == 2) {
+						myEye++;
+					}
+				}
+				myScore += count;
+			}
+			if (!touchedColor && touchedOther) {
+				oppScore += count;
+				for (int i : groupList) {
+					eyeCount[i]++;
+					if (eyeCount[i] == 2) {
+						oppEye++;
+					}
+				}
 			}
 		}
 	}
-
-	return territory;
+	return {myEye, oppEye};
 }
 
 std::vector<std::pair<int, int>> GroupManager::getValidMoves(int radius, int color) {
@@ -275,12 +327,24 @@ std::vector<std::pair<int, int>> GroupManager::getValidMoves(int radius, int col
 	}
 
 	std::vector<std::pair<int, int>> validMoves;
+	std::vector<bool> visited(_rows * _cols, 0);
+	std::vector<int> owner(_rows * _cols, 0);
+	std::vector<int> groupSize(_rows * _cols, 0);
+	std::vector<int> groupID(_rows * _cols, 0);
+
+	const int GR_SIZE_LIM = 8;
+	int oppColor = 3 - color;
+	int groupCount = 0;
+
 	for (int row = 0; row < _rows; row++) {
 		for (int col = 0; col < _cols; col++) {
-			if (getValue(row, col) || isSelfCaptured(row, col, color)) continue;
+			int pos = encode(row, col);
+			pos = find(pos);
+			if (getValue(row, col) || isSelfCaptured(row, col, color) || isSeki(row, col)) continue;
+			if (visited[pos] && owner[groupID[pos]] == oppColor) continue;
 			bool canGet = false;
 			for (int dx = -radius; dx <= radius && !canGet; dx++) {
-				for (int dy = -radius; dy <= radius; dy++) {
+				for (int dy = -radius; dy <= radius && std::abs(dy) + std::abs(dx) <= radius; dy++) {
 					int nrow = row + dx,
 							ncol = col + dy;
 					if (isOutside(nrow, ncol)) continue;
@@ -288,10 +352,56 @@ std::vector<std::pair<int, int>> GroupManager::getValidMoves(int radius, int col
 					npos = find(npos);
 					if (_groups[npos].valid) {
 						canGet = true;
-						validMoves.push_back({row, col});
 						break;
 					}
 				}
+			}
+			if (!canGet) continue;
+			if (!visited[pos]) {
+				std::queue<int> q;
+				int count = 0;
+				bool touchedColor = false;
+				bool touchedOther = false;
+
+				groupCount++;
+				visited[pos] = true;
+				q.push(pos);
+
+				while (q.size()) {
+					int pos = q.front(); q.pop();
+					groupID[pos] = groupCount;
+					auto [row, col] = decode(pos);
+					count++;
+					for (int i = 0; i < 4; i++) {
+						int nrow = row + dx[i],
+								ncol = col + dy[i];
+						if (isOutside(nrow, ncol)) continue;
+						int npos = encode(nrow, ncol);
+						npos = find(npos);
+						if (_groups[npos].valid) {
+							if (_groups[npos].color == color) {
+								touchedColor = true;
+							} else {
+								touchedOther = true;
+							}
+						} else if (!visited[npos]) {
+							visited[npos] = true;
+							q.push(npos);
+						}
+					}
+				}
+				groupSize[groupCount] = count;
+				if (!touchedColor && touchedOther && count <= GR_SIZE_LIM) {
+					owner[groupCount] = oppColor;
+				} else if (touchedColor && !touchedOther && count <= GR_SIZE_LIM) {
+					owner[groupCount] = color;
+				}
+			}
+
+			int id = groupID[pos];
+
+			if (!owner[id] || groupSize[id] > GR_SIZE_LIM) {
+				validMoves.push_back({row, col});
 			}
 		}
 	}
