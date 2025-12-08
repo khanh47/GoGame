@@ -47,6 +47,12 @@ void InGameScene::update(float deltaTime) {
 	}
 	if (_gameController) {
 		_gameController->update(deltaTime);
+		if (_gameController->shouldPlaySound() && _audioManager) {
+			_audioManager->playSoundEffect("placing_stones");
+		}
+	}
+	if (_audioManager) {
+		_audioManager->update();
 	}
 	if (_gameController->isSavingGame()) {
 		return;
@@ -173,6 +179,7 @@ bool InGameScene::isPopup() {
 }
 
 bool InGameScene::isAIThinking() {
-	if (_gameController) return _gameController->isAIThinking();
+	if (_gameController)
+		return _gameController->isAIThinking();
 	return false;
 }

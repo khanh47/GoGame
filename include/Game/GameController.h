@@ -14,45 +14,53 @@ class AudioManager;
 
 class GameController {
 private:
-    std::string _gameMode;
-    InGameScene *_inGameScene = nullptr;
+	std::string _gameMode;
+	InGameScene *_inGameScene = nullptr;
 
-    std::unique_ptr<Game> _game;
-    std::unique_ptr<DataManager> _dataManager;
-    std::unique_ptr<HUD> _hud;
-    std::unique_ptr<SavedGameList> _savedGameList;
-    std::unique_ptr<TextBox> _textBox;
+	std::unique_ptr<Game> _game;
+	std::unique_ptr<DataManager> _dataManager;
+	std::unique_ptr<HUD> _hud;
+	std::unique_ptr<SavedGameList> _savedGameList;
+	std::unique_ptr<TextBox> _textBox;
 
-    std::future<std::pair<int, int>> _aiFuture;
-    std::atomic<bool> _aiIsCalculating{false};
+	std::future<std::pair<int, int>> _aiFuture;
+	std::atomic<bool> _aiIsCalculating{false};
+	bool _shouldPlaySound = false;
 
 public:
-    GameController(InGameScene *inGameScene, const std::string &gameMode);
-    ~GameController();
+	GameController(InGameScene *inGameScene, const std::string &gameMode);
+	~GameController();
 
-    void init();
-    void render();
-    bool handleInput();
-    void update(float deltaTime);
+	void init();
+	void render();
+	bool handleInput();
+	void update(float deltaTime);
 
-    bool isGameOver();
-    int getScorePlayer1();
-    int getScorePlayer2();
+	bool isGameOver();
+	int getScorePlayer1();
+	int getScorePlayer2();
 
-    void resetGame();
-    void passGame();
-    bool undo();
-    bool redo();
-		bool isAIThinking() { return _aiIsCalculating; }
+	void resetGame();
+	void passGame();
+	bool undo();
+	bool redo();
+	bool isAIThinking() { return _aiIsCalculating; }
+	bool shouldPlaySound() {
+		if (_shouldPlaySound) {
+			_shouldPlaySound = false;
+			return true;
+		}
+		return false;
+	}
 
-    void openSaveGameMenu();
-    void closeSaveGameMenu();
-    void openTextBox();
-    void closeTextBox();
-    void closeTextBoxAndSave();
-    bool isSavingGame() { return _savedGameList && _savedGameList->isOpen(); }
+	void openSaveGameMenu();
+	void closeSaveGameMenu();
+	void openTextBox();
+	void closeTextBox();
+	void closeTextBoxAndSave();
+	bool isSavingGame() { return _savedGameList && _savedGameList->isOpen(); }
 
 private:
-    void startAICalculation();
-    void checkAIResult();
+	void startAICalculation();
+	void checkAIResult();
 };

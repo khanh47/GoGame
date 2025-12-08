@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstdint>
 #include <vector>
 #include <stack>
 #include <unordered_set>
@@ -41,7 +43,6 @@ class GroupManager {
 public:
 	GroupManager(int rows, int cols);
 	~GroupManager() = default;
-
 	void reset();
 	int find(int u);
 	bool unite(int u, int v);
@@ -61,8 +62,12 @@ public:
 	void removeGroup(int root, std::vector<std::pair<int, int>>& removedStones);
 	std::pair<bool, std::vector<std::pair<int, int>>> makeMove(int row, int col, int color);
 
-	std::pair<int, int> getTerritory(int &myScore, int &oppScore, int color);
+	std::pair<int, int> getTerritory(int color);
+	std::tuple<int, int, int, int> getAliveGroupAndTerritory(int color);
 	std::vector<std::pair<int, int>> getValidMoves(int radius, int color);
+	std::vector<std::pair<int, int>> getValidMovesAtRoot(int radius, int color);
+	std::vector<std::pair<int, int>> getQSMoves(int color);
+	std::vector<std::pair<int, int>> getLocalQSMoves(int lastRow, int lastCol, int color);
 	bool applyMove(int row, int col, int color);
 	bool isSeki(int row, int col);
 	bool isSelfCaptured(int row, int col, int color);
@@ -73,6 +78,9 @@ public:
 	bool isOutside(int row, int col) { return row < 0 || row >= _rows || col < 0 || col >= _cols; }
 	int encode(int row, int col) { return encodePos(row, col, _cols); }
 	std::pair<int, int> decode(int pos) { return decodePos(pos, _cols); }
+
+	void initZobrist();
+	uint64_t getHash() const { return _currentHash; }
 
 private:
 	int _rows;
@@ -85,7 +93,10 @@ private:
 
 	std::stack<GroupChange> _groupChanges;
 	std::stack<LibertyChange> _libertyChanges;
-	std::stack<std::pair<int, int>> _history;
+	std::stack<std::tuple<int, int, int>> _history;
+
+	uint64_t _zobristTable[MAX][MAX][3];
+	uint64_t _currentHash;
 
   static constexpr int dx[4] = {1, 0, -1, 0};
   static constexpr int dy[4] = {0, 1, 0, -1};

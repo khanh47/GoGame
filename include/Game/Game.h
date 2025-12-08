@@ -48,6 +48,8 @@ public:
 	int getHasKo() const { return _hasKo; }
 	int getRow() const { return _rows; }
 	int getCol() const { return _cols; }
+	int getLastRow() const { return _lastRow; }
+	int getLastCol() const { return _lastCol; }
 	int getMoveIndex() const { return _moveIndex; }
 	int getDepth() const { return _dep; }
 	int getBoardSize() const { return _rows; }

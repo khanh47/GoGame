@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <utility>
 #include <cstdint>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 class GroupManager;
 class Game;
@@ -11,8 +11,9 @@ class Game;
 class GoAI {
 public:
 	GoAI(Game *game, GroupManager *groupManager, bool isAB);
-
 	int evaluate();
+	int quiescenceSearch(int color, int alpha, int beta, bool isMax, int dep, int lastR, int lastC);
+	bool isMyEye(int row, int col, int color);
 	bool isInvalidMove(int row, int col, int color);
 	std::pair<int, int> findBestMove(int color, int dep);
 	int minimax(int color, int dep, int alpha, int beta, bool isMax);
@@ -36,12 +37,9 @@ private:
 	bool _hasKo;
 	int _rows;
 	int _cols;
-
-	uint64_t _zobristTable[19][19][3];  // [row][col][color]
-	uint64_t _currentHash = 0;
-
+	int _dep;
 	std::unordered_map<uint64_t, int> _transpositionTable;
 
-	void initZobrist();
-	uint64_t computeHash() const;
+  static constexpr int dx[4] = {1, 0, -1, 0};
+  static constexpr int dy[4] = {0, 1, 0, -1};
 };
