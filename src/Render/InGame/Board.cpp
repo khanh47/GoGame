@@ -45,6 +45,45 @@ void Board::renderGhostStones(int row, int col, int value) {
 						 value == 2 ? ghostWhite : shadow);
 }
 
+std::vector<std::pair<int, int>> Board::getStarPoints() const {
+    std::vector<std::pair<int, int>> points;
+
+    if (numRows == 19 && numCols == 19) {
+        points = {
+            {3, 3},   {3, 9},   {3, 15},
+            {9, 3},   {9, 9},   {9, 15},
+            {15, 3},  {15, 9},  {15, 15}
+        };
+    }
+    else if (numRows == 13 && numCols == 13) {
+        points = {
+            {3, 3},   {3, 9},
+                  {6, 6},
+            {9, 3},   {9, 9}
+        };
+    }
+    else if (numRows == 9 && numCols == 9) {
+        points = {
+            {2, 2},   {2, 6},
+                  {4, 4},
+            {6, 2},   {6, 6}
+        };
+    }
+
+    return points;
+}
+
+void Board::renderStarPoints() {
+    auto starPoints = getStarPoints();
+    float radius = _cellSize * 0.1f;
+
+    for (auto [row, col] : starPoints) {
+        float x = PADDING + (row + 1) * _cellSize;
+        float y = PADDING + (col + 1) * _cellSize;
+        DrawCircle(x, y, radius, BLACK);
+    }
+}
+
 void Board::render() {
 	// Render Border Lines
 	Rectangle recBorderLines = {PADDING, PADDING, (numCols + 1) * _cellSize, (numRows + 1) * _cellSize};
@@ -68,6 +107,9 @@ void Board::render() {
 		Vector2 end = {PADDING + i * _cellSize, PADDING + numRows * _cellSize};
 		DrawLineEx(start, end, lineThickness, BLACK);
 	}
+	
+	// Draw star points (Hoshi)
+	renderStarPoints();
 
 	// Render Stones
 	ThemeType stoneTheme = SettingsData::getInstance().getStoneTheme();
