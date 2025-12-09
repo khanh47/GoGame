@@ -107,6 +107,9 @@ void Board::render() {
 		Vector2 end = {PADDING + i * _cellSize, PADDING + numRows * _cellSize};
 		DrawLineEx(start, end, lineThickness, BLACK);
 	}
+	
+	// Draw star points (Hoshi)
+	renderStarPoints();
 
   // Draw star points (Hoshi)
   renderStarPoints();

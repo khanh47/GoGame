@@ -18,9 +18,10 @@ public:
 	bool isCellInside(int row, int col);
 	std::vector<std::vector<int>> getGrid() { return _grid; }
 	void setGrid(const std::vector<std::vector<int>> &grid);
-  float getCellSize() const { return _cellSize; }
+    float getCellSize() const { return _cellSize; }
 	std::vector<std::pair<int, int>> getStarPoints() const;
 	void renderStarPoints();
+
 
 private:
 	int numRows;

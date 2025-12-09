@@ -69,7 +69,7 @@ void Game::reset() {
 	_moveIndex = 0;
 
 	_hasKo = false;
-	_koRow = _koCol = _lastRow = _lastCol -1;
+	_koRow = _koCol = _lastRow = _lastCol = -1;
     _isLastTurnPass = false;
     _isGameOver = false;
     _currentPlayer = 1;
@@ -83,7 +83,7 @@ void Game::replayToIndex(int targetIndex) {
     _scorePlayer1 = 0;
     _scorePlayer2 = 0;
     _hasKo = false;
-	_koRow = _koCol = -1;
+	_koRow = _koCol = _lastRow = _lastCol = -1;
     _isLastTurnPass = false;
     _isGameOver = false;
 

@@ -3,7 +3,9 @@
 #include <vector>
 #include <utility>
 #include <cstdint>
+#include <vector>
 #include <unordered_map>
+#include <future>
 
 class GroupManager;
 class Game;
@@ -22,7 +24,7 @@ public:
 	bool isCornerTaken(int cornerRow, int cornerCol, int radius = 3);
 	int countStones();
 	std::pair<int, int> getBestOpeningMove(int color);
-	std::pair<int, int> findBestMove(int color);
+	bool isMyEye(int row, int col, int color);
 
 private:
 	GroupManager *_groupManager;
@@ -36,12 +38,16 @@ private:
 	bool _hasKo;
 	int _rows;
 	int _cols;
+    
+    std::unordered_map<uint64_t, int> _transpositionTable;
 
-	uint64_t _zobristTable[19][19][3];  // [row][col][color]
-	uint64_t _currentHash = 0;
+	static constexpr int dx[4] = {1, 0, -1, 0};
+	static constexpr int dy[4] = {0, 1, 0, -1};
 
-	std::unordered_map<uint64_t, int> _transpositionTable;
-
-	void initZobrist();
-	uint64_t computeHash() const;
+private:
+	static constexpr int MAX_TIME_MS = 5000;
+	std::chrono::high_resolution_clock::time_point _timeLimit;
+	bool _timeOut = false;
+	void startTimer();
+	inline bool checkTimeout() { return std::chrono::high_resolution_clock::now() >= _timeLimit; }
 };

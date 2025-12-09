@@ -47,6 +47,9 @@ void InGameScene::update(float deltaTime) {
 	}
 	if (_gameController) {
 		_gameController->update(deltaTime);
+		if (_gameController->shouldPlaySound() && _audioManager) {
+			_audioManager->playSoundEffect("placing_stones");
+		}
 	}
 	if (_gameController->isSavingGame()) {
 		return;

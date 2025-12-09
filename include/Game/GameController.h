@@ -23,8 +23,11 @@ private:
     std::unique_ptr<SavedGameList> _savedGameList;
     std::unique_ptr<TextBox> _textBox;
 
+    bool _shouldPlaySound = false;
+    bool _isAIPass = false;
     std::future<std::pair<int, int>> _aiFuture;
     std::atomic<bool> _aiIsCalculating{false};
+    std::chrono::high_resolution_clock::time_point _aiStartTime;
 
 public:
     GameController(InGameScene *inGameScene, const std::string &gameMode);
@@ -52,6 +55,7 @@ public:
     void closeTextBoxAndSave();
     bool isSavingGame() { return _savedGameList && _savedGameList->isOpen(); }
 
+    bool shouldPlaySound();
 private:
     void startAICalculation();
     void checkAIResult();

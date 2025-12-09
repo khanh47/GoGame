@@ -2,6 +2,7 @@
 #include "InGameScene.h"
 #include "SavedGameList.h"
 #include "SettingsData.h"
+#include "ResourceManager.h"
 
 #include <iostream>
 #include <memory>
@@ -49,7 +50,7 @@ void GameController::init() {
     } else if (_gameMode == "MEDIUM") {
 		_game->enableAI(true, 4, true);
     } else if (_gameMode == "HARD") {
-		_game->enableAI(true, 5, true);
+		_game->enableAI(true, 6, true);
     }
     _hud->update(_dataManager->getTime());
     _textBox = std::make_unique<TextBox>(_inGameScene, _dataManager.get());
@@ -62,6 +63,10 @@ void GameController::render() {
 
     _game->render();
     _hud->render();
+    if (_isAIPass) {
+        Font font = ResourceManager::getInstance().getFont("Boldonse");
+	    DrawTextEx(font, "Bot Passed!", {900, 420}, 40.0f, 1.0f, RED);
+    }
 
     if (_textBox && _textBox->isOpen()) {
         _textBox->render();
@@ -89,8 +94,11 @@ bool GameController::handleInput() {
     if (_game->isAITurn()) {
         return false;
     }
-
-		_game->handleInput();
+    
+    if (_game->handleInput()) {
+        _isAIPass = false;
+        return true;
+    }
     return false;
 }
 
@@ -141,8 +149,10 @@ void GameController::resetGame() {
 }
 
 void GameController::passGame() {
-		if (_game)
-				_game->passTurn();
+	if (_game) {
+		_game->passTurn();
+        _isAIPass = false;
+    }
 }
 
 bool GameController::undo() {
@@ -181,6 +191,8 @@ void GameController::startAICalculation() {
     }
 
     _aiIsCalculating = true;
+    
+    _aiStartTime = std::chrono::high_resolution_clock::now();
 
     _aiFuture = std::async(std::launch::async, [this]() {
         return _game->calculateAIMove();
@@ -195,9 +207,24 @@ void GameController::checkAIResult() {
     auto status = _aiFuture.wait_for(std::chrono::milliseconds(0));
 
     if (status == std::future_status::ready) {
+        auto aiEndTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(aiEndTime - _aiStartTime).count();
+        std::cout << "[AI] calculation time: " << duration << " ms\n";
+
         auto [row, col] = _aiFuture.get();
+        if (row == -1 && col == -1) _isAIPass = true;
+        else _isAIPass = false;
         _aiIsCalculating = false;
 
-				_game->applyAIMove(row, col);
+		if (_game->applyAIMove(row, col)) {
+            _shouldPlaySound = true;
+        }   
+    }}
+
+bool GameController::shouldPlaySound() {
+    if (_shouldPlaySound) {
+        _shouldPlaySound = false;
+        return true;
     }
+    return false;
 }
