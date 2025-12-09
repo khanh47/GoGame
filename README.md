@@ -8,9 +8,6 @@ A modern implementation of the traditional **Go** board game featuring a simple,
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-  - [1. Install MSYS2](#1-install-MSYS2)
-  - [2. Install Raylib](#2-install-raylib)
-  - [3. Clone the repository](#3-clone-the-repository)
 - [Building](#building)
 - [Running](#running)
 - [Project Structure](#project-structure)
@@ -24,14 +21,14 @@ A modern implementation of the traditional **Go** board game featuring a simple,
 
 ## Overview
 
-GoGame is a minimal and educational implementation of the classic **Go (Weiqi, Baduk)** board game for **Windows**.
+GoGame is a minimal and educational implementation of the classic **Go (Weiqi, Baduk)** board game.
 It focuses on clarity and modularity, demonstrating a clean object-oriented architecture and using Raylib for rendering.
 
 **Key highlights**
 - Interactive Go board with stone placement
-- Turn-based logic for Black and White players
 - Capture detection and basic scoring
-- Modular code structure (ready for AI/UI extensions)
+- Undo/redo command system
+- AI bot using Minimax and alpha-beta pruning
 - Rendering and input handled by Raylib
 
 ---
@@ -42,6 +39,10 @@ It focuses on clarity and modularity, demonstrating a clean object-oriented arch
 
 - **C++20 Compatible Compiler:** GCC or Clang
 - **Raylib:** Graphics and audio library
+
+**Other Platforms**
+
+The project is primarily configured for Windows but can be adapted for Linux/macOS with appropriate dependency paths.
 
 ---
 
@@ -122,30 +123,71 @@ make compile
 
 ```
 GoGame/
-├── src/                  # Main source code files
-│   ├── main.cpp          # Entry point of the application
-│   ├── Game.cpp          # Game logic implementation
-│   ├── Board.cpp         # Board representation and logic
-│   ├── UI.cpp            # User Interface implementation
-│   └── AI.cpp            # AI opponent logic
-├── include/              # Header files
-│   ├── Game.h            # Header for game logic
-│   ├── Board.h           # Header for chessboard representation
-│   ├── UI.h              # Header for UI components
-│   └── AI.h              # Header for AI logic
-├── assets/               # Optional: images, sounds, screenshot
-│   ├── stones/           # Chess stone images
-│   └── sounds/           # Sound effects and music files
-├── Makefile              # Build configuration
-└── README.md             # This file
+├── assets/                   # Game assets
+│   ├── images/               # Background theme, stones and board textures
+│   ├── fonts/                # Custom fonts
+│   ├── musics/               # Audio files
+│   └── sounds/               # Sound effects
+├── include/                  # Header files
+│   ├── AI/                   # Minimax and alpha-beta algorithm for bot
+│   ├── Commands/             # Command pattern implementation
+│   ├── Game/                 # Core game logic
+│   ├── GameData/             # Game's data management
+│   ├── GameStates/           # State pattern for game flow
+│   ├── Menu/                 # Menu system (Composite pattern)
+│   ├── Render/               # Rendering and view components
+│   ├── Resource/             # Resource and settings management
+│   └── Scene/                # Scene management
+├── src/                      # Source files
+│   ├── AI/                   # Minimax and alpha-beta algorithm for bot
+│   ├── Commands/
+│   ├── Game/
+│   ├── GameData/
+│   ├── GameStates/
+│   ├── Menu/
+│   ├── Render/
+│   ├── Resource/
+│   ├── Scene/
+│   └── main.cpp              # Entry point
+├── makefile                  # Build configuration
+└── README.md                 # This file
 
 ```
 
 ## Controls
 
 ### Menu Navigation
+- Mouse: Click to select menu items
+- Hover: Visual feedback on interactive elements
+
+### Game Controls
+- Mouse Click: Place stones and pass turn
+- Mouse Hover: Preview available moves
+- Menu Button: Access in-game menu for save/load/undo/redo
 
 ## Features
+
+### Core Gameplay
+- **Go Rules Implementation:** Full support for japanese rule (e.g. liberties, captures, suicide rule, and territory scoring)
+- **Board Sizes:** Supports **9×9**, **13×13**, and **19×19** boards  
+- **Undo/Redo System:** Complete move history with branching support  
+
+### Artificial Intelligence
+- **Pluggable AI Engine:** Modular design that allows different evaluation strategies  
+- **Heuristic Evaluation:** Focus on alive groups, atari detection, and game-phase-based tuning  
+- **Time-Limited Calculation:** Adjustable computation time for AI move search
+
+### User Interface
+- **Dynamic Menus:** Context-sensitive navigation system
+- **Multiple View Modes:** Button-based and list-based menu layouts
+- **Animated Transitions:** Smooth stone placement and UI animations  
+- **Responsive Layouts:** Automatically adapts to different resolutions and window sizes
+
+### Technical Features
+- **Modular Architecture:** Clean separation of Model, View, and Controller  
+- **Design Patterns:** Command, State, Strategy, Composite, Singleton
+- **Resource Management:** Efficient texture/music loading and caching 
+- **Extensible Framework:** Easy to add new game modes, AI strategies, or UI panels  
 
 ## Troubleshooting
 ### 1. Raylib not found
@@ -182,16 +224,12 @@ where make
 g++ --version
 ```
 
-### Runtime Issues
-
-### Platform-Specific Notes
-
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/super-feature`)
+3. Commit your changes (`git commit -m 'Add super feature'`)
+4. Push to the branch (`git push origin feature/super-feature`)
 5. Open a Pull Request
 
 ### Code Style
@@ -199,6 +237,12 @@ g++ --version
 - Follow the existing naming conventions
 - Document new classes and methods
 - Maintain the established design patterns
+
+### Testing
+- Test builds on Windows and Linux before submitting
+- Verify all menu interactions work correctly
+- AI functionality has been tested and verified through gameplay
+- Ensure no memory leaks with new features
 
 ## License
 

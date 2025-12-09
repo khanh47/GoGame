@@ -12,8 +12,8 @@
 # Build files
 build
 
-makefile
-Makefile
+# makefile
+# Makefile
 CMakeLists.txt
 /.vscode
 .clangd
