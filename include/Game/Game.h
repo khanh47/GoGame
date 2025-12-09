@@ -16,7 +16,7 @@ class Game {
 public:
 	Game(int rows, int cols);
 	~Game() = default;
-	
+
 	void init();
 	void render();
 	bool handleInput();
@@ -55,7 +55,7 @@ public:
 	bool isGameOver() const { return _isGameOver; }
 	bool isAITurn() { return _isAIEnabled && _currentPlayer == _aiColor; }
 	// Uncomment this for testing AI
-	// bool isAITurn() { return _isAIEnabled && _currentPlayer; }
+	//bool isAITurn() { return _isAIEnabled && _currentPlayer; }
 	bool isAIEnabled() { return _isAIEnabled; }
 
 	bool isOutside(int row, int col) { return row < 0 || row >= _rows || col < 0 || col >= _cols; }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <utility>
 #include <cstdint>
 #include <vector>
@@ -17,7 +18,7 @@ public:
 	bool isInvalidMove(int row, int col, int color);
 	std::pair<int, int> findBestMove(int color, int dep);
 	int minimax(int color, int dep, int alpha, int beta, bool isMax);
-    int moveHeuristic(int row, int col, int color);
+	int moveHeuristic(int row, int col, int color);
 	void sync();
 	std::vector<std::pair<int, int>> getOpeningMoves();
 	bool isCornerTaken(int cornerRow, int cornerCol, int radius = 3);
@@ -29,6 +30,7 @@ private:
 	GroupManager *_groupManager;
 	Game *_game;
 
+	int count = 0;
 	int _aiColor;
 	bool _isAB;
 	int _koRow;

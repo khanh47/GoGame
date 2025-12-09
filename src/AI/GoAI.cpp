@@ -7,6 +7,7 @@
 #include <algorithm>
 
 const int INF = 1e9;
+const int LIM = 40;
 
 GoAI::GoAI(Game *game, GroupManager *groupManager, bool isAB) {
 	_game = game;
@@ -195,15 +196,17 @@ std::pair<int, int> GoAI::findBestMove(int color, int dep) {
 	if (moves.empty()) return {-1, -1};
 	_aiColor = color;
 	_transpositionTable.clear();
+	count = 0;
 
-    std::sort(moves.begin(), moves.end(), [&](auto& a, auto& b) {
-        return moveHeuristic(a.first, a.second, color) > 
-               moveHeuristic(b.first, b.second, color);
-    });
+	std::sort(moves.begin(), moves.end(), [&](auto& a, auto& b) {
+		return moveHeuristic(a.first, a.second, color) >
+		moveHeuristic(b.first, b.second, color);
+	});
 
 	sync();
 	std::pair<int, int> bestMove = {-1, -1};
 	int bestValue = -INF;
+	int lim = dep == 4 ? moves.size() : LIM;
 
 	for (auto [row, col] : moves) {
 		if (_timeOut || checkTimeout())
@@ -248,13 +251,15 @@ int GoAI::minimax(int color, int dep, int alpha, int beta, bool isMax) {
 	if (moves.empty()) return evaluate();
 	int bestValue = isMax ? -INF : INF;
 
-    std::sort(moves.begin(), moves.end(), [&](auto& a, auto& b) {
-        return moveHeuristic(a.first, a.second, color) > 
-               moveHeuristic(b.first, b.second, color);
-    });
-	
+	std::sort(moves.begin(), moves.end(), [&](auto& a, auto& b) {
+		return moveHeuristic(a.first, a.second, color) >
+		moveHeuristic(b.first, b.second, color);
+	});
 
-	for (auto [row, col] : moves) {
+	int lim = dep == 4 ? moves.size() : LIM;
+
+	for (int i = 0; i < std::min(lim, (int) moves.size()); i++) {
+		auto [row, col] = moves[i];
 		if (isInvalidMove(row, col, color)) continue;
 		if (!_groupManager->applyMove(row, col, color)) {
 			_groupManager->undo();
@@ -279,7 +284,7 @@ int GoAI::minimax(int color, int dep, int alpha, int beta, bool isMax) {
 
 	if (bestValue == INF || bestValue == -INF) return evaluate();
 
-    _transpositionTable[hash] = bestValue;
+	_transpositionTable[hash] = bestValue;
 	return bestValue;
 }
 

@@ -31,7 +31,7 @@ void Game::render() {
     if (_lastRow >= 0 && _lastCol >= 0) {
         float x = PADDING + (_lastRow + 1) * _board->getCellSize();
         float y = PADDING + (_lastCol + 1) * _board->getCellSize();
-        
+
         DrawCircle(x, y, _board->getCellSize() * 0.1f, GRAY);
     }
     Vector2 mousePos = GetMousePosition();
@@ -53,8 +53,7 @@ void Game::passTurn() {
     _currentPlayer = _currentPlayer == 1 ? 2 : 1;
     if (_isLastTurnPass) {
         _isGameOver = true;
-		_scorePlayer1 += _groupManager->getTerritory(1);
-		_scorePlayer2 += _groupManager->getTerritory(2);
+				_groupManager->getTerritory(_scorePlayer1, _scorePlayer2, _currentPlayer);
 	}
     _isLastTurnPass = true;
     _hasKo = false;
@@ -105,7 +104,7 @@ bool Game::undo() {
 	} else {
 		_moveIndex--;
 	}
-    
+
     replayToIndex(_moveIndex);
 	return true;
 }

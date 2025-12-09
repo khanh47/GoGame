@@ -31,7 +31,7 @@ Board::~Board() {}
 void Board::init() {
 	_grid.resize(numRows, std::vector<int>(numCols, 0));
     const float BOARD_TOTAL_SIZE = 740.0f;
-    
+
     _cellSize = BOARD_TOTAL_SIZE / (numRows + 2);
 }
 
@@ -92,7 +92,7 @@ void Board::render() {
 
 	// Render Board
 	DrawRectangle(PADDING, PADDING, (numCols + 1) * _cellSize, (numRows + 1) * _cellSize, boardColor);
-	float lineThickness = 2.0f;  // Adjust this!  (1.0 = thin, 2-3 = medium, 4+ = thick)
+	float lineThickness = 2.0f;
 
 	// Horizontal lines
 	for (int i = 1; i <= numRows; i++) {
@@ -110,6 +110,9 @@ void Board::render() {
 	
 	// Draw star points (Hoshi)
 	renderStarPoints();
+
+  // Draw star points (Hoshi)
+  renderStarPoints();
 
 	// Render Stones
 	ThemeType stoneTheme = SettingsData::getInstance().getStoneTheme();
