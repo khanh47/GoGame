@@ -53,7 +53,8 @@ void Game::passTurn() {
     _currentPlayer = _currentPlayer == 1 ? 2 : 1;
     if (_isLastTurnPass) {
         _isGameOver = true;
-				_groupManager->getTerritory(_scorePlayer1, _scorePlayer2, _currentPlayer);
+		_scorePlayer1 += _groupManager->getTerritory(1);
+		_scorePlayer2 += _groupManager->getTerritory(2);
 	}
     _isLastTurnPass = true;
     _hasKo = false;

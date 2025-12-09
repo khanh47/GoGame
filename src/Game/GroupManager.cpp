@@ -321,10 +321,8 @@ std::tuple<int, int, int, int> GroupManager::getAliveGroupAndTerritory(int color
 }
 
 int GroupManager::getTerritory(int color) {
+	int score = 0;
 	std::vector<bool> visited(_rows * _cols, false);
-	std::vector<int> eyeCount(_rows * _cols, 0);
-	int myEye = 0;
-	int oppEye = 0;
 
 	for (int row = 0; row < _rows; row++) {
 		for (int col = 0; col < _cols; col++) {
@@ -334,7 +332,6 @@ int GroupManager::getTerritory(int color) {
 			if (_groups[pos].valid || visited[pos]) continue;
 
 			std::queue<int> q;
-			std::vector<int> groupList;
 			int count = 0;
 			bool touchedColor = false;
 			bool touchedOther = false;
@@ -353,7 +350,6 @@ int GroupManager::getTerritory(int color) {
 					int npos = encode(nrow, ncol);
 					npos = find(npos);
 					if (_groups[npos].valid) {
-						groupList.push_back(pos);
 						if (_groups[npos].color == color) {
 							touchedColor = true;
 						} else {
@@ -366,26 +362,11 @@ int GroupManager::getTerritory(int color) {
 				}
 			}
 			if (touchedColor && !touchedOther) {
-				for (int i : groupList) {
-					eyeCount[i]++;
-					if (eyeCount[i] == 2) {
-						myEye++;
-					}
-				}
-				myScore += count;
-			}
-			if (!touchedColor && touchedOther) {
-				oppScore += count;
-				for (int i : groupList) {
-					eyeCount[i]++;
-					if (eyeCount[i] == 2) {
-						oppEye++;
-					}
-				}
+				score += count;
 			}
 		}
 	}
-	return {myEye, oppEye};
+	return score;
 }
 
 std::vector<std::pair<int, int>> GroupManager::getValidMoves(int radius, int color) {
@@ -403,7 +384,7 @@ std::vector<std::pair<int, int>> GroupManager::getValidMoves(int radius, int col
 		for (int col = 0; col < _cols; col++) {
 			int pos = encode(row, col);
 			pos = find(pos);
-			if (getValue(row, col) || isSelfCaptured(row, col, color) || isSeki(row, col)) continue;
+			if (getValue(row, col) || isSelfCaptured(row, col, color)) continue;
 			if (visited[pos] && owner[groupID[pos]] == oppColor) continue;
 			bool canGet = false;
 			for (int dx = -radius; dx <= radius && !canGet; dx++) {

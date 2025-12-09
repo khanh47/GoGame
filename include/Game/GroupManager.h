@@ -63,11 +63,10 @@ public:
 	void removeGroup(int root, std::vector<std::pair<int, int>>& removedStones);
 	std::pair<bool, std::vector<std::pair<int, int>>> makeMove(int row, int col, int color);
 
-	std::pair<int, int> getTerritory(int &myScore, int &oppScore, int color);
+	int getTerritory(int color);
 	std::vector<std::pair<int, int>> getValidMoves(int radius, int color);
 	std::vector<std::pair<int, int>> getValidMovesAtRoot(int radius, int color);
 	bool applyMove(int row, int col, int color);
-	bool isSeki(int row, int col);
 	bool isSelfCaptured(int row, int col, int color);
 	void rollBack(int groupChangeCount, int libertyChangeCount);
 	std::tuple<int, int, int, int> getAliveGroupAndTerritory(int color);
@@ -100,6 +99,5 @@ private:
     uint64_t _currentHash = 0;
     
     void initZobrist();
-    uint64_t computeHash() const;
 };
 
