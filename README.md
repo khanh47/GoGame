@@ -139,7 +139,7 @@ GoGame/
 │   ├── Resource/             # Resource and settings management
 │   └── Scene/                # Scene management
 ├── src/                      # Source files
-│   ├── AI/                   # Minimax and alpha-beta algorithm for bot
+│   ├── AI/                  
 │   ├── Commands/
 │   ├── Game/
 │   ├── GameData/
@@ -257,3 +257,4 @@ This project is part of an academic assignment for Introduction to Computer Scie
 ---
 
 For questions or issues, please open an issue on the GitHub repository or contact the development team.
+
