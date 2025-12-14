@@ -45,7 +45,7 @@ private:
 	static constexpr int dy[4] = {0, 1, 0, -1};
 
 private:
-	static constexpr int MAX_TIME_MS = 5000;
+	static constexpr int MAX_TIME_MS = 3000;
 	std::chrono::high_resolution_clock::time_point _timeLimit;
 	bool _timeOut = false;
 	void startTimer();
