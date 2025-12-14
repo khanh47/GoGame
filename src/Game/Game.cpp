@@ -195,6 +195,8 @@ bool Game::applyMove(int row, int col, bool isReplay) {
 		_isLastTurnPass = false;
 		_lastRow = row;
 		_lastCol = col;
+	} else {
+		_groupManager->undo();
 	}
 	return valid;
 }
