@@ -89,11 +89,6 @@ This command will:
 3. Run the executable
 4. Clean up the binary after execution
 
-### Build Only (Without Running)
-```bash
-make compile
-```
-
 ### Clean Build Files
 ```bash
 make clean
@@ -110,13 +105,7 @@ make
 
 ### Option 2: Direct Execution
 ```bash
-./run
-```
-
-### Option 3: Build Then Run Separately
-```bash
-make compile
-./run
+./run.exe
 ```
 
 ## Project Structure
