@@ -70,7 +70,7 @@ jobs:
     
     - name: Build for Web
       run: |
-        # Build web version without shell file if it doesn't work
+        # Build web version with custom shell template
         emcc -std=c++20 \
           -Iinclude \
           -Iinclude/Scene \
@@ -94,7 +94,10 @@ jobs:
           -s TOTAL_MEMORY=67108864 \
           -s ALLOW_MEMORY_GROWTH=1 \
           --preload-file assets \
-          $(find src -name "*.cpp") \
+          --shell-file web/shell.html \
+          src/*.cpp \
+          src/*/*.cpp \
+          src/*/*/*.cpp \
           -o gogame.html
     
     - name: Create index redirect

@@ -54,6 +54,8 @@ EMCC_FLAGS = -std=c++20 \
 	--preload-file assets \
 	--shell-file web/shell.html
 
+.PHONY: all clean web clean-web help
+
 all: clean $(TARGET)
 	@echo "Build complete! Running program..."
 	@./$(TARGET)
@@ -74,3 +76,17 @@ clean:
 
 clean-web:
 	rm -rf web_build
+
+help:
+	@echo "GoGame Build System"
+	@echo "==================="
+	@echo ""
+	@echo "Targets:"
+	@echo "  make              - Build and run desktop version (default)"
+	@echo "  make $(TARGET)    - Build desktop executable only"
+	@echo "  make web          - Build web version (requires Emscripten)"
+	@echo "  make clean        - Remove desktop build files"
+	@echo "  make clean-web    - Remove web build files"
+	@echo "  make help         - Show this help message"
+	@echo ""
+	@echo "For web deployment, see GETTING_ONLINE.md"
