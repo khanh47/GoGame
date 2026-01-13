@@ -11,6 +11,13 @@
 
 # Build files
 build
+web_build
+
+# Web build artifacts
+*.wasm
+*.data
+gogame.html
+gogame.js
 
 # makefile
 # Makefile

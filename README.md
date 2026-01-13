@@ -2,14 +2,20 @@
 
 A modern implementation of the traditional **Go** board game featuring a simple, responsive UI built with **C++** and the **Raylib** graphics library.
 
+[![Build and Deploy](https://github.com/khanh47/GoGame/actions/workflows/deploy.yml/badge.svg)](https://github.com/khanh47/GoGame/actions/workflows/deploy.yml)
+
+🎮 **[Play Online Now!](https://khanh47.github.io/GoGame/)** | 📖 **[Deployment Guide](DEPLOYMENT.md)**
+
 ---
 
 ## Table of Contents
 - [Overview](#overview)
+- [Play Online](#play-online)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Building](#building)
 - [Running](#running)
+- [Web Deployment](#web-deployment)
 - [Project Structure](#project-structure)
 - [Controls](#controls)
 - [Features](#features)
@@ -30,6 +36,24 @@ It focuses on clarity and modularity, demonstrating a clean object-oriented arch
 - Undo/redo command system
 - AI bot using Minimax and alpha-beta pruning
 - Rendering and input handled by Raylib
+- **Playable in web browsers via WebAssembly**
+- **Automated CI/CD with GitHub Actions**
+
+---
+
+## Play Online
+
+🌐 **No installation required!** Play directly in your browser:
+
+**[https://khanh47.github.io/GoGame/](https://khanh47.github.io/GoGame/)**
+
+The web version includes:
+- Full game functionality
+- Works on desktop and mobile devices
+- No downloads or plugins needed
+- Hosted for free on GitHub Pages
+
+For detailed deployment instructions, see the [Deployment Guide](DEPLOYMENT.md).
 
 ---
 
@@ -79,7 +103,9 @@ cd GoGame
 
 The project uses a Makefile for compilation with automatic dependency detection.
 
-### Quick Build & Run
+### Desktop Build (Windows)
+
+#### Quick Build & Run
 ```bash
 make
 ```
@@ -89,10 +115,65 @@ This command will:
 3. Run the executable
 4. Clean up the binary after execution
 
+### Build Executable Only
+```bash
+make run.exe
+```
+This creates the executable without running or cleaning it.
+
 ### Clean Build Files
 ```bash
 make clean
 ```
+
+## Web Deployment
+
+Build and deploy the game as a web application that runs in browsers.
+
+### Prerequisites for Web Build
+
+Install Emscripten SDK:
+```bash
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+```
+
+### Build for Web
+```bash
+make web
+```
+
+This creates web build files in the `web_build/` directory:
+- `gogame.html` - Main page
+- `gogame.js` - JavaScript code
+- `gogame.wasm` - WebAssembly binary
+- `gogame.data` - Game assets
+
+### Test Locally
+```bash
+cd web_build
+python -m http.server 8000
+# Open http://localhost:8000 in your browser
+```
+
+### Deploy to GitHub Pages
+
+The repository includes automated GitHub Actions workflows that:
+1. Build the web version automatically on every push
+2. Deploy to GitHub Pages
+3. Create releases for tagged versions
+
+Simply enable GitHub Pages in your repository settings:
+- Go to Settings → Pages
+- Source: GitHub Actions
+- The workflow will handle the rest!
+
+Your game will be live at: `https://[username].github.io/GoGame/`
+
+For complete deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Running
 

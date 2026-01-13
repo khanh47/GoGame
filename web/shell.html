@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoGame - Play Online</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .game-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #canvas {
+            display: block;
+            border-radius: 10px;
+            background-color: #1a1a1a;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .controls h3 {
+            margin-top: 0;
+        }
+
+        .controls ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .controls li {
+            margin: 8px 0;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .controls li strong {
+            color: #ffd700;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9em;
+            max-width: 600px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+        }
+
+        .footer a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .game-container {
+                padding: 10px;
+            }
+
+            #canvas {
+                max-width: 100%;
+                height: auto !important;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 GoGame</h1>
+            <p>Classic Go Board Game - Play in Your Browser</p>
+        </div>
+
+        <div class="game-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Loading game assets...</div>
+                <div style="font-size: 0.8em; margin-top: 10px;">This may take a moment</div>
+            </div>
+            <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+        </div>
+
+        <div class="controls">
+            <h3>🎯 Controls</h3>
+            <ul>
+                <li><strong>Mouse Click:</strong> Place stones and navigate menus</li>
+                <li><strong>Mouse Hover:</strong> Preview moves and see highlights</li>
+                <li><strong>Menu Button:</strong> Access save/load/undo/redo options</li>
+                <li><strong>ESC:</strong> Return to main menu</li>
+            </ul>
+        </div>
+
+        <div class="status" id="status">
+            Initializing game engine...
+        </div>
+
+        <div class="footer">
+            <p>Made with ❤️ using C++ and Raylib</p>
+            <p><a href="https://github.com/khanh47/GoGame" target="_blank">View on GitHub</a> | 
+               <a href="https://github.com/khanh47/GoGame/blob/main/README.md" target="_blank">Documentation</a></p>
+        </div>
+    </div>
+
+    <script type='text/javascript'>
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: (function() {
+                return function(text) {
+                    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                    console.log(text);
+                };
+            })(),
+            printErr: function(text) {
+                if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+                console.error(text);
+            },
+            canvas: (function() {
+                var canvas = document.getElementById('canvas');
+                canvas.addEventListener("webglcontextlost", function(e) { 
+                    alert('WebGL context lost. You will need to reload the page.'); 
+                    e.preventDefault(); 
+                }, false);
+                return canvas;
+            })(),
+            setStatus: function(text) {
+                var statusElement = document.getElementById('status');
+                var loadingElement = document.getElementById('loading');
+                
+                if (!text) {
+                    if (loadingElement) loadingElement.classList.add('hidden');
+                    if (statusElement) statusElement.textContent = 'Game loaded successfully! Enjoy playing!';
+                } else if (text.includes('Downloading') || text.includes('Preparing')) {
+                    if (statusElement) statusElement.textContent = text;
+                } else {
+                    console.log('Status:', text);
+                }
+            },
+            totalDependencies: 0,
+            monitorRunDependencies: function(left) {
+                this.totalDependencies = Math.max(this.totalDependencies, left);
+                Module.setStatus(left ? 
+                    'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 
+                    '');
+            }
+        };
+        
+        Module.setStatus('Downloading...');
+        
+        window.onerror = function(event) {
+            Module.setStatus('Exception thrown, see JavaScript console');
+            Module.setStatus = function(text) {
+                if (text) console.error('[post-exception status] ' + text);
+            };
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>
